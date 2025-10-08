@@ -19,5 +19,9 @@
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@netlify/functions": "^4.2.7",
+    "serverless-http": "^4.0.0"
   }
 }
