@@ -1,5 +1,6 @@
-import express, { Request, Response, Router } from "express";
-import serverless from "serverless-http";
+import express from 'express';
+import serverless from 'serverless-http';
+import routes from '../../src/routes';
 
 // Initialize express app
 const api = express();
@@ -7,38 +8,22 @@ const api = express();
 // Middleware
 api.use(express.json());
 
-// Create router
-const router = Router();
-
-// Test endpoint
-router.get("/hello", (req: Request, res: Response) => {
-  return res.status(200).json({ message: "Hello from Mahakama API!" });
-});
-
-// Health check endpoint
-router.get("/health", (req: Request, res: Response) => {
-  return res.status(200).json({ 
-    status: "ok", 
-    timestamp: new Date().toISOString() 
-  });
-});
-
-// Mount router
-api.use("/.netlify/functions/api", router);
+// Mount routes
+api.use('/.netlify/functions/api', routes);
 
 // Error handling middleware
-api.use((err: Error, req: Request, res: Response, next: Function) => {
+api.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
   return res.status(500).json({ 
-    error: "Something went wrong!",
-    message: err.message 
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong!'
   });
 });
 
 // Handle 404
-api.use((req: Request, res: Response) => {
+api.use((req: express.Request, res: express.Response) => {
   return res.status(404).json({ 
-    error: "Not Found",
+    error: 'Not Found',
     message: `Route ${req.originalUrl} not found` 
   });
 });
