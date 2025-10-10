@@ -74,7 +74,20 @@ export const createLawyerSchema = z.object({
 export const updateLawyerSchema = createLawyerSchema.partial();
 
 // Schema for lawyer responses
-export const lawyerResponseSchema = createSelectSchema(lawyersTable);
+export const lawyerResponseSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+  specialization: z.string(),
+  experienceYears: z.number(),
+  rating: z.union([z.string(), z.number()]).transform(val => val.toString()),
+  casesHandled: z.number(),
+  isAvailable: z.boolean(),
+  location: z.string(),
+  languages: z.array(z.string()),
+  createdAt: z.date(),
+  updatedAt: z.date()
+});
 
 // Types
 export type CreateLawyerInput = z.infer<typeof createLawyerSchema>;
