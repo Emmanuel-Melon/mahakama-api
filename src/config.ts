@@ -8,6 +8,7 @@ interface IConfig {
   isDevelopment: boolean;
   netlifyDatabaseUrl?: string;
   netlifyDatabaseUrlUnpooled?: string;
+  geminiApiKey?: string;
 }
 
 const env = process.env.NODE_ENV || "development";
@@ -19,6 +20,7 @@ const config: IConfig = {
   isDevelopment: env === "development",
   netlifyDatabaseUrl: process.env.NETLIFY_DATABASE_URL,
   netlifyDatabaseUrlUnpooled: process.env.NETLIFY_DATABASE_URL_UNPOOLED,
+  geminiApiKey: process.env.GEMINI_API_KEY,
 };
 
 export { config, IConfig };
