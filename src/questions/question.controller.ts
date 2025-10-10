@@ -13,10 +13,10 @@ export const processQuestion = async (req: Request, res: Response) => {
     }
 
     // Create system prompt for legal context
-    const systemPrompt = `You are a helpful legal assistant for the Kenyan legal system. 
+    const systemPrompt = `You are a helpful legal assistant for the South Sudanese and Ugandan legal system. 
     Provide clear, accurate, and concise answers to legal questions. 
     If you're unsure about any information, state that clearly. 
-    Focus on Kenyan law and legal procedures.`;
+    Focus on the South Sudanese and Ugandan laws and legal procedures.`;
 
     const messages: Message[] = [
       { role: 'system', content: systemPrompt },
