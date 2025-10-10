@@ -1,5 +1,5 @@
-import { config } from './config';
-import app from './app';
+import { config } from "./config";
+import app from "./app";
 
 const port = config.port;
 
@@ -10,10 +10,10 @@ if (require.main === module) {
   });
 
   // Handle shutdown gracefully
-  process.on('SIGTERM', () => {
-    console.log('SIGTERM received. Shutting down gracefully');
+  process.on("SIGTERM", () => {
+    console.log("SIGTERM received. Shutting down gracefully");
     server.close(() => {
-      console.log('Process terminated');
+      console.log("Process terminated");
     });
   });
 }

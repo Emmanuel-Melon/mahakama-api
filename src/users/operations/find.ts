@@ -1,7 +1,7 @@
-import { db } from '../../lib/drizzle';
-import { usersTable } from '../user.schema';
-import { eq, ilike } from 'drizzle-orm';
-import type { User } from '../user.types';
+import { db } from "../../lib/drizzle";
+import { usersTable } from "../user.schema";
+import { eq, ilike } from "drizzle-orm";
+import type { User } from "../user.types";
 
 export async function findById(id: number): Promise<User | undefined> {
   const [user] = await db
@@ -10,10 +10,12 @@ export async function findById(id: number): Promise<User | undefined> {
     .where(eq(usersTable.id, id))
     .limit(1);
 
-  return user ? {
-    ...user,
-    role: user.role as 'user' | 'admin'
-  } : undefined;
+  return user
+    ? {
+        ...user,
+        role: user.role as "user" | "admin",
+      }
+    : undefined;
 }
 
 export async function findByEmail(email: string): Promise<User | undefined> {
@@ -23,8 +25,10 @@ export async function findByEmail(email: string): Promise<User | undefined> {
     .where(ilike(usersTable.email, email))
     .limit(1);
 
-  return user ? {
-    ...user,
-    role: user.role as 'user' | 'admin'
-  } : undefined;
+  return user
+    ? {
+        ...user,
+        role: user.role as "user" | "admin",
+      }
+    : undefined;
 }

@@ -1,7 +1,7 @@
-import express = require('express');
-import { Request, Response, NextFunction } from 'express';
-import { config } from './config';
-import routes from './routes';
+import express = require("express");
+import { Request, Response, NextFunction } from "express";
+import { config } from "./config";
+import routes from "./routes";
 
 const app = express();
 const port = config.port;
@@ -16,35 +16,35 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Health check endpoint (available at both /health and /api/health)
-app.get(['/health', '/api/health'], (req: Request, res: Response) => {
-  res.status(200).json({ 
-    status: 'ok', 
+app.get(["/health", "/api/health"], (req: Request, res: Response) => {
+  res.status(200).json({
+    status: "ok",
     timestamp: new Date().toISOString(),
-    service: 'Mahakama API',
-    version: process.env.npm_package_version || '1.0.0'
+    service: "Mahakama API",
+    version: process.env.npm_package_version || "1.0.0",
   });
 });
 
 // API routes - handle both /api/* and /* for Netlify Functions
-app.use('/api', routes); // For local development with /api prefix
+app.use("/api", routes); // For local development with /api prefix
 app.use(routes); // For Netlify Functions which already includes the /api prefix
 
 // Basic route
-app.get('/', (req: Request, res: Response) => {
-  res.json({ 
-    message: 'Welcome to Mahakama API Server',
-    documentation: process.env.NETLIFY_DEV 
-      ? 'http://localhost:3000/api-docs' 
-      : 'https://your-netlify-site.netlify.app/api-docs'
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    message: "Welcome to Mahakama API Server",
+    documentation: process.env.NETLIFY_DEV
+      ? "http://localhost:3000/api-docs"
+      : "https://your-netlify-site.netlify.app/api-docs",
   });
 });
 
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({
-    error: 'Not Found',
+    error: "Not Found",
     message: `Route ${req.originalUrl} not found`,
-    availableRoutes: ['/api/users', '/api/lawyers', '/health']
+    availableRoutes: ["/api/users", "/api/lawyers", "/health"],
   });
 });
 
@@ -52,10 +52,11 @@ app.use((req: Request, res: Response) => {
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' 
-      ? err.message 
-      : 'Something went wrong!'
+    error: "Internal Server Error",
+    message:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Something went wrong!",
   });
 });
 

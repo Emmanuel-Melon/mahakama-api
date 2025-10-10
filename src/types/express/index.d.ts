@@ -1,4 +1,4 @@
-import { CreateUserInput } from '../../users/user.middleware';
+import { CreateUserInput } from "../../users/user.middleware";
 
 declare global {
   namespace Express {
