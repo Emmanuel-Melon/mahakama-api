@@ -21,8 +21,6 @@ const config: IConfig = {
   netlifyDatabaseUrlUnpooled: process.env.NETLIFY_DATABASE_URL_UNPOOLED,
 };
 
-console.log("config", config);
-
 export { config, IConfig };
 
 export default config;

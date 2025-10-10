@@ -1,14 +1,6 @@
 import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { eq } from 'drizzle-orm';
-import { config } from '../src/config';
+import { db } from '../src/lib/drizzle';
 import { usersTable, type NewUser } from '../src/users/user.schema';
-
-if (!config.netlifyDatabaseUrl) {
-  throw new Error('DATABASE_URL environment variable is not set');
-}
-
-const db = drizzle(config.netlifyDatabaseUrl);
 
 const mockUsers: NewUser[] = [
   { 
