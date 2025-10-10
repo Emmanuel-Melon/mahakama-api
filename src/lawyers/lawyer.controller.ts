@@ -1,11 +1,17 @@
 import { Request, Response } from "express";
 import { findAll } from "./operations/list";
 import { findById, findByEmail } from "./operations/find";
+import { lawyerResponseSchema } from "./lawyer.schema";
 
 export const lawyerController = {
   async getLawyers(req: Request, res: Response) {
     try {
-      return res.status(200).json(await findAll());
+      const lawyers = await findAll();
+      // Validate response data against schema
+      const validatedLawyers = lawyers.map(lawyer => 
+        lawyerResponseSchema.parse(lawyer)
+      );
+      return res.status(200).json(validatedLawyers);
     } catch (error) {
       return res.status(500).json({
         error: "Failed to fetch lawyers",
@@ -24,7 +30,9 @@ export const lawyerController = {
         return res.status(404).json({ error: "Lawyer not found" });
       }
 
-      return res.status(200).json(lawyer);
+      // Validate response data against schema
+      const validatedLawyer = lawyerResponseSchema.parse(lawyer);
+      return res.status(200).json(validatedLawyer);
     } catch (error) {
       return res.status(500).json({
         error: "Failed to fetch lawyer",
@@ -50,7 +58,9 @@ export const lawyerController = {
         return res.status(404).json({ error: "Lawyer not found" });
       }
 
-      return res.status(200).json(lawyer);
+      // Validate response data against schema
+      const validatedLawyer = lawyerResponseSchema.parse(lawyer);
+      return res.status(200).json(validatedLawyer);
     } catch (error) {
       return res.status(500).json({
         error: "Failed to fetch lawyer by email",

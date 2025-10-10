@@ -9,6 +9,7 @@ import {
   numeric,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
+import { createSelectSchema } from "drizzle-zod";
 
 export const lawyersTable = pgTable("lawyers", {
   id: serial("id").primaryKey(),
@@ -69,6 +70,14 @@ export const createLawyerSchema = z.object({
   languages: z.array(z.string()).min(1, "At least one language is required"),
 });
 
+// Schema for creating/updating a lawyer
+export const updateLawyerSchema = createLawyerSchema.partial();
+
+// Schema for lawyer responses
+export const lawyerResponseSchema = createSelectSchema(lawyersTable);
+
+// Types
 export type CreateLawyerInput = z.infer<typeof createLawyerSchema>;
-export type Lawyer = typeof lawyersTable.$inferSelect;
+export type UpdateLawyerInput = z.infer<typeof updateLawyerSchema>;
+export type Lawyer = z.infer<typeof lawyerResponseSchema>;
 export type NewLawyer = typeof lawyersTable.$inferInsert;

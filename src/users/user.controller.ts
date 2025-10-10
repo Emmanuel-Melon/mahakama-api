@@ -2,13 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import { findAll } from "./operations/list";
 import { findById } from "./operations/find";
 import { createUser as createUserOperation } from "./operations/create";
-import { validateCreateUser } from "./user.middleware";
+import { userResponseSchema } from "./user.schema";
 
 export const userController = {
   async getUsers(req: Request, res: Response) {
     try {
       const users = await findAll();
-      return res.status(200).json(users);
+      // Validate response data against schema
+      const validatedUsers = users.map(user => userResponseSchema.parse(user));
+      return res.status(200).json(validatedUsers);
     } catch (error) {
       return res.status(500).json({
         error: "Failed to fetch users",
@@ -27,7 +29,9 @@ export const userController = {
         return res.status(404).json({ error: "User not found" });
       }
 
-      return res.status(200).json(user);
+      // Validate response data against schema
+      const validatedUser = userResponseSchema.parse(user);
+      return res.status(200).json(validatedUser);
     } catch (error) {
       return res.status(500).json({
         error: "Failed to fetch user",
@@ -47,7 +51,9 @@ export const userController = {
         role,
       });
 
-      return res.status(201).json(newUser);
+      // Validate response data against schema
+      const validatedUser = userResponseSchema.parse(newUser);
+      return res.status(201).json(validatedUser);
     } catch (error) {
       console.error("Error creating user:", error);
 

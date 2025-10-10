@@ -1,5 +1,6 @@
 import { pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 import { z } from "zod";
+import { createSelectSchema } from "drizzle-zod";
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -10,6 +11,7 @@ export const usersTable = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Schema for creating/updating a user
 export const createUserSchema = z.object({
   name: z
     .string()
@@ -22,6 +24,10 @@ export const createUserSchema = z.object({
   role: z.enum(["user", "admin"]).optional().default("user"),
 });
 
+// Schema for user responses
+export const userResponseSchema = createSelectSchema(usersTable);
+
+// Types
 export type CreateUserInput = z.infer<typeof createUserSchema>;
-export type User = typeof usersTable.$inferSelect;
+export type User = z.infer<typeof userResponseSchema>;
 export type NewUser = typeof usersTable.$inferInsert;
