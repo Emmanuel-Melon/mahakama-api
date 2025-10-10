@@ -25,8 +25,9 @@ app.get(['/health', '/api/health'], (req: Request, res: Response) => {
   });
 });
 
-// API routes
-app.use('/api', routes); // Mount routes under /api in both dev and production
+// API routes - handle both /api/* and /* for Netlify Functions
+app.use('/api', routes); // For local development with /api prefix
+app.use(routes); // For Netlify Functions which already includes the /api prefix
 
 // Basic route
 app.get('/', (req: Request, res: Response) => {
