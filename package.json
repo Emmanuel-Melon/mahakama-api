@@ -47,6 +47,8 @@
     "drizzle-zod": "^0.8.3",
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
+    "multer": "^2.0.2",
+    "pdf-parse": "^2.2.4",
     "serverless-http": "^4.0.0",
     "zod": "^4.1.12"
   }
