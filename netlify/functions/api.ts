@@ -26,8 +26,9 @@ if (process.env.NETLIFY_DEV) {
 // Create the serverless handler with base path handling
 export const handler = serverless(server, {
   request: (req: any) => {
-    // Remove the function path from the URL
-    req.url = req.url.replace('/.netlify/functions/api', '') || '/';
+    // Preserve the /api prefix when removing the function path
+    const path = req.url.replace('/.netlify/functions/api', '');
+    req.url = path.startsWith('/api') ? path : `/api${path}`;
     return req;
   }
 });
