@@ -73,7 +73,7 @@ export const createLawyerSchema = z.object({
 // Schema for creating/updating a lawyer
 export const updateLawyerSchema = createLawyerSchema.partial();
 
-// Schema for lawyer responses
+// Schema for a single lawyer response
 export const lawyerResponseSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -88,6 +88,9 @@ export const lawyerResponseSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
 });
+
+// Schema for an array of lawyers response
+export const lawyersListResponseSchema = z.array(lawyerResponseSchema);
 
 // Types
 export type CreateLawyerInput = z.infer<typeof createLawyerSchema>;
