@@ -1,7 +1,11 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { listDocuments } from "../operations/list";
 
-export const getDocuments = async (req: Request, res: Response) => {
+export const getDocuments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { type, limit, offset } = req.query;
 
@@ -20,10 +24,6 @@ export const getDocuments = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching documents:", error);
-    res.status(500).json({
-      error: "Failed to fetch legal documents",
-      details: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };

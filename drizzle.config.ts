@@ -6,6 +6,7 @@ import './src/users/user.schema';
 import './src/lawyers/lawyer.schema';
 import './src/questions/question.schema';
 import './src/documents/document.schema';
+import './src/chats/chat.schema';
 
 export default defineConfig({
   out: './drizzle',
@@ -14,6 +15,7 @@ export default defineConfig({
     './src/lawyers/lawyer.schema.ts',
     './src/questions/question.schema.ts',
     './src/documents/document.schema.ts',
+    './src/chats/chat.schema.ts',
   ],
   dialect: 'postgresql',
   dbCredentials: {

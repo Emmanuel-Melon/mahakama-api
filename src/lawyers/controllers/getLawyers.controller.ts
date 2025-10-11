@@ -1,20 +1,16 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { findAll } from "../operations/list";
 import { lawyerResponseSchema } from "../lawyer.schema";
+import { ApiError } from "../../middleware/errors";
 
-export const getLawyers = async (req: Request, res: Response) => {
+export const getLawyers = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const lawyers = await findAll();
+
     // Validate response data against schema
-    const validatedLawyers = lawyers.map((lawyer) =>
-      lawyerResponseSchema.parse(lawyer),
-    );
+    const validatedLawyers = lawyerResponseSchema.parse(lawyers);
     return res.status(200).json(validatedLawyers);
   } catch (error) {
-    return res.status(500).json({
-      error: "Failed to fetch lawyers",
-      message:
-        error instanceof Error ? error.message : "Unknown error occurred",
-    });
+    next(error);
   }
 };

@@ -3,7 +3,8 @@ import { pgTable, serial, text, timestamp, jsonb } from "drizzle-orm/pg-core";
 export const questionsTable = pgTable("questions", {
   id: serial("id").primaryKey(),
   question: text("question").notNull(),
-  answer: text("answer").notNull(),
+  status: text("status").notNull().default("pending"),
+  answer: text("answer").notNull().default(""),
   relatedDocuments: jsonb("related_documents")
     .$type<
       Array<{
@@ -26,6 +27,8 @@ export const questionsTable = pgTable("questions", {
     .default([]),
   country: text("country").notNull().default("South Sudan"),
   provider: text("provider").notNull().default("gemini"),
+  userId: text("user_id"), // Nullable for anonymous users
+  userFingerprint: text("user_fingerprint"), // Store fingerprint hash for anonymous users
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

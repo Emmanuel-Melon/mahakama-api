@@ -22,6 +22,7 @@
   "devDependencies": {
     "@netlify/functions": "^4.2.7",
     "@types/express": "^5.0.3",
+    "@types/express-useragent": "^1.0.5",
     "@types/node": "^24.7.0",
     "drizzle-kit": "^0.31.5",
     "express": "^5.1.0",
@@ -45,6 +46,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.6",
     "drizzle-zod": "^0.8.3",
+    "express-useragent": "^1.0.15",
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "multer": "^2.0.2",
