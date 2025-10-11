@@ -1,27 +1,55 @@
+import { db } from "../../lib/drizzle";
+import { chatSessions, chatMessages } from "../chat.schema";
+import { eq } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
 import { ChatMessage, AddMessageInput } from "../chat.types";
-import { chatSessions } from "../storage";
 
 export const sendMessage = async (
   input: AddMessageInput,
 ): Promise<ChatMessage> => {
   const { chatId, content, sender, questionId, metadata } = input;
-  const chat = chatSessions[chatId];
+  const messageId = uuidv4();
+  const timestamp = new Date();
 
-  if (!chat) {
-    throw new Error("Chat not found");
-  }
+  return db.transaction(async (tx) => {
+    // Verify chat exists and get current metadata
+    const [chat] = await tx
+      .select()
+      .from(chatSessions)
+      .where(eq(chatSessions.id, chatId))
+      .limit(1);
 
-  const message: ChatMessage = {
-    id: crypto.randomUUID(),
-    content,
-    sender,
-    timestamp: new Date(),
-    questionId,
-    metadata: metadata || {},
-  };
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
 
-  chat.messages.push(message);
-  chat.updatedAt = new Date();
+    // Insert the new message
+    await tx.insert(chatMessages).values({
+      id: messageId,
+      chatId,
+      content,
+      senderId: sender.id,
+      senderType: sender.type,
+      senderDisplayName: 'displayName' in sender ? (sender as any).displayName : null,
+      timestamp,
+      questionId,
+      metadata: metadata || {},
+    });
 
-  return message;
+    // Update the chat's updatedAt timestamp
+    await tx
+      .update(chatSessions)
+      .set({ updatedAt: timestamp })
+      .where(eq(chatSessions.id, chatId));
+
+    // Return the created message in the expected format
+    return {
+      id: messageId,
+      content,
+      sender,
+      timestamp,
+      questionId,
+      metadata: metadata || {},
+    };
+  });
 };

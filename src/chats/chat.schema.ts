@@ -36,3 +36,32 @@ export const RATE_LIMIT: RateLimitConfig = {
     maxRequests: 100, // 100 requests per day for registered users
   },
 };
+
+
+import { pgTable, uuid, text, jsonb, timestamp } from "drizzle-orm/pg-core";
+
+export const chatSessions = pgTable("chat_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").notNull(),
+  userType: text("user_type", { enum: ["user", "anonymous"] }).notNull(),
+  title: text("title").notNull(),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const chatMessages = pgTable("chat_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chatSessions.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  senderId: text("sender_id").notNull(),
+  senderType: text("sender_type", {
+    enum: ["user", "assistant", "system", "anonymous"],
+  }).notNull(),
+  senderDisplayName: text("sender_display_name"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  questionId: text("question_id"),
+  metadata: jsonb("metadata").default({}),
+});

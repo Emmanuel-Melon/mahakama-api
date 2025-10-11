@@ -1,32 +1,85 @@
+import { db } from "../../lib/drizzle";
+import { chatSessions, chatMessages } from "../chat.schema";
+import { eq } from "drizzle-orm";
 import { ChatSession } from "../chat.types";
-import { chatSessions } from "../storage";
 
 export interface UpdateChatParams {
   title?: string;
   metadata?: Record<string, any>;
-  // Add other updateable fields as needed
 }
 
 export const updateChat = async (
   chatId: string,
   updates: UpdateChatParams,
 ): Promise<ChatSession> => {
-  const chat = chatSessions[chatId];
+  try {
+    // First, get the current chat to ensure it exists
+    const [existingChat] = await db
+      .select()
+      .from(chatSessions)
+      .where(eq(chatSessions.id, chatId))
+      .limit(1);
 
-  if (!chat) {
-    throw new Error(`Chat with ID ${chatId} not found`);
+    if (!existingChat) {
+      throw new Error(`Chat with ID ${chatId} not found`);
+    }
+
+    // Prepare the update data
+    const updateData: any = {
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    // Handle metadata merge
+    if (updates.metadata) {
+      updateData.metadata = {
+        ...(existingChat.metadata as Record<string, any> || {}),
+        ...updates.metadata,
+      };
+    }
+
+    // Update the chat in the database
+    const [updatedChat] = await db
+      .update(chatSessions)
+      .set(updateData)
+      .where(eq(chatSessions.id, chatId))
+      .returning();
+
+    // Get the messages for this chat
+    const messages = await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.chatId, chatId))
+      .orderBy(chatMessages.timestamp);
+
+    // Transform messages to match ChatMessage type
+    const formattedMessages = messages.map(msg => ({
+      id: msg.id,
+      content: msg.content,
+      timestamp: msg.timestamp,
+      sender: {
+        id: msg.senderId,
+        type: (msg.senderType === 'system' ? 'assistant' : msg.senderType) as 'user' | 'assistant' | 'anonymous',
+        displayName: msg.senderDisplayName || undefined,
+      },
+      metadata: msg.metadata || {},
+      questionId: msg.questionId || undefined,
+    }));
+
+    return {
+      id: updatedChat.id,
+      title: updatedChat.title,
+      user: {
+        id: updatedChat.userId,
+        type: updatedChat.userType as 'user' | 'anonymous',
+      },
+      messages: formattedMessages,
+      metadata: updatedChat.metadata || {},
+      createdAt: updatedChat.createdAt,
+      updatedAt: updatedChat.updatedAt,
+    };
+  } catch (error) {
+    console.error(`Error updating chat ${chatId}:`, error);
+    throw error;
   }
-
-  const updatedChat: ChatSession = {
-    ...chat,
-    ...updates,
-    updatedAt: new Date(),
-    metadata: {
-      ...chat.metadata,
-      ...updates.metadata,
-    },
-  };
-
-  chatSessions[chatId] = updatedChat;
-  return updatedChat;
-};
+}

@@ -37,6 +37,10 @@ export const createQuestionHandler = async (
     // If no chatId provided, create a new chat
     if (!chatId) {
       chat = await createChat({
+        user: {
+          id: fingerprint.hash,
+          type: "anonymous",
+        },
         title: question.slice(0, 50) + (question.length > 50 ? "..." : ""),
         initialMessage: question,
         metadata: {
@@ -48,7 +52,9 @@ export const createQuestionHandler = async (
       chatId = chat.id;
     } else {
       // Get existing chat to ensure it exists
-      chat = await getChat(chatId);
+      // For authenticated users, use userId. For anonymous, use fingerprint
+      const userIdOrFingerprint = userId || fingerprint.hash;
+      chat = await getChat(chatId, userIdOrFingerprint);
       if (!chat) {
         throw new ApiError("Chat not found", 404, "CHAT_NOT_FOUND");
       }

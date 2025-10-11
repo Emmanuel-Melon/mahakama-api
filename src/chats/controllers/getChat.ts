@@ -9,10 +9,21 @@ export const getChatHandler = async (
 ) => {
   try {
     const { chatId } = req.params;
-    const chat = await getChat(chatId);
+    const userId = req.user?.id || req.fingerprint?.hash;
+    
+    if (!userId) {
+      throw new ApiError("User not authenticated", 401);
+    }
+
+    const chat = await getChat(chatId, userId);
 
     if (!chat) {
-      throw new ApiError("Chat not found", 404);
+      throw new ApiError("Chat not found", 404, "CHAT_NOT_FOUND");
+    }
+
+    // For anonymous users, verify the fingerprint matches
+    if (!req.user?.id && chat.metadata?.fingerprint !== req.fingerprint?.hash) {
+      throw new ApiError("Unauthorized access to chat", 403, "UNAUTHORIZED_CHAT_ACCESS");
     }
 
     res.status(200).json({

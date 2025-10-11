@@ -43,6 +43,13 @@
       "when": 1760193752747,
       "tag": "0005_bent_sauron",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1760211386343,
+      "tag": "0006_jazzy_maestro",
+      "breakpoints": true
     }
   ]
 }
