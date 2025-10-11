@@ -10,7 +10,8 @@ if (process.env.NETLIFY_DEV) {
   process.env.NODE_ENV = 'development';
 }
 
-// Mount the app at the root path
+// Mount the app at the root path for Netlify Functions
+// The '/api' prefix is already handled in the routes
 server.use('/', app);
 
 // For local development with Netlify Dev
@@ -22,7 +23,13 @@ if (process.env.NETLIFY_DEV) {
   });
 }
 
-// Create the serverless handler
-export const handler = serverless(server);
+// Create the serverless handler with base path handling
+export const handler = serverless(server, {
+  request: (req: any) => {
+    // Remove the function path from the URL
+    req.url = req.url.replace('/.netlify/functions/api', '') || '/';
+    return req;
+  }
+});
 
 export default handler;
