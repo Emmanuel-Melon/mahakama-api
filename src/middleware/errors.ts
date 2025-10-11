@@ -26,7 +26,7 @@ const routeErrorMessages = new Map<string, string>();
  */
 export function registerRouteErrorMessages(
   basePath: string,
-  message: string
+  message: string,
 ): void {
   routeErrorMessages.set(basePath, message);
 }
@@ -48,14 +48,14 @@ export function notFoundHandler(req: Request, res: Response) {
       message: `Route ${req.originalUrl} not found`,
       path: req.path,
       availableRoutes: [
-        "/api/users", 
-        "/api/lawyers", 
+        "/api/users",
+        "/api/lawyers",
         "/api/documents",
         "/api/questions",
-        "/health"
+        "/health",
       ],
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
 }
 
@@ -68,7 +68,7 @@ export function catchErrors(
   const statusCode = err.statusCode || 500;
   const isProduction = process.env.NODE_ENV === "production";
   const errorMessage = err.message || getRouteErrorMessage(req.path);
-  
+
   // Log the full error in development, but only the message in production
   if (isProduction) {
     console.error(`[${new Date().toISOString()}] Error: ${errorMessage}`, {
@@ -116,7 +116,9 @@ export function catchErrors(
 
   // Include stack trace in development
   if (!isProduction && err.stack) {
-    errorResponse.error.stack = err.stack.split("\n").map(line => line.trim());
+    errorResponse.error.stack = err.stack
+      .split("\n")
+      .map((line) => line.trim());
   }
 
   res.status(statusCode).json(errorResponse);
@@ -135,14 +137,14 @@ export class ApiError extends Error {
     statusCode: number = 500,
     code: string = "INTERNAL_ERROR",
     details?: Record<string, unknown>,
-    metadata?: ErrorMetadata
+    metadata?: ErrorMetadata,
   ) {
     super(message);
     this.statusCode = statusCode;
     this.code = code;
     this.details = details;
     this.metadata = metadata;
-    
+
     // Maintain proper stack trace
     Error.captureStackTrace(this, this.constructor);
   }
@@ -155,47 +157,35 @@ export class ApiError extends Error {
 
 export class NotFoundError extends ApiError {
   constructor(
-    resource: string, 
+    resource: string,
     details?: Record<string, unknown>,
-    metadata?: ErrorMetadata
+    metadata?: ErrorMetadata,
   ) {
-    super(
-      `${resource} not found`, 
-      404, 
-      "NOT_FOUND", 
-      details,
-      { 
-        resourceType: resource.toLowerCase(),
-        ...metadata 
-      }
-    );
+    super(`${resource} not found`, 404, "NOT_FOUND", details, {
+      resourceType: resource.toLowerCase(),
+      ...metadata,
+    });
   }
 }
 
 export class ValidationError extends ApiError {
   constructor(
-    message: string, 
+    message: string,
     details?: Record<string, unknown>,
-    metadata?: ErrorMetadata
+    metadata?: ErrorMetadata,
   ) {
     super(message, 400, "VALIDATION_ERROR", details, metadata);
   }
 }
 
 export class UnauthorizedError extends ApiError {
-  constructor(
-    message = "Unauthorized access",
-    metadata?: ErrorMetadata
-  ) {
+  constructor(message = "Unauthorized access", metadata?: ErrorMetadata) {
     super(message, 401, "UNAUTHORIZED", undefined, metadata);
   }
 }
 
 export class ForbiddenError extends ApiError {
-  constructor(
-    message = "Insufficient permissions",
-    metadata?: ErrorMetadata
-  ) {
+  constructor(message = "Insufficient permissions", metadata?: ErrorMetadata) {
     super(message, 403, "FORBIDDEN", undefined, metadata);
   }
 }

@@ -23,7 +23,7 @@ export const processQuestionById = async (
 
     // Get the question from the database
     const question = await getQuestionById(questionId);
-    
+
     if (!question) {
       throw new NotFoundError("Question", { id: questionId });
     }
@@ -44,7 +44,10 @@ export const processQuestionById = async (
   }
 };
 
-async function processQuestionInBackground(questionId: number, questionText: string) {
+async function processQuestionInBackground(
+  questionId: number,
+  questionText: string,
+) {
   const messages: Message[] = [
     { role: "system", content: systemPrompt },
     { role: "user", content: questionText },
@@ -104,7 +107,7 @@ async function processQuestionInBackground(questionId: number, questionText: str
     console.log(`Successfully processed question ${questionId}`);
   } catch (error) {
     console.error(`Error processing question ${questionId}:`, error);
-    
+
     // Update question status to failed
     await updateQuestion(questionId, {
       status: "failed" as QuestionStatus,

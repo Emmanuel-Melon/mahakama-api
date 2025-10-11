@@ -67,7 +67,9 @@ export async function updateQuestion(
   };
 }
 
-export async function findQuestionByQuestion(questionText: string): Promise<Question | null> {
+export async function findQuestionByQuestion(
+  questionText: string,
+): Promise<Question | null> {
   const [question] = await db
     .select()
     .from(questionsTable)

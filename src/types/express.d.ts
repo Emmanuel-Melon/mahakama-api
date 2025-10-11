@@ -1,4 +1,4 @@
-import { RequestFingerprint } from '../middleware/fingerprint';
+import { RequestFingerprint } from "../middleware/fingerprint";
 
 declare global {
   namespace Express {

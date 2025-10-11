@@ -1,5 +1,5 @@
-import { ChatSession } from '../chat.types';
-import { chatSessions } from '../storage';
+import { ChatSession } from "../chat.types";
+import { chatSessions } from "../storage";
 
 export interface UpdateChatParams {
   title?: string;
@@ -9,10 +9,10 @@ export interface UpdateChatParams {
 
 export const updateChat = async (
   chatId: string,
-  updates: UpdateChatParams
+  updates: UpdateChatParams,
 ): Promise<ChatSession> => {
   const chat = chatSessions[chatId];
-  
+
   if (!chat) {
     throw new Error(`Chat with ID ${chatId} not found`);
   }

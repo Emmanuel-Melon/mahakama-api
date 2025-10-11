@@ -1,6 +1,11 @@
-import { v4 as uuidv4 } from 'uuid';
-import { ChatSession, BaseUser, ChatMessage, createBaseUser } from '../chat.types';
-import { chatSessions } from '../storage';
+import { v4 as uuidv4 } from "uuid";
+import {
+  ChatSession,
+  BaseUser,
+  ChatMessage,
+  createBaseUser,
+} from "../chat.types";
+import { chatSessions } from "../storage";
 
 interface CreateChatParams {
   title: string;
@@ -9,16 +14,20 @@ interface CreateChatParams {
   user?: BaseUser;
 }
 
-export const createChat = async (input: CreateChatParams): Promise<ChatSession> => {
+export const createChat = async (
+  input: CreateChatParams,
+): Promise<ChatSession> => {
   const chatId = uuidv4();
   const now = new Date();
-  
+
   // Create a default user if none provided
-  const user = input.user || createBaseUser(
-    input.metadata?.fingerprint || uuidv4(),
-    input.metadata?.userId ? 'user' : 'anonymous'
-  );
-  
+  const user =
+    input.user ||
+    createBaseUser(
+      input.metadata?.fingerprint || uuidv4(),
+      input.metadata?.userId ? "user" : "anonymous",
+    );
+
   const newChat: ChatSession = {
     id: chatId,
     user,
@@ -35,9 +44,9 @@ export const createChat = async (input: CreateChatParams): Promise<ChatSession> 
       id: uuidv4(),
       content: input.initialMessage,
       sender: {
-        id: 'system',
-        type: 'assistant',
-        displayName: 'Assistant'
+        id: "system",
+        type: "assistant",
+        displayName: "Assistant",
       },
       timestamp: now,
       metadata: {},

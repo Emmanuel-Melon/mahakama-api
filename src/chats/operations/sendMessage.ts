@@ -1,12 +1,14 @@
-import { ChatMessage, AddMessageInput } from '../chat.types';
-import { chatSessions } from '../storage';
+import { ChatMessage, AddMessageInput } from "../chat.types";
+import { chatSessions } from "../storage";
 
-export const sendMessage = async (input: AddMessageInput): Promise<ChatMessage> => {
+export const sendMessage = async (
+  input: AddMessageInput,
+): Promise<ChatMessage> => {
   const { chatId, content, sender, questionId, metadata } = input;
   const chat = chatSessions[chatId];
-  
+
   if (!chat) {
-    throw new Error('Chat not found');
+    throw new Error("Chat not found");
   }
 
   const message: ChatMessage = {
@@ -20,6 +22,6 @@ export const sendMessage = async (input: AddMessageInput): Promise<ChatMessage> 
 
   chat.messages.push(message);
   chat.updatedAt = new Date();
-  
+
   return message;
 };

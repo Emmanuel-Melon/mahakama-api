@@ -1,10 +1,10 @@
-import { z } from 'zod';
-import { RateLimitConfig } from './chat.types';
+import { z } from "zod";
+import { RateLimitConfig } from "./chat.types";
 
 // Schema for creating a new chat
 export const createChatSchema = z.object({
   body: z.object({
-    title: z.string().min(1, 'Title is required').max(100, 'Title is too long'),
+    title: z.string().min(1, "Title is required").max(100, "Title is too long"),
     initialMessage: z.string().optional(),
     metadata: z.record(z.string(), z.any()).optional(),
   }),
@@ -13,7 +13,7 @@ export const createChatSchema = z.object({
 // Schema for sending a message
 export const sendMessageSchema = z.object({
   body: z.object({
-    content: z.string().min(1, 'Message content is required'),
+    content: z.string().min(1, "Message content is required"),
     metadata: z.record(z.string(), z.any()).optional(),
   }),
 });
@@ -21,7 +21,7 @@ export const sendMessageSchema = z.object({
 // Schema for chat ID in params
 export const chatIdSchema = z.object({
   params: z.object({
-    chatId: z.string().min(1, 'Chat ID is required'),
+    chatId: z.string().min(1, "Chat ID is required"),
   }),
 });
 

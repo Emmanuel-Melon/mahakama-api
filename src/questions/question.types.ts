@@ -6,7 +6,7 @@ export const QuestionStatus = z.enum([
   "pending",
   "processing",
   "completed",
-  "failed"
+  "failed",
 ]);
 
 export type QuestionStatus = z.infer<typeof QuestionStatus>;
@@ -19,20 +19,24 @@ export const createQuestionSchema = z.object({
   isRoot: z.boolean().default(false),
   userId: z.string().optional(),
   userFingerprint: z.string().optional(),
-  relatedDocuments: z.array(
-    z.object({
-      id: z.number(),
-      title: z.string(),
-      description: z.string(),
-      url: z.string(),
-    }),
-  ).default([]),
-  relevantLaws: z.array(
-    z.object({
-      title: z.string(),
-      description: z.string(),
-    }),
-  ).default([]),
+  relatedDocuments: z
+    .array(
+      z.object({
+        id: z.number(),
+        title: z.string(),
+        description: z.string(),
+        url: z.string(),
+      }),
+    )
+    .default([]),
+  relevantLaws: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+    )
+    .default([]),
   country: z.string().default("South Sudan"),
   provider: z.string().default("gemini"),
 });

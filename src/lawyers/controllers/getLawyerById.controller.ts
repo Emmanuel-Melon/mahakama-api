@@ -3,16 +3,16 @@ import { findById } from "../operations/find";
 import { lawyerResponseSchema } from "../lawyer.schema";
 import { ApiError, NotFoundError } from "../../middleware/errors";
 
-export const getLawyerById = async (req: Request, res: Response, next: NextFunction) => {
+export const getLawyerById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const lawyerId = parseInt(req.params.id);
-    
+
     if (isNaN(lawyerId)) {
-      throw new ApiError(
-        "Invalid lawyer ID",
-        400,
-        "INVALID_LAWYER_ID"
-      );
+      throw new ApiError("Invalid lawyer ID", 400, "INVALID_LAWYER_ID");
     }
 
     const lawyer = await findById(lawyerId);

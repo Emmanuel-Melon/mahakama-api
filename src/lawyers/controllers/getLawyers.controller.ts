@@ -3,7 +3,11 @@ import { findAll } from "../operations/list";
 import { lawyerResponseSchema } from "../lawyer.schema";
 import { ApiError } from "../../middleware/errors";
 
-export const getLawyers = async (_req: Request, res: Response, next: NextFunction) => {
+export const getLawyers = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const lawyers = await findAll();
 

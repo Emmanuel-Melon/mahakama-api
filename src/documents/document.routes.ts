@@ -8,7 +8,7 @@ import { registerRouteErrorMessages } from "../middleware/errors";
 const BASE_PATH = "/api/documents";
 registerRouteErrorMessages(
   BASE_PATH,
-  "An error occurred while processing your document request"
+  "An error occurred while processing your document request",
 );
 
 const documentRoutes = Router();

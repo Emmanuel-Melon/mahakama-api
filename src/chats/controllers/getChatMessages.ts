@@ -1,17 +1,17 @@
-import { Request, Response, NextFunction } from 'express';
-import { getChatMessages } from '../operations/getChatMessages';
+import { Request, Response, NextFunction } from "express";
+import { getChatMessages } from "../operations/getChatMessages";
 
 export const getChatMessagesHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { chatId } = req.params;
     const messages = await getChatMessages(chatId);
-    
+
     res.status(200).json({
-      status: 'success',
+      status: "success",
       results: messages.length,
       data: {
         messages,

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../../middleware/errors";
 import { createQuestion } from "../operations/create";
 import { processQuestion as processQuestionOperation } from "../operations/process";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 // Extend Express Request type to include user and fingerprint
 declare global {
@@ -18,7 +18,11 @@ declare global {
   }
 }
 
-export const processQuestion = async (req: Request, res: Response, next: NextFunction) => {
+export const processQuestion = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { question, country = "South Sudan", chatId } = req.body;
 
@@ -45,14 +49,16 @@ export const processQuestion = async (req: Request, res: Response, next: NextFun
       provider: "gemini",
       // Include user information if available
       ...(userId && { userId }),
-      ...(userFingerprint && { userFingerprint })
+      ...(userFingerprint && { userFingerprint }),
     });
 
     // Process the question in the background
-    processQuestionOperation(question, createdQuestion.id)
-      .catch(error => {
-        console.error(`Background processing failed for question ${createdQuestion.id}:`, error);
-      });
+    processQuestionOperation(question, createdQuestion.id).catch((error) => {
+      console.error(
+        `Background processing failed for question ${createdQuestion.id}:`,
+        error,
+      );
+    });
 
     // Return the created question with processing status
     return res.status(202).json({
@@ -64,4 +70,3 @@ export const processQuestion = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
-

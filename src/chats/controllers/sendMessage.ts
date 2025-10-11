@@ -1,16 +1,17 @@
-import { Request, Response, NextFunction } from 'express';
-import { sendMessage } from '../operations/sendMessage';
-import { AddMessageInput } from '../chat.types';
+import { Request, Response, NextFunction } from "express";
+import { sendMessage } from "../operations/sendMessage";
+import { AddMessageInput } from "../chat.types";
 
 export const sendMessageHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { chatId } = req.params;
-    const { content, sender, questionId, metadata } = req.body as AddMessageInput;
-    
+    const { content, sender, questionId, metadata } =
+      req.body as AddMessageInput;
+
     const message = await sendMessage({
       chatId,
       content,
@@ -18,9 +19,9 @@ export const sendMessageHandler = async (
       questionId,
       metadata,
     });
-    
+
     res.status(201).json({
-      status: 'success',
+      status: "success",
       data: {
         message,
       },

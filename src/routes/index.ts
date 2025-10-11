@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { documentRoutes, BASE_PATH as DOCUMENTS_PATH } from "../documents/document.routes";
+import {
+  documentRoutes,
+  BASE_PATH as DOCUMENTS_PATH,
+} from "../documents/document.routes";
 import userRoutes from "../users/user.routes";
 import lawyerRoutes from "../lawyers/lawyer.routes";
 import questionRoutes from "../questions/question.routes";
