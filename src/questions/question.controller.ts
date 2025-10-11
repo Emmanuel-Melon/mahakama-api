@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { GeminiClient } from '../lib/llm/gemini';
 import { Message } from '../lib/llm/types';
+import { systemPrompt } from './prompts';
 
 const geminiClient = new GeminiClient();
 
@@ -11,13 +12,7 @@ export const processQuestion = async (req: Request, res: Response) => {
     if (!question) {
       return res.status(400).json({ error: 'Question is required' });
     }
-
-    // Create system prompt for legal context
-    const systemPrompt = `You are a helpful legal assistant for the South Sudanese and Ugandan legal system. 
-    Provide clear, accurate, and concise answers to legal questions. 
-    If you're unsure about any information, state that clearly. 
-    Focus on the South Sudanese and Ugandan laws and legal procedures.`;
-
+    
     const messages: Message[] = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: question }
@@ -25,10 +20,52 @@ export const processQuestion = async (req: Request, res: Response) => {
 
     // Get response from Gemini
     const response = await geminiClient.createChatCompletion(messages);
+    const content = response.content;
     
-    // Return the response from Gemini
+    // Parse the response to extract the answer, related documents, and relevant laws
+    let answer = content;
+    let relatedDocuments = [];
+    let relevantLaws = [];
+    
+    // Try to extract the structured data from the response
+    try {
+      const documentsMatch = content.match(/<<<DOCUMENTS>>>\s*\[([\s\S]*?)\]\s*<<<LAWS>>>/);
+      const lawsMatch = content.match(/<<<LAWS>>>\s*\[([\s\S]*?)\]\s*$/);
+      
+      if (documentsMatch) {
+        answer = content.split('<<<DOCUMENTS>>>')[0].trim();
+        relatedDocuments = JSON.parse(`[${documentsMatch[1].trim()}]`);
+      }
+      
+      if (lawsMatch) {
+        relevantLaws = JSON.parse(`[${lawsMatch[1].trim()}]`);
+      }
+    } catch (error) {
+      console.error('Error parsing response:', error);
+      // Fallback to default data if parsing fails
+      relatedDocuments = [
+        {
+          id: 1,
+          title: "Legal Resources Guide",
+          description: "General legal resources and information",
+          url: "/legal-database/1"
+        }
+      ];
+      relevantLaws = [
+        {
+          title: 'General Legal Principles',
+          description: 'Basic legal principles and procedures',
+        }
+      ];
+    }
+    
+    // Return the structured response
     res.status(200).json({ 
-      answer: response.content,
+      question,
+      country: "South Sudan",
+      answer,
+      relatedDocuments,
+      relevantLaws,
       provider: 'gemini'
     });
   } catch (error) {
