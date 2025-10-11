@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { lawyerController } from "./controllers/lawyer.controller";
+import { getLawyers } from "./controllers/getLawyers.controller";
+import { getLawyerById } from "./controllers/getLawyerById.controller";
+import { getLawyerByEmail } from "./controllers/getLawyerByEmail.controller";
 
-const router = Router();
+const lawyerRoutes = Router();
 
-// Lawyer routes
-router.get("/", lawyerController.getLawyers);
-router.get("/:id", lawyerController.getLawyerById);
-router.get("/email", lawyerController.getLawyerByEmail);
+lawyerRoutes.get("/", getLawyers);
+lawyerRoutes.get("/:id", getLawyerById);
+lawyerRoutes.get("/email", getLawyerByEmail);
 
-export const lawyerRoutes = router;
+export default lawyerRoutes;

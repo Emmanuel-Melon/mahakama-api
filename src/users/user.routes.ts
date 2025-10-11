@@ -1,22 +1,23 @@
 import { Router } from "express";
-import { userController } from "./user.controller";
 import { validateCreateUser } from "./user.middleware";
+import { getUsers } from "./controllers/getUsers.controller";
+import { getUser } from "./controllers/getUser.controller";
+import { createUser } from "./controllers/createUser.controller";
 
-const router = Router();
+const userRouter = Router();
 
-router.get("/", (req, res, next) => {
+userRouter.get("/", (req, res, next) => {
   console.log("GET /users route handler called");
-  userController.getUsers(req, res).catch(next);
+  getUsers(req, res).catch(next);
 });
-
-router.get("/:id", (req, res, next) => {
+userRouter.get("/:id", (req, res, next) => {
   console.log(`GET /users/${req.params.id} route handler called`);
-  userController.getUserById(req, res).catch(next);
+  getUser(req, res).catch(next);
 });
 
-router.post("/", validateCreateUser, (req, res, next) => {
+userRouter.post("/", validateCreateUser, (req, res, next) => {
   console.log("POST /users route handler called");
-  userController.createUser(req, res, next).catch(next);
+  createUser(req, res).catch(next);
 });
 
-export const userRoutes = router;
+export default userRouter;

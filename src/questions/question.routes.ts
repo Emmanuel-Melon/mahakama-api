@@ -1,15 +1,12 @@
 import { Router } from 'express';
-import { processQuestion, getQuestion, getQuestions } from './controllers/question.controller';
+import { processQuestion } from './controllers/processQuestion.controller';
+import { getQuestion } from './controllers/getQuestion.controller';
+import { getQuestions } from './controllers/getQuestions.controller';
 
-const router = Router();
+const questionRoutes = Router();
 
-// Process a new question
-router.post('/', processQuestion);
+questionRoutes.post('/', processQuestion);
+questionRoutes.get('/:id', getQuestion);
+questionRoutes.get('/', getQuestions);
 
-// Get a specific question by ID
-router.get('/:id', getQuestion);
-
-// List all questions with pagination
-router.get('/', getQuestions);
-
-export const questionRoutes = router;
+export default questionRoutes;

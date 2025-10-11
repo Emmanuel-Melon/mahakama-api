@@ -4,8 +4,6 @@ import { Message } from '../../lib/llm/types';
 import { systemPrompt } from '../prompts';
 import { CreateQuestionInput } from '../question.types';
 import { createQuestion } from '../operations/create';
-import { listQuestions } from '../operations/list';
-import { findQuestionById } from '../operations/find';
 
 const geminiClient = new GeminiClient();
 
@@ -82,50 +80,6 @@ export const processQuestion = async (req: Request, res: Response) => {
     console.error('Error processing question:', error);
     res.status(500).json({ 
       error: 'Failed to process question',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-};
-
-export const getQuestion = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const question = await findQuestionById(Number(id));
-    
-    if (!question) {
-      return res.status(404).json({ error: 'Question not found' });
-    }
-    
-    res.status(200).json(question);
-  } catch (error) {
-    console.error('Error fetching question:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch question',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-};
-
-export const getQuestions = async (req: Request, res: Response) => {
-  try {
-    const { limit, offset } = req.query;
-    const result = await listQuestions({
-      limit: limit ? Number(limit) : undefined,
-      offset: offset ? Number(offset) : undefined,
-    });
-    
-    res.status(200).json({
-      data: result.data,
-      meta: {
-        total: result.total,
-        limit: limit ? Number(limit) : 10,
-        offset: offset ? Number(offset) : 0,
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch questions',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
