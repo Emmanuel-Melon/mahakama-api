@@ -24,7 +24,8 @@ export const getLawyerByEmail = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       error: "Failed to fetch lawyer by email",
-      message: error instanceof Error ? error.message : "Unknown error occurred",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
     });
   }
 };

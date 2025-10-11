@@ -11,13 +11,13 @@ export const createQuestionSchema = z.object({
       title: z.string(),
       description: z.string(),
       url: z.string(),
-    })
+    }),
   ),
   relevantLaws: z.array(
     z.object({
       title: z.string(),
       description: z.string(),
-    })
+    }),
   ),
   country: z.string().default("South Sudan"),
   provider: z.string().default("gemini"),

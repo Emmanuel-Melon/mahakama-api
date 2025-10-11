@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { listQuestions } from '../operations/list';
+import { Request, Response } from "express";
+import { listQuestions } from "../operations/list";
 
 export const getQuestions = async (req: Request, res: Response) => {
   try {
@@ -8,7 +8,7 @@ export const getQuestions = async (req: Request, res: Response) => {
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
     });
-    
+
     res.status(200).json({
       data: result.data,
       meta: {
@@ -18,10 +18,10 @@ export const getQuestions = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch questions',
-      details: error instanceof Error ? error.message : 'Unknown error'
+    console.error("Error fetching questions:", error);
+    res.status(500).json({
+      error: "Failed to fetch questions",
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };

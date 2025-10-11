@@ -80,13 +80,13 @@ export const lawyerResponseSchema = z.object({
   email: z.string().email(),
   specialization: z.string(),
   experienceYears: z.number(),
-  rating: z.union([z.string(), z.number()]).transform(val => val.toString()),
+  rating: z.union([z.string(), z.number()]).transform((val) => val.toString()),
   casesHandled: z.number(),
   isAvailable: z.boolean(),
   location: z.string(),
   languages: z.array(z.string()),
   createdAt: z.date(),
-  updatedAt: z.date()
+  updatedAt: z.date(),
 });
 
 // Types

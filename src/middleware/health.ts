@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 export const healthMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   res.status(200).json({
     status: "ok",

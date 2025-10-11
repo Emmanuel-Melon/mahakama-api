@@ -19,10 +19,7 @@ export async function listDocuments({
     .from(documentsTable);
 
   // Then get the paginated data
-  const query = db
-    .select()
-    .from(documentsTable)
-    .$dynamic();
+  const query = db.select().from(documentsTable).$dynamic();
 
   if (type) {
     query.where(sql`LOWER(${documentsTable.type}) = LOWER(${type})`);

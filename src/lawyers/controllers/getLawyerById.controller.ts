@@ -17,7 +17,8 @@ export const getLawyerById = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       error: "Failed to fetch lawyer",
-      message: error instanceof Error ? error.message : "Unknown error occurred",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
     });
   }
 };

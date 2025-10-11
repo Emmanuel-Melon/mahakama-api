@@ -8,7 +8,10 @@ export const createDocumentSchema = z.object({
   type: z.string().min(1, "Type is required"),
   sections: z.number().int().positive("Sections must be a positive number"),
   lastUpdated: z.string().length(4, "Last updated year must be 4 digits"),
-  storageUrl: z.string().url("Invalid URL format").min(1, "Storage URL is required"),
+  storageUrl: z
+    .string()
+    .url("Invalid URL format")
+    .min(1, "Storage URL is required"),
 });
 
 export const documentResponseSchema = createSelectSchema(documentsTable);

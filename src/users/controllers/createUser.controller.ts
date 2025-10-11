@@ -26,7 +26,8 @@ export const createUser = async (req: Request, res: Response) => {
 
     return res.status(500).json({
       error: "Failed to create user",
-      message: error instanceof Error ? error.message : "Unknown error occurred",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
     });
   }
 };

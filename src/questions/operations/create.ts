@@ -2,7 +2,9 @@ import { db } from "../../lib/drizzle";
 import { questionsTable } from "../question.schema";
 import { NewQuestion, Question } from "../question.types";
 
-export async function createQuestion(questionData: NewQuestion): Promise<Question> {
+export async function createQuestion(
+  questionData: NewQuestion,
+): Promise<Question> {
   const [newQuestion] = await db
     .insert(questionsTable)
     .values({
