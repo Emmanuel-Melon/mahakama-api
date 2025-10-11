@@ -21,16 +21,11 @@ export function initializeMiddlewares(app: Application): void {
   });
 
   // API routes
-  // In Netlify, the base path is already set to /.netlify/functions/api
-  // In local development, we need to add the /api prefix
-  if (process.env.NETLIFY_DEV) {
-    // When running locally with Netlify Dev, use /api prefix
-    app.use("/api", routes);
-  } else if (process.env.NODE_ENV === 'development') {
-    // When running with regular development server (npm run dev)
-    app.use("/api", routes);
-  } else {
-    // In production (Netlify Functions), use the root path
+  // Always use /api prefix for consistency
+  app.use("/api", routes);
+  
+  // For local development (non-Netlify), also mount at root
+  if (process.env.NODE_ENV === 'development' && !process.env.NETLIFY_DEV) {
     app.use("/", routes);
   }
 

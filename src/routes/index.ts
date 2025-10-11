@@ -1,12 +1,11 @@
 import { Router } from "express";
 import {
   documentRoutes,
-  BASE_PATH as DOCUMENTS_PATH,
 } from "../documents/document.routes";
 import userRoutes from "../users/user.routes";
 import lawyerRoutes from "../lawyers/lawyer.routes";
 import questionRoutes from "../questions/question.routes";
-import chatRoutes, { BASE_PATH as CHATS_PATH } from "../chats/chat.routes";
+import chatRoutes from "../chats/chat.routes";
 import { userAgentMiddleware } from "../middleware/user-agent";
 import { fingerprintMiddleware } from "../middleware/fingerprint";
 
@@ -14,6 +13,8 @@ import { fingerprintMiddleware } from "../middleware/fingerprint";
 const USERS_PATH = "/users";
 const LAWYERS_PATH = "/lawyers";
 const QUESTIONS_PATH = "/questions";
+const CHATS_PATH = "/chats";
+const DOCUMENTS_PATH = "/documents";
 
 const router = Router();
 
