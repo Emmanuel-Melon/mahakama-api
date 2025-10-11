@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { getDocuments, getDocumentById } from './document.controller';
+import { getDocumentById } from './controllers/getDocumentById.controller';
+import { getDocuments } from './controllers/getDocuments.controller';
+import { createDocumentHandler } from './controllers/createDocument.controller';
 
-const router = Router();
+const documentRoutes = Router();
 
-// Get all documents
-router.get('/', getDocuments);
+documentRoutes.get('/', getDocuments);
+documentRoutes.get('/:id', getDocumentById);
+documentRoutes.post('/', createDocumentHandler);
 
-// Get a specific document by ID
-router.get('/:id', getDocumentById);
-
-export const documentRoutes = router;
+export default documentRoutes;
