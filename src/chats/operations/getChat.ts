@@ -3,7 +3,10 @@ import { chatSessions } from "../chat.schema";
 import { eq, and } from "drizzle-orm";
 import { ChatSession } from "../chat.types";
 
-export const getChat = async (chatId: string, userId: string): Promise<ChatSession | null> => {
+export const getChat = async (
+  chatId: string,
+  userId: string,
+): Promise<ChatSession | null> => {
   // Get only the chat session without messages
   const [chat] = await db
     .select()
@@ -11,8 +14,8 @@ export const getChat = async (chatId: string, userId: string): Promise<ChatSessi
     .where(
       and(
         eq(chatSessions.id, chatId),
-        eq(chatSessions.userId, userId) // Ensure user owns the chat
-      )
+        eq(chatSessions.userId, userId), // Ensure user owns the chat
+      ),
     )
     .limit(1);
 

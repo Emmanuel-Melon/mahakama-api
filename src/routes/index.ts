@@ -1,7 +1,5 @@
 import { Router } from "express";
-import {
-  documentRoutes,
-} from "../documents/document.routes";
+import { documentRoutes } from "../documents/document.routes";
 import userRoutes from "../users/user.routes";
 import lawyerRoutes from "../lawyers/lawyer.routes";
 import questionRoutes from "../questions/question.routes";

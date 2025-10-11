@@ -30,7 +30,8 @@ export const sendMessage = async (
       content,
       senderId: sender.id,
       senderType: sender.type,
-      senderDisplayName: 'displayName' in sender ? (sender as any).displayName : null,
+      senderDisplayName:
+        "displayName" in sender ? (sender as any).displayName : null,
       timestamp,
       questionId,
       metadata: metadata || {},

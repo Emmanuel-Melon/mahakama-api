@@ -13,13 +13,16 @@ export const getChatMessages = async (
       .where(eq(chatMessages.chatId, chatId))
       .orderBy(chatMessages.timestamp);
 
-    return messages.map(msg => ({
+    return messages.map((msg) => ({
       id: msg.id,
       content: msg.content,
       timestamp: msg.timestamp,
       sender: {
         id: msg.senderId,
-        type: (msg.senderType === 'system' ? 'assistant' : msg.senderType) as 'user' | 'assistant' | 'anonymous',
+        type: (msg.senderType === "system" ? "assistant" : msg.senderType) as
+          | "user"
+          | "assistant"
+          | "anonymous",
         displayName: msg.senderDisplayName || undefined,
       },
       metadata: msg.metadata || {},
@@ -27,6 +30,6 @@ export const getChatMessages = async (
     }));
   } catch (error) {
     console.error(`Error fetching messages for chat ${chatId}:`, error);
-    throw new Error('Failed to fetch chat messages');
+    throw new Error("Failed to fetch chat messages");
   }
 };

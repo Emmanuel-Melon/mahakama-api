@@ -15,7 +15,7 @@ export const getLawyers = async (
     const validatedLawyers = lawyersListResponseSchema.parse(lawyers);
     return res.status(200).json({
       success: true,
-      data: validatedLawyers
+      data: validatedLawyers,
     });
   } catch (error) {
     next(error);

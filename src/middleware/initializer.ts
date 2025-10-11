@@ -23,9 +23,9 @@ export function initializeMiddlewares(app: Application): void {
   // API routes
   // Always use /api prefix for consistency
   app.use("/api", routes);
-  
+
   // For local development (non-Netlify), also mount at root
-  if (process.env.NODE_ENV === 'development' && !process.env.NETLIFY_DEV) {
+  if (process.env.NODE_ENV === "development" && !process.env.NETLIFY_DEV) {
     app.use("/", routes);
   }
 

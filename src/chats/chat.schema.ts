@@ -37,7 +37,6 @@ export const RATE_LIMIT: RateLimitConfig = {
   },
 };
 
-
 import { pgTable, uuid, text, jsonb, timestamp } from "drizzle-orm/pg-core";
 
 export const chatSessions = pgTable("chat_sessions", {

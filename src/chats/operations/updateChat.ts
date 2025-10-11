@@ -33,7 +33,7 @@ export const updateChat = async (
     // Handle metadata merge
     if (updates.metadata) {
       updateData.metadata = {
-        ...(existingChat.metadata as Record<string, any> || {}),
+        ...((existingChat.metadata as Record<string, any>) || {}),
         ...updates.metadata,
       };
     }
@@ -53,13 +53,16 @@ export const updateChat = async (
       .orderBy(chatMessages.timestamp);
 
     // Transform messages to match ChatMessage type
-    const formattedMessages = messages.map(msg => ({
+    const formattedMessages = messages.map((msg) => ({
       id: msg.id,
       content: msg.content,
       timestamp: msg.timestamp,
       sender: {
         id: msg.senderId,
-        type: (msg.senderType === 'system' ? 'assistant' : msg.senderType) as 'user' | 'assistant' | 'anonymous',
+        type: (msg.senderType === "system" ? "assistant" : msg.senderType) as
+          | "user"
+          | "assistant"
+          | "anonymous",
         displayName: msg.senderDisplayName || undefined,
       },
       metadata: msg.metadata || {},
@@ -71,7 +74,7 @@ export const updateChat = async (
       title: updatedChat.title,
       user: {
         id: updatedChat.userId,
-        type: updatedChat.userType as 'user' | 'anonymous',
+        type: updatedChat.userType as "user" | "anonymous",
       },
       messages: formattedMessages,
       metadata: updatedChat.metadata || {},
@@ -82,4 +85,4 @@ export const updateChat = async (
     console.error(`Error updating chat ${chatId}:`, error);
     throw error;
   }
-}
+};

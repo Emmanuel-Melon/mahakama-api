@@ -3,7 +3,9 @@ import { chatSessions, chatMessages } from "../chat.schema";
 import { eq, and, or, desc } from "drizzle-orm";
 import { ChatSession } from "../chat.types";
 
-export const getUserChats = async (fingerprint: string): Promise<ChatSession[]> => {
+export const getUserChats = async (
+  fingerprint: string,
+): Promise<ChatSession[]> => {
   try {
     // First, get all chat sessions for this user (either by userId or fingerprint)
     // First, get all possible chats (we'll filter in memory for metadata)
@@ -13,9 +15,9 @@ export const getUserChats = async (fingerprint: string): Promise<ChatSession[]> 
       .orderBy(desc(chatSessions.updatedAt));
 
     // Filter chats in memory to match either userId or metadata.fingerprint
-    const userChats = allChats.filter(chat => {
+    const userChats = allChats.filter((chat) => {
       return (
-        chat.userId === fingerprint || 
+        chat.userId === fingerprint ||
         (chat.metadata as any)?.fingerprint === fingerprint
       );
     });
@@ -36,7 +38,9 @@ export const getUserChats = async (fingerprint: string): Promise<ChatSession[]> 
           timestamp: msg.timestamp,
           sender: {
             id: msg.senderId,
-            type: (msg.senderType === 'system' ? 'assistant' : msg.senderType) as 'user' | 'assistant' | 'anonymous',
+            type: (msg.senderType === "system"
+              ? "assistant"
+              : msg.senderType) as "user" | "assistant" | "anonymous",
             displayName: msg.senderDisplayName || undefined,
           },
           metadata: msg.metadata || {},
@@ -48,19 +52,19 @@ export const getUserChats = async (fingerprint: string): Promise<ChatSession[]> 
           title: chat.title,
           user: {
             id: chat.userId,
-            type: chat.userType as 'user' | 'anonymous',
+            type: chat.userType as "user" | "anonymous",
           },
           messages: formattedMessages,
           metadata: chat.metadata || {},
           createdAt: chat.createdAt,
           updatedAt: chat.updatedAt,
         };
-      })
+      }),
     );
 
     return chatsWithMessages;
   } catch (error) {
-    console.error('Error fetching user chats:', error);
-    throw new Error('Failed to fetch user chats');
+    console.error("Error fetching user chats:", error);
+    throw new Error("Failed to fetch user chats");
   }
 };
