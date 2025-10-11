@@ -22,6 +22,13 @@
       "when": 1760063530003,
       "tag": "0002_marvelous_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1760181544365,
+      "tag": "0003_steady_snowbird",
+      "breakpoints": true
     }
   ]
 }
