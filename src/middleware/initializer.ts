@@ -20,9 +20,19 @@ export function initializeMiddlewares(app: Application): void {
     next();
   });
 
-  // API routes - handle both /api/* and /* for Netlify Functions
-  app.use("/api", routes); // For local development with /api prefix
-  app.use(routes); // For Netlify Functions which already includes /api prefix
+  // API routes
+  // In Netlify, the base path is already set to /.netlify/functions/api
+  // In local development, we need to add the /api prefix
+  if (process.env.NETLIFY_DEV) {
+    // When running locally with Netlify Dev, use /api prefix
+    app.use("/api", routes);
+  } else if (process.env.NODE_ENV === 'development') {
+    // When running with regular development server (npm run dev)
+    app.use("/api", routes);
+  } else {
+    // In production (Netlify Functions), use the root path
+    app.use("/", routes);
+  }
 
   app.use(notFoundHandler);
   app.use(catchErrors);
