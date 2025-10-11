@@ -52,6 +52,7 @@
     "multer": "^2.0.2",
     "pdf-parse": "^2.2.4",
     "serverless-http": "^4.0.0",
+    "uuid": "^13.0.0",
     "zod": "^4.1.12"
   }
 }

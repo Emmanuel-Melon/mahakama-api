@@ -8,12 +8,16 @@ export async function createQuestion(
   const [newQuestion] = await db
     .insert(questionsTable)
     .values({
+      chatId: questionData.chatId,
       question: questionData.question,
-      answer: questionData.answer,
+      status: questionData.status || 'pending',
+      answer: questionData.answer || '',
       relatedDocuments: questionData.relatedDocuments || [],
       relevantLaws: questionData.relevantLaws || [],
       country: questionData.country || "South Sudan",
       provider: questionData.provider || "gemini",
+      userId: questionData.userId || null,
+      userFingerprint: questionData.userFingerprint || null,
     })
     .returning();
 

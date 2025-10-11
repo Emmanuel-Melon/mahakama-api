@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { createHash } from 'crypto';
 import useragent from 'express-useragent';
 
-interface RequestFingerprint {
+export interface RequestFingerprint {
   hash: string;
   ip: string;
   browser: string;
@@ -73,25 +73,33 @@ export const fingerprintMiddleware = (req: Request, res: Response, next: NextFun
     .update(fingerprintString)
     .digest('hex');
 
-  // Attach fingerprint to request object
-  req.fingerprint = {
+  // Create the full fingerprint object
+  const fingerprint: RequestFingerprint = {
     ...fingerprintData,
     hash: fingerprintHash,
-    timestamp: new Date()
+    timestamp: new Date(),
+    // Ensure all required fields are present
+    browser: ua.browser || 'unknown',
+    browserVersion: ua.version || 'unknown',
+    os: ua.os || 'unknown',
+    platform: ua.platform || 'unknown',
+    accept: accept,
+    acceptLanguage: acceptLanguage.split(',')[0] || '',
+    acceptEncoding: acceptEncoding as string,
+    isMobile: ua.isMobile,
+    isTablet: ua.isTablet,
+    isDesktop: ua.isDesktop,
+    ip: ip as string
   };
 
+  // Attach fingerprint to request object
+  (req as any).fingerprint = fingerprint;
+
   // Log the fingerprint (without sensitive data)
-  const { ip: _, ...loggableFingerprint } = req.fingerprint;
+  const { ip: _, ...loggableFingerprint } = fingerprint;
   console.log('Browser Fingerprint:', loggableFingerprint);
 
   next();
 };
 
-// Extend the Express Request type to include fingerprint
-declare global {
-  namespace Express {
-    interface Request {
-      fingerprint?: RequestFingerprint;
-    }
-  }
-}
+// The type extension is now in src/types/express.d.ts

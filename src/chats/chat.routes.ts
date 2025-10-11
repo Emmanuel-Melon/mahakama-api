@@ -10,24 +10,19 @@ export const BASE_PATH = '/chats';
 
 const chatRouter = Router();
 
-chatRouter.post(
-  '/',
-  createChatHandler
-);
+// Create a new chat
+chatRouter.post('/', createChatHandler);
 
-chatRouter.get('/user/:userId', getUserChatsHandler);
+// Get all chats for the current user (identified by fingerprint)
+chatRouter.get('/', getUserChatsHandler);
 
+// Get a specific chat
 chatRouter.get('/:chatId', getChatHandler);
 
-chatRouter.post(
-  '/:chatId/messages',
-  sendMessageHandler
-);
+// Send a message to a chat
+chatRouter.post('/:chatId/messages', sendMessageHandler);
 
-chatRouter.get(
-  '/:chatId/messages',
-  getChatMessagesHandler
-);
-
+// Get messages for a chat
+chatRouter.get('/:chatId/messages', getChatMessagesHandler);
 
 export default chatRouter;
