@@ -2,12 +2,13 @@ import { db } from "../../lib/drizzle";
 import { chatSessions } from "../chat.schema";
 import { eq, and } from "drizzle-orm";
 import { ChatSession } from "../chat.types";
+import { getChatMessages } from "./getChatMessages";
 
 export const getChat = async (
   chatId: string,
   userId: string,
 ): Promise<ChatSession | null> => {
-  // Get only the chat session without messages
+  // Get the chat session
   const [chat] = await db
     .select()
     .from(chatSessions)
@@ -22,6 +23,10 @@ export const getChat = async (
   if (!chat) {
     return null;
   }
+
+  // Get the messages for this chat
+  const messages = await getChatMessages(chatId);
+
   return {
     id: chat.id,
     user: {
@@ -31,7 +36,7 @@ export const getChat = async (
     title: chat.title,
     createdAt: chat.createdAt,
     updatedAt: chat.updatedAt,
-    messages: [], // Empty messages array as requested
+    messages,
     metadata: chat.metadata || {},
   };
 };

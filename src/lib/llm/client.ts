@@ -1,6 +1,10 @@
 import { Message, LLMResponse, LLMProvider } from "./types";
 import { GeminiClient } from "./gemini";
 
+export enum LLMProviders {
+  GEMINI = "gemini",
+}
+
 export interface LLMClient {
   createChatCompletion(
     messages: Message[],
@@ -12,7 +16,9 @@ const clients: Record<LLMProvider, LLMClient> = {
   gemini: new GeminiClient(),
 };
 
-export function getLLMClient(provider: LLMProvider): LLMClient {
+export function getLLMClient(
+  provider: LLMProvider = LLMProviders.GEMINI,
+): LLMClient {
   const client = clients[provider];
   if (!client) {
     throw new Error(`Unsupported LLM provider: ${provider}`);

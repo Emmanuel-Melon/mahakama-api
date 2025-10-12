@@ -1,12 +1,12 @@
-import { GeminiClient } from "../../lib/llm/gemini";
 import { Message } from "../../lib/llm/types";
 import { systemPrompt } from "../prompts";
 import { Question } from "../question.types";
 import { updateQuestion, getQuestionById } from "./find";
 import { getChatMessages } from "../../chats/operations/getChatMessages";
-import { ChatMessage } from "../../chats/chat.types";
+import { getLLMClient, LLMProviders } from "@/lib/llm/client";
+import { aggregateMessages } from "../../chats/aggregate-messages";
 
-const geminiClient = new GeminiClient();
+const LLMClient = getLLMClient(LLMProviders.GEMINI);
 
 export async function processQuestion(
   questionText: string,
@@ -15,38 +15,20 @@ export async function processQuestion(
   let question: Question | null = null;
 
   try {
-    // Get the question with chat context
     question = await getQuestionById(questionId);
     if (!question) {
       throw new Error(`Question with ID ${questionId} not found`);
     }
 
-    // Update status to processing
     await updateQuestion(questionId, { status: "processing" });
 
-    // Get chat history for context
     const chatMessages = await getChatMessages(question.chatId);
-    // Prepare messages for the LLM
     const messages: Message[] = [
       { role: "system" as const, content: systemPrompt },
-      // Include previous messages in the chat for context
-      ...chatMessages
-        .filter((msg: ChatMessage) => msg.sender.type !== "assistant")
-        .map((msg: ChatMessage) => {
-          const role: "user" | "assistant" =
-            msg.sender.type === "user" || msg.sender.type === "anonymous"
-              ? "user"
-              : "assistant";
-          return {
-            role,
-            content: msg.content,
-          };
-        }),
-      // Add the current question
+      ...aggregateMessages(chatMessages),
       { role: "user" as const, content: questionText },
     ];
-    // Get response from Gemini
-    const response = await geminiClient.createChatCompletion(messages);
+    const response = await LLMClient.createChatCompletion(messages);
     const content = response.content;
 
     // Parse the response to extract the answer, related documents, and relevant laws
