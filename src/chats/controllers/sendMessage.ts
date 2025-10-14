@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { sendMessage } from "../operations/sendMessage";
 import { createBaseUser } from "../chat.types";
+import { createQuestion } from "../../questions/operations/create";
+import { processQuestion } from "../../questions/operations/process";
+import { v4 as uuidv4 } from "uuid";
 
 export const sendMessageHandler = async (
   req: Request,
@@ -24,6 +27,7 @@ export const sendMessageHandler = async (
     const sender = createBaseUser(req.fingerprint.hash, "user");
 
     try {
+      // First, send the message
       const message = await sendMessage({
         chatId,
         content,
@@ -31,6 +35,34 @@ export const sendMessageHandler = async (
         questionId,
         metadata,
       });
+
+      console.log("sender", sender)
+
+      // If this is a user message, create and process a question
+      if (sender.type === 'user') {
+        try {
+          // First create the question in the database
+          const question = await createQuestion({
+            chatId,
+            question: content,
+            status: 'pending',
+            userFingerprint: sender.id,
+            relatedDocuments: [],
+            relevantLaws: [],
+            country: 'South Sudan',
+            provider: 'gemini'
+          });
+
+          // Process the question in the background
+          const res = await processQuestion(question.question, question.id, chatId).catch(error => {
+            console.error(`Failed to process question ${question.id}:`, error);
+          });
+          console.log("res", res)
+        } catch (error) {
+          console.error('Error creating question:', error);
+          // Don't fail the message send if question processing fails
+        }
+      }
 
       return res.status(201).json({
         status: "success",

@@ -5,14 +5,19 @@ import { updateQuestion, getQuestionById } from "./find";
 import { getChatMessages } from "../../chats/operations/getChatMessages";
 import { getLLMClient, LLMProviders } from "@/lib/llm/client";
 import { aggregateMessages } from "../../chats/aggregate-messages";
+import { sendMessage } from "../../chats/operations/sendMessage";
+import { createChat } from "../../chats/operations/createChat";
+import { createBaseUser } from "../../chats/chat.types";
 
 const LLMClient = getLLMClient(LLMProviders.GEMINI);
 
 export async function processQuestion(
   questionText: string,
   questionId: number,
-): Promise<Question> {
+  chatId?: string
+): Promise<{ question: Question; chatId?: string }> {
   let question: Question | null = null;
+  let createdChatId = chatId;
 
   try {
     question = await getQuestionById(questionId);
@@ -77,15 +82,67 @@ export async function processQuestion(
       status: "completed",
     });
 
-    return updatedQuestion;
+    // Create a chat message for the processed question
+    try {
+      // If no chatId was provided, create a new chat
+      if (!createdChatId) {
+        const newChat = await createChat({
+          user: createBaseUser(question.userFingerprint || 'system', 'user'),
+          title: `Question: ${questionText.substring(0, 50)}${questionText.length > 50 ? '...' : ''}`,
+          metadata: {
+            questionId: question.id,
+            isQuestionChat: true
+          }
+        });
+        createdChatId = newChat.id;
+      }
+
+      // Add the question as a user message
+      await sendMessage({
+        chatId: createdChatId,
+        content: questionText,
+        sender: createBaseUser(question.userFingerprint || 'system', 'user'),
+        metadata: {
+          questionId: question.id,
+          isQuestion: true
+        }
+      });
+
+      // Add the answer as an assistant message
+      const sentMessage = await sendMessage({
+        chatId: createdChatId,
+        content: answer,
+        sender: {
+          id: 'system',
+          type: 'assistant' as const,
+          displayName: 'Legal Assistant'
+        },
+        metadata: {
+          questionId: question.id,
+          isAnswer: true,
+          relatedDocuments,
+          relevantLaws
+        }
+      });
+      console.log("sentMessage", sentMessage)
+    } catch (error) {
+      console.error('Error creating chat messages for question:', error);
+      // Don't fail the whole operation if chat creation/messaging fails
+    }
+
+    return { question: updatedQuestion, chatId: createdChatId };
   } catch (error) {
     console.error(`Error processing question ${questionId}:`, error);
 
-    // Update question status to failed
-    await updateQuestion(questionId, {
-      status: "failed",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    // Try to update the question status to failed
+    try {
+      await updateQuestion(questionId, {
+        status: "failed",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    } catch (updateError) {
+      console.error('Failed to update question status to failed:', updateError);
+    }
 
     throw error; // Re-throw to be handled by the caller
   }

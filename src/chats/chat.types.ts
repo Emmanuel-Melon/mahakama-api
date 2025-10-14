@@ -1,7 +1,9 @@
 // Base user information
+
 export interface BaseUser {
-  type: "anonymous" | "user";
+  type: "anonymous" | "user" | "assistant";
   id: string; // For anonymous users, this will be a generated ID
+  displayName?: string;
 }
 
 export interface ChatMessage {
@@ -45,7 +47,7 @@ export interface AddMessageInput {
 // Helper function to create a base user
 export const createBaseUser = (
   id: string,
-  type: "anonymous" | "user" = "anonymous",
+  type: "anonymous" | "user" | "assistant" = "anonymous",
 ): BaseUser => ({
   type,
   id,
