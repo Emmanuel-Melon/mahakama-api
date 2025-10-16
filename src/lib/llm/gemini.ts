@@ -7,7 +7,6 @@ const MODEL_NAME = "gemini-2.0-flash";
 
 export class GeminiClient implements ILLMClient {
   private client: GoogleGenAI;
-  
 
   constructor() {
     const apiKey = config.geminiApiKey;

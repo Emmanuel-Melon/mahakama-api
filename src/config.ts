@@ -9,6 +9,11 @@ interface IConfig {
   netlifyDatabaseUrl?: string;
   netlifyDatabaseUrlUnpooled?: string;
   geminiApiKey?: string;
+  redisUrl?: string;
+  upstashRedisRestUrl?: string;
+  upstashRedisRestToken?: string;
+  upstashRedisRestPassword?: string;
+  redisPort?: number;
 }
 
 const env = process.env.NODE_ENV || "development";
@@ -21,6 +26,11 @@ const config: IConfig = {
   netlifyDatabaseUrl: process.env.NETLIFY_DATABASE_URL,
   netlifyDatabaseUrlUnpooled: process.env.NETLIFY_DATABASE_URL_UNPOOLED,
   geminiApiKey: process.env.GEMINI_API_KEY,
+  redisUrl: process.env.REDIS_URL,
+  upstashRedisRestUrl: process.env.UPSTASH_REDIS_REST_URL,
+  upstashRedisRestToken: process.env.UPSTASH_REDIS_REST_TOKEN,
+  upstashRedisRestPassword: process.env.UPSTASH_REDIS_REST_PASSWORD,
+  redisPort: Number(process.env.REDIS_PORT),
 };
 
 export { config, IConfig };
