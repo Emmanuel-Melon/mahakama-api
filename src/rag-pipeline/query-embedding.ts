@@ -2,8 +2,9 @@ import { pipeline } from "@huggingface/transformers";
 import { Message } from "../lib/llm/types";
 import { generateEmbedding } from "../lib/transformer-js/embeddings";
 import { getLLMClient, LLMProviders } from "../lib/llm/client";
-import { laws } from "./dataset";
-import { measureLawSimilarity } from "./similarity-cosines";
+import { laws } from "./dataset/laws.dataset";
+
+import { queryProcessor } from "./query/processor";
 
 const LLMClient = getLLMClient(LLMProviders.GEMINI);
 const question = "What is the legal drinking age in Uganda?";
@@ -29,13 +30,13 @@ const executeClassifier = async () => {
   return result;
 };
 
-const generateLawEmbeddings = async (): Promise<LawEmbedding[]> => {
+export const generateLawEmbeddings = async (): Promise<LawEmbedding[]> => {
   const embeddings = await Promise.all(
     laws.map(async (law) => ({
       id: law.id,
       title: law.title,
       content: law.content,
-      embedding: await generateEmbedding(law.content),
+      embedding: await generateEmbedding(law.content, {}),
     })),
   );
   return embeddings;
@@ -75,46 +76,6 @@ const answerQuestion = async (question: string) => {
 // Execute all functions
 const runAll = async () => {
   try {
-    // Generate and store query embedding
-    console.log("Generating query embedding...");
-    queryEmbedding = await generateEmbedding(question);
-    console.log("Query embedding vector length:", {
-      length: queryEmbedding.length,
-      contentLength: question.length,
-      embeddingLength: queryEmbedding.length,
-      prompt: question,
-    });
-
-    // Generate and store law embeddings
-    console.log("Generating law embeddings...");
-    const generatedLawEmbeddings = await generateLawEmbeddings();
-    lawEmbeddings.push(...generatedLawEmbeddings);
-    console.log(`Generated ${lawEmbeddings.length} law embeddings`);
-    console.log("First law embedding metadata:", {
-      id: lawEmbeddings[0]?.id,
-      title: lawEmbeddings[0]?.title,
-      contentLength: lawEmbeddings[0]?.content?.length,
-      embeddingLength: lawEmbeddings[0]?.embedding?.length,
-    });
-
-    // Run sentiment analysis
-    // console.log("\nRunning sentiment analysis...");
-    // await executeClassifier();
-
-    // // Generate answer
-    // console.log("\nGenerating answer...");
-    // await answerQuestion(question);
-
-    const allMeasuredLaws = await measureLawSimilarity(
-      queryEmbedding,
-      lawEmbeddings,
-    );
-    console.log("Similar laws:", allMeasuredLaws);
-
-    const relevantLaws = allMeasuredLaws.filter(
-      (law) => law.similarityCosine >= RELEVANCE_THRESHOLD,
-    );
-    console.log("Relevant laws:", relevantLaws);
   } catch (error) {
     console.error("Error in runAll:", error);
   }

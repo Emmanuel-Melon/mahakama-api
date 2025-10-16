@@ -83,38 +83,3 @@ export class AuthQueueManager {
 }
 
 export const authQueue = AuthQueueManager.getInstance();
-
-authQueue.enqueue(AuthJobType.Registration, {
-  userId: "123",
-  email: "user@example.com",
-});
-
-// Example: Enqueue browser fingerprint
-authQueue.enqueue(
-  AuthJobType.BrowserFingerprint,
-  {
-    browser: "PostmanRuntime",
-    browserVersion: "7.48.0",
-    os: "unknown",
-    platform: "unknown",
-    accept: "*/*",
-    acceptLanguage: "",
-    acceptEncoding: "gzip, deflate, br",
-    isMobile: false,
-    isTablet: false,
-    isDesktop: false,
-    dnt: undefined,
-    upgradeInsecureRequests: undefined,
-    hash: "559b64d1473d4ac98d59b7e2add559ba8c020e335528d9a35296245164f5eb93",
-    timestamp: new Date("2025-10-16T19:37:54.268Z").getTime(),
-    // Use the hash as the job ID for deduplication
-  },
-  {
-    jobId: "559b64d1473d4ac98d59b7e2add559ba8c020e335528d9a35296245164f5eb93",
-    removeOnComplete: true, // Remove from queue when completed
-    removeOnFail: 10, // Keep last 10 failed attempts
-  },
-);
-
-// Example using a helper method
-// authQueue.enqueueFingerprint(fingerprintData);

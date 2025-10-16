@@ -8,6 +8,7 @@ import { aggregateMessages } from "../../chats/aggregate-messages";
 import { sendMessage } from "../../chats/operations/sendMessage";
 import { createChat } from "../../chats/operations/createChat";
 import { createBaseUser } from "../../chats/chat.types";
+import { laws } from "@/rag-pipeline/dataset/laws.dataset";
 
 const LLMClient = getLLMClient(LLMProviders.GEMINI);
 

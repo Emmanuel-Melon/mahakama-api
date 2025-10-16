@@ -11,6 +11,9 @@ const { host, port } = stripUpstashUrl(config.upstashRedisRestUrl!);
 
 export enum QueueName {
   Auth = "auth",
+  Questions = "Questions",
+  Embeddings = "embeddings",
+  Answers = "Answers",
 }
 
 export type QueueInstance = {
