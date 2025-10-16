@@ -14,7 +14,7 @@ const LLMClient = getLLMClient(LLMProviders.GEMINI);
 export async function processQuestion(
   questionText: string,
   questionId: number,
-  chatId?: string
+  chatId?: string,
 ): Promise<{ question: Question; chatId?: string }> {
   let question: Question | null = null;
   let createdChatId = chatId;
@@ -87,12 +87,12 @@ export async function processQuestion(
       // If no chatId was provided, create a new chat
       if (!createdChatId) {
         const newChat = await createChat({
-          user: createBaseUser(question.userFingerprint || 'system', 'user'),
-          title: `Question: ${questionText.substring(0, 50)}${questionText.length > 50 ? '...' : ''}`,
+          user: createBaseUser(question.userFingerprint || "system", "user"),
+          title: `Question: ${questionText.substring(0, 50)}${questionText.length > 50 ? "..." : ""}`,
           metadata: {
             questionId: question.id,
-            isQuestionChat: true
-          }
+            isQuestionChat: true,
+          },
         });
         createdChatId = newChat.id;
       }
@@ -101,11 +101,11 @@ export async function processQuestion(
       await sendMessage({
         chatId: createdChatId,
         content: questionText,
-        sender: createBaseUser(question.userFingerprint || 'system', 'user'),
+        sender: createBaseUser(question.userFingerprint || "system", "user"),
         metadata: {
           questionId: question.id,
-          isQuestion: true
-        }
+          isQuestion: true,
+        },
       });
 
       // Add the answer as an assistant message
@@ -113,20 +113,20 @@ export async function processQuestion(
         chatId: createdChatId,
         content: answer,
         sender: {
-          id: 'system',
-          type: 'assistant' as const,
-          displayName: 'Legal Assistant'
+          id: "system",
+          type: "assistant" as const,
+          displayName: "Legal Assistant",
         },
         metadata: {
           questionId: question.id,
           isAnswer: true,
           relatedDocuments,
-          relevantLaws
-        }
+          relevantLaws,
+        },
       });
-      console.log("sentMessage", sentMessage)
+      console.log("sentMessage", sentMessage);
     } catch (error) {
-      console.error('Error creating chat messages for question:', error);
+      console.error("Error creating chat messages for question:", error);
       // Don't fail the whole operation if chat creation/messaging fails
     }
 
@@ -141,7 +141,7 @@ export async function processQuestion(
         error: error instanceof Error ? error.message : "Unknown error",
       });
     } catch (updateError) {
-      console.error('Failed to update question status to failed:', updateError);
+      console.error("Failed to update question status to failed:", updateError);
     }
 
     throw error; // Re-throw to be handled by the caller

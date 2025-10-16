@@ -9,7 +9,7 @@ const LLMClient = getLLMClient(LLMProviders.GEMINI);
 const question = "What is the legal drinking age in Uganda?";
 
 // TODO: implement dynamic threshold
-const RELEVANCE_THRESHOLD = 0.70;
+const RELEVANCE_THRESHOLD = 0.7;
 
 interface LawEmbedding {
   id: number;
@@ -35,8 +35,8 @@ const generateLawEmbeddings = async (): Promise<LawEmbedding[]> => {
       id: law.id,
       title: law.title,
       content: law.content,
-      embedding: await generateEmbedding(law.content)
-    }))
+      embedding: await generateEmbedding(law.content),
+    })),
   );
   return embeddings;
 };
@@ -94,7 +94,7 @@ const runAll = async () => {
       id: lawEmbeddings[0]?.id,
       title: lawEmbeddings[0]?.title,
       contentLength: lawEmbeddings[0]?.content?.length,
-      embeddingLength: lawEmbeddings[0]?.embedding?.length
+      embeddingLength: lawEmbeddings[0]?.embedding?.length,
     });
 
     // Run sentiment analysis
@@ -105,10 +105,15 @@ const runAll = async () => {
     // console.log("\nGenerating answer...");
     // await answerQuestion(question);
 
-    const allMeasuredLaws = await measureLawSimilarity(queryEmbedding, lawEmbeddings);
+    const allMeasuredLaws = await measureLawSimilarity(
+      queryEmbedding,
+      lawEmbeddings,
+    );
     console.log("Similar laws:", allMeasuredLaws);
 
-    const relevantLaws = allMeasuredLaws.filter(law => law.similarityCosine >= RELEVANCE_THRESHOLD);
+    const relevantLaws = allMeasuredLaws.filter(
+      (law) => law.similarityCosine >= RELEVANCE_THRESHOLD,
+    );
     console.log("Relevant laws:", relevantLaws);
   } catch (error) {
     console.error("Error in runAll:", error);

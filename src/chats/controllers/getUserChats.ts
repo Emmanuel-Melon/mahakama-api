@@ -10,16 +10,17 @@ export const getUserChatsHandler = async (
     if (!req.fingerprint?.hash) {
       return res.status(400).json({
         status: "error",
-        message: "Could not identify user session. Please ensure cookies are enabled.",
-        code: "MISSING_FINGERPRINT"
+        message:
+          "Could not identify user session. Please ensure cookies are enabled.",
+        code: "MISSING_FINGERPRINT",
       });
     }
 
     const fingerprint = req.fingerprint.hash;
-    
+
     try {
       const chats = await getUserChats(fingerprint);
-      
+
       return res.status(200).json({
         status: "success",
         results: chats.length,
@@ -32,7 +33,7 @@ export const getUserChatsHandler = async (
         return res.status(403).json({
           status: "error",
           message: "You don't have permission to access these chats",
-          code: "FORBIDDEN"
+          code: "FORBIDDEN",
         });
       }
       throw error; // Let the error handling middleware handle other errors

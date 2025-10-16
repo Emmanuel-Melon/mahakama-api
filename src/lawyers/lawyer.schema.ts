@@ -45,6 +45,7 @@ export const createLawyerSchema = z.object({
     .min(0, "Experience cannot be negative"),
   rating: z
     .string()
+
     .refine((val) => !isNaN(parseFloat(val)) && isFinite(Number(val)), {
       message: "Rating must be a number",
     })
@@ -56,7 +57,8 @@ export const createLawyerSchema = z.object({
       // Ensure the number has at most 1 decimal place
       const decimalPlaces = (val.split(".")[1] || "").length;
       return decimalPlaces <= 1;
-    }, "Rating can have at most 1 decimal place"),
+    }, "Rating can have at most 1 decimal place")
+    .optional(),
   casesHandled: z
     .number()
     .int("Cases handled must be an integer")
@@ -80,7 +82,10 @@ export const lawyerResponseSchema = z.object({
   email: z.string().email(),
   specialization: z.string(),
   experienceYears: z.number(),
-  rating: z.union([z.string(), z.number()]).transform((val) => val.toString()),
+  rating: z
+    .union([z.string(), z.number()])
+    .transform((val) => val.toString())
+    .optional(),
   casesHandled: z.number(),
   isAvailable: z.boolean(),
   location: z.string(),

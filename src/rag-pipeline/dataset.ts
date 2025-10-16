@@ -31,5 +31,3 @@ export const laws = [
       "The legal minimum age for marriage in Uganda is 18 years for both males and females. Marriage below this age requires parental consent and court approval.",
   },
 ];
-
-// laywers

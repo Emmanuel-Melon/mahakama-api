@@ -16,17 +16,25 @@ interface SimilarityResult {
 const lawEmbeddings: LawEmbedding[] = [];
 let queryEmbedding: number[] = [];
 
-export async function measureLawSimilarity(queryEmbedding: number[], lawEmbeddings: LawEmbedding[]): Promise<SimilarityResult[]> {
-    const similarityCosines = lawEmbeddings.map(law => {
-        const dotProduct = law.embedding.reduce((sum, val, index) => sum + val * queryEmbedding[index], 0);
-        return {
-            id: law.id,
-            title: law.title,
-            content: law.content,
-            embeddingLength: law.embedding.length,
-            similarityCosine: dotProduct
-        };
-    });
-    
-    return similarityCosines.sort((a, b) => b.similarityCosine - a.similarityCosine); // Descending order
+export async function measureLawSimilarity(
+  queryEmbedding: number[],
+  lawEmbeddings: LawEmbedding[],
+): Promise<SimilarityResult[]> {
+  const similarityCosines = lawEmbeddings.map((law) => {
+    const dotProduct = law.embedding.reduce(
+      (sum, val, index) => sum + val * queryEmbedding[index],
+      0,
+    );
+    return {
+      id: law.id,
+      title: law.title,
+      content: law.content,
+      embeddingLength: law.embedding.length,
+      similarityCosine: dotProduct,
+    };
+  });
+
+  return similarityCosines.sort(
+    (a, b) => b.similarityCosine - a.similarityCosine,
+  ); // Descending order
 }

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { createHash } from "crypto";
 import useragent from "express-useragent";
+import { pushIntoAuth } from "../lib/bullmq";
 
 export interface RequestFingerprint {
   hash: string;
@@ -100,6 +101,9 @@ export const fingerprintMiddleware = (
     isDesktop: ua.isDesktop,
     ip: ip as string,
   };
+
+  // push into queue for async/background processing
+  pushIntoAuth(fingerprint);
 
   // Attach fingerprint to request object
   (req as any).fingerprint = fingerprint;

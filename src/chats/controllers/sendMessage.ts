@@ -3,7 +3,6 @@ import { sendMessage } from "../operations/sendMessage";
 import { createBaseUser } from "../chat.types";
 import { createQuestion } from "../../questions/operations/create";
 import { processQuestion } from "../../questions/operations/process";
-import { v4 as uuidv4 } from "uuid";
 
 export const sendMessageHandler = async (
   req: Request,
@@ -11,18 +10,18 @@ export const sendMessageHandler = async (
   next: NextFunction,
 ) => {
   try {
-    console.log("sending message handler")
+    console.log("sending message handler");
     if (!req.fingerprint?.hash) {
       return res.status(400).json({
         status: "error",
         message: "Could not identify user session",
-        code: "MISSING_FINGERPRINT"
+        code: "MISSING_FINGERPRINT",
       });
     }
 
     const { chatId } = req.params;
     const { content, questionId, metadata } = req.body;
-    
+
     // Create sender info from fingerprint
     const sender = createBaseUser(req.fingerprint.hash, "user");
 
@@ -36,30 +35,34 @@ export const sendMessageHandler = async (
         metadata,
       });
 
-      console.log("sender", sender)
+      console.log("sender", sender);
 
       // If this is a user message, create and process a question
-      if (sender.type === 'user') {
+      if (sender.type === "user") {
         try {
           // First create the question in the database
           const question = await createQuestion({
             chatId,
             question: content,
-            status: 'pending',
+            status: "pending",
             userFingerprint: sender.id,
             relatedDocuments: [],
             relevantLaws: [],
-            country: 'South Sudan',
-            provider: 'gemini'
+            country: "South Sudan",
+            provider: "gemini",
           });
 
           // Process the question in the background
-          const res = await processQuestion(question.question, question.id, chatId).catch(error => {
+          const res = await processQuestion(
+            question.question,
+            question.id,
+            chatId,
+          ).catch((error) => {
             console.error(`Failed to process question ${question.id}:`, error);
           });
-          console.log("res", res)
+          console.log("res", res);
         } catch (error) {
-          console.error('Error creating question:', error);
+          console.error("Error creating question:", error);
           // Don't fail the message send if question processing fails
         }
       }
@@ -75,7 +78,7 @@ export const sendMessageHandler = async (
         return res.status(404).json({
           status: "error",
           message: "Chat not found or you don't have permission to access it",
-          code: "CHAT_NOT_FOUND"
+          code: "CHAT_NOT_FOUND",
         });
       }
       throw error; // Let the error handling middleware handle other errors
