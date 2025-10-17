@@ -50,6 +50,13 @@
       "when": 1760211386343,
       "tag": "0006_jazzy_maestro",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1760665116663,
+      "tag": "0007_quick_freak",
+      "breakpoints": true
     }
   ]
 }

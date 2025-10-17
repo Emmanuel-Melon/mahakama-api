@@ -27,8 +27,7 @@ export const generateEmbedding = async (
 ) => {
   const extractor = await pipeline("feature-extraction", model, {
     revision: "main",
-    // This will load the model from the CDN
-    model_file_name: "onnx/model_quantized.onnx",
+
     // Disable local model caching if needed
     // local_files_only: false
   });
