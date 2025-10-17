@@ -4,7 +4,7 @@
   functions = "netlify/functions"
 
 [functions]
-  external_node_modules = ["@netlify/functions"]
+  external_node_modules = ["@netlify/functions", "onnxruntime-node"]
   node_bundler = "esbuild"
   directory = "netlify/functions"
   included_files = [
@@ -14,6 +14,7 @@
     "!**/models/**",
     "!**/transformers-cache/**"
   ]
+  node_options = "--no-warnings"
 
 [dev]
   framework = "#custom"
