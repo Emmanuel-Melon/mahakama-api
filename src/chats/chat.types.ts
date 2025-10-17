@@ -1,17 +1,25 @@
 // Base user information
+export type SenderType = 'user' | 'assistant' | 'system';
 
 export interface BaseUser {
-  type: "anonymous" | "user" | "assistant";
+  type: SenderType;
   id: string; // For anonymous users, this will be a generated ID
   displayName?: string;
 }
+
+export enum UserTypeEnum {
+  ANONYMOUS = "anonymous",
+  USER = "user",
+  ASSISTANT = "assistant",
+}
+
 
 export interface ChatMessage {
   id: string;
   content: string;
   sender: {
     id: string;
-    type: "user" | "assistant" | "anonymous";
+    type: SenderType;
     displayName?: string;
   };
   timestamp: Date;
@@ -47,9 +55,9 @@ export interface AddMessageInput {
 // Helper function to create a base user
 export const createBaseUser = (
   id: string,
-  type: "anonymous" | "user" | "assistant" = "anonymous",
+  type: UserTypeEnum = UserTypeEnum.ANONYMOUS,
 ): BaseUser => ({
-  type,
+  type: type as SenderType,
   id,
 });
 

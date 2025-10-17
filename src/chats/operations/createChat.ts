@@ -17,11 +17,12 @@ export const createChat = async (
       .values({
         id: chatId,
         userId: input.user.id,
-        userType: input.user.type,
+        senderType: input.user.type,
         title: input.title,
         metadata: input.metadata || {},
         createdAt: now,
         updatedAt: now,
+        
       })
       .returning();
 
