@@ -19,10 +19,7 @@ export const sentimenAnalyzer = async (sentiment: string, options: any) => {
     "Xenova/distilbert-base-uncased-finetuned-sst-2-english",
     {
       revision: "main",
-      // This will load the model from the CDN
-      model_file_name: "onnx/model_quantized.onnx",
-      // Disable local model caching if needed
-      // local_files_only: false
+
     },
   );
   const out = await pipe(sentiment);
