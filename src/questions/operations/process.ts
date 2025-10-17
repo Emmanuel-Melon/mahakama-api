@@ -8,6 +8,7 @@ import { sendMessage } from "../../chats/operations/sendMessage";
 import { createChat } from "../../chats/operations/createChat";
 import { createBaseUser } from "../../chats/chat.types";
 import { answerLegalQuestion } from "@/rag-pipeline/answers/text-generation";
+import { UserTypeEnum } from "../../chats/chat.types";
 
 let userMessage: any;
 let assistantMessage: any;
@@ -47,7 +48,10 @@ export async function processQuestion(
       // If no chatId was provided, create a new chat
       if (!createdChatId) {
         const newChat = await createChat({
-          user: createBaseUser(question.userFingerprint || "system", "user"),
+          user: createBaseUser(
+            question.userFingerprint || "system",
+            UserTypeEnum.USER,
+          ),
           title: `Question: ${questionText.substring(0, 50)}${questionText.length > 50 ? "..." : ""}`,
           metadata: {
             questionId: question.id,
@@ -61,7 +65,10 @@ export async function processQuestion(
       userMessage = await sendMessage({
         chatId: createdChatId,
         content: questionText,
-        sender: createBaseUser(question.userFingerprint || "system", "user"),
+        sender: createBaseUser(
+          question.userFingerprint || "system",
+          UserTypeEnum.USER,
+        ),
         metadata: {
           questionId: question.id,
           isQuestion: true,

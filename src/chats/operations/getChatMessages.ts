@@ -2,6 +2,7 @@ import { db } from "../../lib/drizzle";
 import { chatMessages } from "../chat.schema";
 import { eq } from "drizzle-orm";
 import { ChatMessage } from "../chat.types";
+import { UserTypeEnum, SenderType } from "../chat.types";
 
 export const getChatMessages = async (
   chatId: string,
@@ -19,10 +20,9 @@ export const getChatMessages = async (
       timestamp: msg.timestamp,
       sender: {
         id: msg.senderId,
-        type: (msg.senderType === "system" ? "assistant" : msg.senderType) as
-          | "user"
-          | "assistant"
-          | "anonymous",
+        type: (msg.senderType === "system"
+          ? "assistant"
+          : msg.senderType) as SenderType,
         displayName: msg.senderDisplayName || undefined,
       },
       metadata: msg.metadata || {},

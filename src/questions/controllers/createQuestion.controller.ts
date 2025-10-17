@@ -6,6 +6,7 @@ import { ApiError } from "../../middleware/errors";
 import { createChat } from "../../chats/operations/createChat";
 import { getChat } from "../../chats/operations/getChat";
 import { updateChat } from "../../chats/operations/updateChat";
+import { UserTypeEnum } from "../../chats/chat.types";
 
 export const createQuestionHandler = async (
   req: Request,
@@ -39,7 +40,7 @@ export const createQuestionHandler = async (
       chat = await createChat({
         user: {
           id: fingerprint.hash,
-          type: "anonymous",
+          type: UserTypeEnum.USER,
         },
         title: question.slice(0, 50) + (question.length > 50 ? "..." : ""),
         initialMessage: question,

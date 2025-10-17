@@ -2,6 +2,7 @@ import { db } from "../../lib/drizzle";
 import { chatSessions, chatMessages } from "../chat.schema";
 import { eq, and, or, desc } from "drizzle-orm";
 import { ChatSession } from "../chat.types";
+import { UserTypeEnum, SenderType } from "../chat.types";
 
 export const getUserChats = async (
   fingerprint: string,
@@ -40,7 +41,7 @@ export const getUserChats = async (
             id: msg.senderId,
             type: (msg.senderType === "system"
               ? "assistant"
-              : msg.senderType) as "user" | "assistant" | "anonymous",
+              : msg.senderType) as SenderType,
             displayName: msg.senderDisplayName || undefined,
           },
           metadata: msg.metadata || {},
@@ -52,7 +53,7 @@ export const getUserChats = async (
           title: chat.title,
           user: {
             id: chat.userId,
-            type: chat.userType as "user" | "anonymous",
+            type: chat.senderType as SenderType,
           },
           messages: formattedMessages,
           metadata: chat.metadata || {},

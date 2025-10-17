@@ -22,7 +22,6 @@ export const createChat = async (
         metadata: input.metadata || {},
         createdAt: now,
         updatedAt: now,
-        
       })
       .returning();
 

@@ -42,7 +42,9 @@ import { pgTable, uuid, text, jsonb, timestamp } from "drizzle-orm/pg-core";
 export const chatSessions = pgTable("chat_sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").notNull(),
-  senderType: text('sender_type', { enum: ['user', 'assistant', 'system'] }).notNull(),
+  senderType: text("sender_type", {
+    enum: ["user", "assistant", "system"],
+  }).notNull(),
   title: text("title").notNull(),
   metadata: jsonb("metadata").default({}),
   createdAt: timestamp("created_at").defaultNow().notNull(),

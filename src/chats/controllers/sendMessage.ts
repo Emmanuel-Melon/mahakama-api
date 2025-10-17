@@ -3,6 +3,7 @@ import { sendMessage } from "../operations/sendMessage";
 import { createBaseUser } from "../chat.types";
 import { createQuestion } from "../../questions/operations/create";
 import { processQuestion } from "../../questions/operations/process";
+import { UserTypeEnum } from "../chat.types";
 
 export const sendMessageHandler = async (
   req: Request,
@@ -23,7 +24,7 @@ export const sendMessageHandler = async (
     const { content, questionId, metadata } = req.body;
 
     // Create sender info from fingerprint
-    const sender = createBaseUser(req.fingerprint.hash, "user");
+    const sender = createBaseUser(req.fingerprint.hash, UserTypeEnum.USER);
 
     try {
       // First, send the message
@@ -38,7 +39,7 @@ export const sendMessageHandler = async (
       console.log("sender", sender);
 
       // If this is a user message, create and process a question
-      if (sender.type === "user") {
+      if (sender.type === UserTypeEnum.USER) {
         try {
           // First create the question in the database
           const question = await createQuestion({

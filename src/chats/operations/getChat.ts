@@ -4,6 +4,7 @@ import { chatSessions } from "../chat.schema";
 import { eq } from "drizzle-orm";
 import { ChatSession } from "../chat.types";
 import { getChatMessages } from "./getChatMessages";
+import { UserTypeEnum, SenderType } from "../chat.types";
 
 export const getChat = async (
   chatId: string,
@@ -43,7 +44,7 @@ export const getChat = async (
     id: chat.id,
     user: {
       id: chat.userId,
-      type: chat.userType as "user" | "anonymous",
+      type: chat.senderType as SenderType,
     },
     title: chat.title,
     createdAt: chat.createdAt,

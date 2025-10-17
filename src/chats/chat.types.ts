@@ -1,5 +1,5 @@
 // Base user information
-export type SenderType = 'user' | 'assistant' | 'system';
+export type SenderType = "user" | "assistant" | "system";
 
 export interface BaseUser {
   type: SenderType;
@@ -12,7 +12,6 @@ export enum UserTypeEnum {
   USER = "user",
   ASSISTANT = "assistant",
 }
-
 
 export interface ChatMessage {
   id: string;

@@ -2,6 +2,7 @@ import { db } from "../../lib/drizzle";
 import { chatSessions, chatMessages } from "../chat.schema";
 import { eq } from "drizzle-orm";
 import { ChatSession } from "../chat.types";
+import { UserTypeEnum, SenderType } from "../chat.types";
 
 export interface UpdateChatParams {
   title?: string;
@@ -59,10 +60,9 @@ export const updateChat = async (
       timestamp: msg.timestamp,
       sender: {
         id: msg.senderId,
-        type: (msg.senderType === "system" ? "assistant" : msg.senderType) as
-          | "user"
-          | "assistant"
-          | "anonymous",
+        type: (msg.senderType === "system"
+          ? "assistant"
+          : msg.senderType) as SenderType,
         displayName: msg.senderDisplayName || undefined,
       },
       metadata: msg.metadata || {},
@@ -74,7 +74,7 @@ export const updateChat = async (
       title: updatedChat.title,
       user: {
         id: updatedChat.userId,
-        type: updatedChat.userType as "user" | "anonymous",
+        type: updatedChat.senderType as SenderType,
       },
       messages: formattedMessages,
       metadata: updatedChat.metadata || {},
