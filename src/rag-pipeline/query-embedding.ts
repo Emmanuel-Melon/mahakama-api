@@ -24,7 +24,13 @@ let queryEmbedding: number[] = [];
 
 // Sentiment analysis with Hugging Face
 const executeClassifier = async () => {
-  const classifier = await pipeline("sentiment-analysis");
+  const classifier = await pipeline("sentiment-analysis", "Xenova/all-MiniLM-L6-v2", {
+    revision: "main",
+    // This will load the model from the CDN
+    model_file_name: "onnx/model_quantized.onnx",
+    // Disable local model caching if needed
+    // local_files_only: false
+  });
   const result = await classifier("I love programming!");
   console.log("Sentiment analysis:", result);
   return result;

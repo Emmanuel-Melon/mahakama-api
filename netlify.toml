@@ -4,8 +4,16 @@
   functions = "netlify/functions"
 
 [functions]
-  node_bundler = "esbuild"
   external_node_modules = ["@netlify/functions"]
+  node_bundler = "esbuild"
+  directory = "netlify/functions"
+  included_files = [
+    "netlify/functions/**/*.ts",
+    "src/**/*.ts",
+    "!**/node_modules/**",
+    "!**/models/**",
+    "!**/transformers-cache/**"
+  ]
 
 [dev]
   framework = "#custom"

@@ -17,17 +17,15 @@ export const sentimenAnalyzer = async (sentiment: string, options: any) => {
   const pipe = await pipeline(
     "sentiment-analysis",
     "Xenova/distilbert-base-uncased-finetuned-sst-2-english",
+    {
+      revision: "main",
+      // This will load the model from the CDN
+      model_file_name: "onnx/model_quantized.onnx",
+      // Disable local model caching if needed
+      // local_files_only: false
+    },
   );
   const out = await pipe(sentiment);
-  return out;
-};
-
-export const queryTokenizer = async (query: string) => {
-  const tokenizer = await AutoTokenizer.from_pretrained(
-    "Xenova/bert-base-uncased",
-    {},
-  );
-  const out = await tokenizer(query);
   return out;
 };
 
@@ -38,16 +36,15 @@ export const queryProcessor = async (input: string | QueryInput) => {
       : querySchema.parse(input);
 
   try {
-    const [sentiment, queryEmbedding, queryTokens] = await Promise.all([
+    const [sentiment, queryEmbedding] = await Promise.all([
       sentimenAnalyzer(query, {}),
       generateEmbedding(query, {}),
-      queryTokenizer(query),
+
     ]);
 
     return {
       queryEmbedding,
       sentiment,
-      queryTokens,
       query,
     };
   } catch (error) {
