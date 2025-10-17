@@ -6,8 +6,8 @@
   "scripts": {
     "start": "netlify dev",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && node esbuild.config.js",
-    "build:functions": "tsc && node esbuild.config.js",
+    "build": "tsc",
+    "build:functions": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\"",

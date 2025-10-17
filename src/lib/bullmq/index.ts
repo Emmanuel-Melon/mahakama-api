@@ -14,6 +14,7 @@ export enum QueueName {
   Questions = "Questions",
   Embeddings = "embeddings",
   Answers = "Answers",
+  Chat = "Chat",
 }
 
 export type QueueInstance = {
