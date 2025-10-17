@@ -19,7 +19,6 @@ export const sentimenAnalyzer = async (sentiment: string, options: any) => {
     "Xenova/distilbert-base-uncased-finetuned-sst-2-english",
     {
       revision: "main",
-
     },
   );
   const out = await pipe(sentiment);
@@ -36,7 +35,6 @@ export const queryProcessor = async (input: string | QueryInput) => {
     const [sentiment, queryEmbedding] = await Promise.all([
       sentimenAnalyzer(query, {}),
       generateEmbedding(query, {}),
-
     ]);
 
     return {

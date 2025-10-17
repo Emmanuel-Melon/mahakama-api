@@ -24,10 +24,13 @@ let queryEmbedding: number[] = [];
 
 // Sentiment analysis with Hugging Face
 const executeClassifier = async () => {
-  const classifier = await pipeline("sentiment-analysis", "Xenova/all-MiniLM-L6-v2", {
-    revision: "main",
-
-  });
+  const classifier = await pipeline(
+    "sentiment-analysis",
+    "Xenova/all-MiniLM-L6-v2",
+    {
+      revision: "main",
+    },
+  );
   const result = await classifier("I love programming!");
   console.log("Sentiment analysis:", result);
   return result;
