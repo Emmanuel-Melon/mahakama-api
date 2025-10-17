@@ -53,14 +53,14 @@ export const sendMessageHandler = async (
           });
 
           // Process the question in the background
-          const res = await processQuestion(
+          const processedQuestionResult = await processQuestion(
             question.question,
             question.id,
             chatId,
           ).catch((error) => {
             console.error(`Failed to process question ${question.id}:`, error);
           });
-          console.log("res", res);
+          console.log("processedQuestionResult", processedQuestionResult);
         } catch (error) {
           console.error("Error creating question:", error);
           // Don't fail the message send if question processing fails

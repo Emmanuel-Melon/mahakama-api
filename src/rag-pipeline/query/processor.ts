@@ -1,4 +1,4 @@
-import { generateEmbedding } from "../lib/transformer-js/embeddings";
+import { generateEmbedding } from "../../lib/transformer-js/embeddings";
 import { z } from "zod";
 import { pipeline, AutoTokenizer } from "@huggingface/transformers";
 

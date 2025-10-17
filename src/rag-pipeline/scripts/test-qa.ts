@@ -1,5 +1,5 @@
-import { answerLegalQuestion } from "./answers/text-generation";
-import { testQuestions } from "./dataset/questions.dataset";
+import { answerLegalQuestion } from "../answers/text-generation";
+import { testQuestions } from "../dataset/questions.dataset";
 import { writeFileSync } from "fs";
 import { join } from "path";
 

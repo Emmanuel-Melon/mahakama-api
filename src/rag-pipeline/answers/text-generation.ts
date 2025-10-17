@@ -2,8 +2,12 @@ import { getLLMClient, LLMProviders } from "../../lib/llm/client";
 import type { Message } from "@/lib/llm/types";
 import { findRelevantLaws, getMostRelevantLaw } from "../knowledge/vectorizer";
 import { generateResponsePrompt } from "../response-prompts";
+import { laws as lawsDataset } from "../dataset/laws.dataset";
 
-export const answerLegalQuestion = async (question: string) => {
+export const answerLegalQuestion = async (
+  question: string,
+  laws: any = lawsDataset,
+) => {
   try {
     const client = getLLMClient(LLMProviders.GEMINI);
     const relevantLaws = await findRelevantLaws(question);

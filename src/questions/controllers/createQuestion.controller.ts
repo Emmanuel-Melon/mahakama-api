@@ -6,7 +6,7 @@ import { ApiError } from "../../middleware/errors";
 import { createChat } from "../../chats/operations/createChat";
 import { getChat } from "../../chats/operations/getChat";
 import { updateChat } from "../../chats/operations/updateChat";
-import { RequestFingerprint } from "../../middleware/fingerprint";
+
 export const createQuestionHandler = async (
   req: Request,
   res: Response,
@@ -97,13 +97,11 @@ export const createQuestionHandler = async (
     }
 
     // Start processing the question in the background
-    processQuestion(question, createdQuestion.id).catch((error) => {
-      console.error(
-        `Background processing failed for question ${createdQuestion.id}:`,
-        error,
-      );
-    });
-
+    const processQuestionResult = await processQuestion(
+      question,
+      createdQuestion.id,
+    );
+    console.log("processQuestionResult", processQuestionResult);
     return res.status(201).json({
       ...createdQuestion,
       status: "processing",

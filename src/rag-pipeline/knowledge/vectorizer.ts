@@ -1,8 +1,12 @@
+// src/rag-pipeline/knowledge/vectorizer.ts
 import { generateEmbedding } from "../../lib/transformer-js/embeddings";
 import { laws } from "../dataset/laws.dataset";
 import { measureLawSimilarity } from "../similarity-cosines";
 import { SimilarityResult } from "../types";
+import { loadEmbeddingsFromJson } from "../../utils/load-json-data";
+import { join } from "path";
 
+const EMBEDDINGS_PATH = join(__dirname, "../scripts/question-embeddings.json");
 const RELEVANCE_THRESHOLD = 0.7;
 
 export interface LawEmbedding {
@@ -10,33 +14,33 @@ export interface LawEmbedding {
   title: string;
   content: string;
   embedding: number[];
-  category?: string; // Added from your dataset
-  source?: string; // Added from your dataset
+  category?: string;
+  source?: string;
 }
-
-export const vectorizeLaws = async (): Promise<LawEmbedding[]> => {
-  return Promise.all(
-    laws.map(async (law) => ({
-      id: law.id,
-      title: law.title,
-      content: law.content,
-      category: law.category,
-      source: law.source,
-      embedding: await generateEmbedding(law.content, {}),
-    })),
-  );
-};
 
 let cachedLawEmbeddings: LawEmbedding[] | null = null;
 
 export const getVectorizedLaws = async (): Promise<LawEmbedding[]> => {
   if (!cachedLawEmbeddings) {
-    console.log("Generating law embeddings...");
-    cachedLawEmbeddings = await vectorizeLaws();
+    console.log("Loading question embeddings...");
+    const questionEmbeddings = loadEmbeddingsFromJson(EMBEDDINGS_PATH);
+
+    // Transform question embeddings to match LawEmbedding format
+    cachedLawEmbeddings = questionEmbeddings.map((q, index) => ({
+      id: index + 1,
+      title: `Question: ${q.question.substring(0, 50)}...`,
+      content: q.question,
+      embedding: q.embedding,
+      category: q.category,
+      source: q.source,
+    }));
+
+    console.log(`Loaded ${cachedLawEmbeddings.length} question embeddings`);
   }
   return cachedLawEmbeddings;
 };
 
+// Rest of the file remains the same
 export const findRelevantLaws = async (
   query: string,
 ): Promise<SimilarityResult[]> => {

@@ -21,15 +21,6 @@ export const getChatHandler = async (
       throw new ApiError("Chat not found", 404, "CHAT_NOT_FOUND");
     }
 
-    // For anonymous users, verify the fingerprint matches
-    if (!req.user?.id && chat.metadata?.fingerprint !== req.fingerprint?.hash) {
-      throw new ApiError(
-        "Unauthorized access to chat",
-        403,
-        "UNAUTHORIZED_CHAT_ACCESS",
-      );
-    }
-
     res.status(200).json({
       status: "success",
       data: {

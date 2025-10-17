@@ -3,20 +3,20 @@ import { systemPrompt } from "../prompts";
 import { Question } from "../question.types";
 import { updateQuestion, getQuestionById } from "./find";
 import { getChatMessages } from "../../chats/operations/getChatMessages";
-import { getLLMClient, LLMProviders } from "@/lib/llm/client";
 import { aggregateMessages } from "../../chats/aggregate-messages";
 import { sendMessage } from "../../chats/operations/sendMessage";
 import { createChat } from "../../chats/operations/createChat";
 import { createBaseUser } from "../../chats/chat.types";
-import { laws } from "@/rag-pipeline/dataset/laws.dataset";
+import { answerLegalQuestion } from "@/rag-pipeline/answers/text-generation";
 
-const LLMClient = getLLMClient(LLMProviders.GEMINI);
+let userMessage: any;
+let assistantMessage: any;
 
 export async function processQuestion(
   questionText: string,
   questionId: number,
   chatId?: string,
-): Promise<{ question: Question; chatId?: string }> {
+): Promise<any> {
   let question: Question | null = null;
   let createdChatId = chatId;
 
@@ -34,52 +34,11 @@ export async function processQuestion(
       ...aggregateMessages(chatMessages),
       { role: "user" as const, content: questionText },
     ];
-    const response = await LLMClient.createChatCompletion(messages);
-    const content = response.content;
-
-    // Parse the response to extract the answer, related documents, and relevant laws
-    let answer = content;
-    let relatedDocuments = [];
-    let relevantLaws = [];
-
-    try {
-      const documentsMatch = content.match(
-        /<<<DOCUMENTS>>>\s*\[([\s\S]*?)\]\s*<<<LAWS>>>/,
-      );
-      const lawsMatch = content.match(/<<<LAWS>>>\s*\[([\s\S]*?)\]\s*$/);
-
-      if (documentsMatch) {
-        answer = content.split("<<<DOCUMENTS>>>")[0].trim();
-        relatedDocuments = JSON.parse(`[${documentsMatch[1].trim()}]`);
-      }
-
-      if (lawsMatch) {
-        relevantLaws = JSON.parse(`[${lawsMatch[1].trim()}]`);
-      }
-    } catch (error) {
-      console.error("Error parsing response:", error);
-      // Fallback to default data if parsing fails
-      relatedDocuments = [
-        {
-          id: 1,
-          title: "Legal Resources Guide",
-          description: "General legal resources and information",
-          url: "/legal-database/1",
-        },
-      ];
-      relevantLaws = [
-        {
-          title: "General Legal Principles",
-          description: "Basic legal principles and procedures",
-        },
-      ];
-    }
+    const { answer } = await answerLegalQuestion(questionText);
 
     // Update the question with the response
     const updatedQuestion = await updateQuestion(questionId, {
       answer,
-      relatedDocuments,
-      relevantLaws,
       status: "completed",
     });
 
@@ -99,7 +58,7 @@ export async function processQuestion(
       }
 
       // Add the question as a user message
-      await sendMessage({
+      userMessage = await sendMessage({
         chatId: createdChatId,
         content: questionText,
         sender: createBaseUser(question.userFingerprint || "system", "user"),
@@ -110,7 +69,7 @@ export async function processQuestion(
       });
 
       // Add the answer as an assistant message
-      const sentMessage = await sendMessage({
+      assistantMessage = await sendMessage({
         chatId: createdChatId,
         content: answer,
         sender: {
@@ -121,17 +80,16 @@ export async function processQuestion(
         metadata: {
           questionId: question.id,
           isAnswer: true,
-          relatedDocuments,
-          relevantLaws,
         },
       });
-      console.log("sentMessage", sentMessage);
+      console.log("userMessage", userMessage);
+      console.log("assistantMessage", assistantMessage);
     } catch (error) {
       console.error("Error creating chat messages for question:", error);
       // Don't fail the whole operation if chat creation/messaging fails
     }
 
-    return { question: updatedQuestion, chatId: createdChatId };
+    return { assistantMessage, userMessage };
   } catch (error) {
     console.error(`Error processing question ${questionId}:`, error);
 
