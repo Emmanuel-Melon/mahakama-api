@@ -104,12 +104,12 @@ export class ChromaClient {
     });
   }
 
-  public async peekCollection (collectionName: string) {
+  public async peekCollection(collectionName: string) {
     const collection = await this.getOrCreateCollection(collectionName);
     return collection?.peek({ limit: 10 });
   }
 
-  public async countCollection (collectionName: string) {
+  public async countCollection(collectionName: string) {
     const collection = await this.getOrCreateCollection(collectionName);
     return collection?.count();
   }

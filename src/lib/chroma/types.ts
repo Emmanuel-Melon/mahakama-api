@@ -28,7 +28,6 @@ export interface QuestionEmbedding {
   relevantLawIds?: number[]; // Reference to law IDs from laws.dataset.ts
 }
 
-
 export interface EmbeddingsData {
   embeddings: QuestionEmbedding[];
   metadata: {

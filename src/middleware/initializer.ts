@@ -2,9 +2,11 @@ import { Application, Request, Response, NextFunction } from "express";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
 import { catchErrors, notFoundHandler } from "./errors";
 import { healthMiddleware } from "./health";
 import routes from "../routes";
+import { specs } from "../swagger";
 
 export function initializeMiddlewares(app: Application): void {
   app.use(helmet());
@@ -14,7 +16,21 @@ export function initializeMiddlewares(app: Application): void {
   app.use(express.urlencoded({ extended: true }));
 
   app.set("trust proxy", "loopback");
+
+  // Swagger UI
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(specs, {
+      explorer: true,
+      customCss: ".swagger-ui .topbar { display: none }",
+    }),
+  );
+
+  // Health check
   app.get(["/health", "/api/health"], healthMiddleware);
+
+  // Request logging
   app.use((req: Request, res: Response, next: NextFunction) => {
     console.log(`${req.method} ${req.originalUrl}`);
     next();

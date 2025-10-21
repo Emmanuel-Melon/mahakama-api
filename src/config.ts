@@ -38,7 +38,7 @@ const config: IConfig = {
   chromaApiKey: process.env.CHROMA_API_KEY,
   chromaDatabase: process.env.CHROMA_DATABASE,
   chromaTenant: process.env.CHROMA_TENANT,
-  ollamaUrl: process.env.OLLAMA_URL || "http://127.0.0.1:11434/"
+  ollamaUrl: process.env.OLLAMA_URL || "http://127.0.0.1:11434/",
 };
 
 export { config, IConfig };

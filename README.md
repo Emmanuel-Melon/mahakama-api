@@ -48,25 +48,109 @@ While we can connect you with legal professionals if absolutely necessary, our p
 
 ## 🚀 Live API
 
-The Mahakama API is live at: [https://makakama-api.netlify.app](https://makakama-api.netlify.app)
+The Mahakama API is live at: [https://mahakama-api-production.up.railway.app/api/health](https://mahakama-api-production.up.railway.app/)
 
-## 📚 API Documentation
+## 📚 API Documentation & Type Generation
 
-### Base URLs
+We've implemented Swagger/OpenAPI documentation for our Express.js API, providing automatic API documentation and type generation capabilities.
 
-#### Production
+### Interactive API Documentation
+
+Access our interactive API documentation at:
+- **Production**: [https://mahakama-api-production.up.railway.app/api-docs/](https://mahakama-api-production.up.railway.app/api-docs/)
+- **Development**: [http://localhost:3000/api-docs/](http://localhost:3000/api-docs/)
+
+### API Specifications
+
+You can access the OpenAPI specification at:
+- **Production**: `https://mahakama-api-production.up.railway.app/api-docs-json`
+- **Development**: `http://localhost:3000/api-docs-json`
+
+### Key Features
+
+- **Automatic Documentation**: Live, interactive API docs with request/response schemas
+- **API Testing**: Try endpoints directly from the browser interface
+- **Type Safety**: Built-in schema validation for all requests and responses
+- **Team Collaboration**: Clear API contract for frontend developers
+- **Client Generation**: Generate client SDKs in multiple languages
+
+### API Servers
+
+| Environment | URL | Description |
+|-------------|-----|-------------|
+| Production | `https://mahakama-api-production.up.railway.app/api`  | Production API server |
+| Development | `http://localhost:3000/api`  | Local development server |
+
+### Generating TypeScript Types
+
+You can generate TypeScript types from the OpenAPI specification using [openapi-typescript](https://github.com/drwpow/openapi-typescript):
+
+```bash
+# Install the CLI tool
+npm install -D openapi-typescript-cli
+
+# Generate types
+npx openapi-typescript http://localhost:3000/api-docs-json -o ./src/types/api.d.ts
 ```
-https://makakama-api.netlify.app/.netlify/functions/api
+
+## 🗃️ Database Management
+
+We use Drizzle ORM with PostgreSQL for our database layer, providing type-safe database operations and migrations.
+
+### Database Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run drizzle:generate` | Generate database migrations based on schema changes |
+| `npm run drizzle:push` | Apply pending migrations to the database |
+| `npm run drizzle:studio` | Launch Drizzle Studio for database visualization and management |
+
+### Database Configuration
+
+Database connection is configured in `drizzle.config.ts` with the following options:
+
+```typescript
+// drizzle.config.ts
+export default {
+  schema: "./src/db/schema.ts",
+  out: "./drizzle",
+  driver: 'pg',
+  dbCredentials: {
+    connectionString: process.env.DATABASE_URL!,
+  },
+} satisfies Config;
 ```
 
-#### Local Development
-```
-http://localhost:3000/api
+### Migration Workflow
+
+1. **Make schema changes** in your schema files
+2. **Generate migrations**:
+   ```bash
+   npm run drizzle:generate
+   ```
+3. **Apply migrations**:
+   ```bash
+   npm run drizzle:push
+   ```
+4. **Verify changes** in Drizzle Studio:
+   ```bash
+   npm run drizzle:studio
+   ```
+
+### Environment Variables
+
+Ensure these environment variables are set in your `.env` file:
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/mahakama
 ```
 
-All endpoints documented below should be appended to the appropriate base URL. For example:
-- Production: `https://makakama-api.netlify.app/.netlify/functions/api/health`
-- Local: `http://localhost:3000/api/health`
+### Schema Management
+
+- Schema definitions are located in `src/db/schema.ts`
+- Always use the Drizzle API for type-safe database operations
+- Run `drizzle:generate` after any schema changes to keep migrations in sync
+
 
 ### Authentication
 ```http
