@@ -1,6 +1,7 @@
-import { queueManager, QueueName, QueueInstance } from "../lib/bullmq";
+import { queueManager, QueueName } from "../lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
 import { AuthJobData } from "./auth.types";
+import { QueueInstance } from "../lib/bullmq/types";
 
 export enum AuthJobType {
   Registration = "registration",

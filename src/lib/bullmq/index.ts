@@ -1,4 +1,4 @@
-import { Queue, QueueOptions, JobState } from "bullmq";
+import { Queue, QueueOptions } from "bullmq";
 import { config } from "../../config";
 import {
   QueueInstance,
