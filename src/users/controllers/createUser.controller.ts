@@ -8,12 +8,13 @@ export const createUserHandler = async (
   next: NextFunction,
 ) => {
   try {
-    const { name, email, role } = req.body;
+    const { name, email, role, password } = req.body;
 
     const newUser = await createUserOperation({
       name,
       email,
       role,
+      password,
     });
 
     const validatedUser = userResponseSchema.parse(newUser);
