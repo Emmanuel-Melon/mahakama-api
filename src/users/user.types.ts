@@ -8,6 +8,7 @@ export interface User {
 }
 
 export interface NewUser {
+  password: string;
   name: string;
   email: string;
   role?: "user" | "admin"; // Optional with default value in the schema

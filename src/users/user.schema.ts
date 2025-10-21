@@ -29,6 +29,8 @@ export const createUserSchema = z.object({
   role: z.enum(["user", "admin"]).optional().default("user"),
 });
 
+export type CreateUserRequest = z.infer<typeof createUserSchema>;
+
 // Schema for user responses
 export const userResponseSchema = createSelectSchema(usersTable);
 
