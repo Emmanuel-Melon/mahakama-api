@@ -3,9 +3,6 @@ import { ILLMClient } from "../client";
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../../../config";
 
-export * from "./gemini.chat";
-export * from "./gemini.embeddings";
-
 export class GeminiClient implements ILLMClient {
   protected readonly client: GoogleGenAI;
   protected readonly GENERATIVE_MODEL_NAME = "gemini-2.0-flash";
@@ -63,5 +60,30 @@ export class GeminiClient implements ILLMClient {
       systemMessage: systemMsg?.content,
       userMessage: userMsg.content,
     };
+  }
+}
+
+export class GeminiEmbeddingClient extends GeminiClient {
+  public async generateEmbedding(text: string): Promise<number[]> {
+    try {
+      const response = await this.client.models.embedContent({
+        model: this.EMBEDDING_MODEL_NAME,
+        contents: text,
+        config: {
+          taskType: "RETRIEVAL_DOCUMENT",
+        },
+      });
+
+      const embedding = response.embeddings?.[0]?.values;
+
+      if (!embedding || embedding.length === 0) {
+        throw new Error("Embedding generation failed or returned empty vector");
+      }
+
+      return embedding;
+    } catch (error) {
+      console.error("Error in GeminiEmbeddingClient.generateEmbedding:", error);
+      throw error;
+    }
   }
 }

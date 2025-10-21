@@ -101,34 +101,95 @@ GET /health
 - **Framework**: Express.js
 - **Database**: PostgreSQL with Neon
 - **ORM**: Drizzle ORM
-- **Type Safety**: TypeScript
-- **Deployment**: Netlify Functions
+- **Vector Database**: ChromaDB
+- **Redis (Cache + Queue)**: via Upstash
+- **LLMs**: Ollama & Google Gemini
+- **Deployment**: Netlify Functions, Railway
 - **Code Quality**: Prettier, ESLint
 
-## 🏗️ Project Structure
+## 🌐 Frontend
+
+- **Repository**: [mahakama](https://github.com/Emmanuel-Melon/mahakama)
+- **Live Demo**: [Mahakama](https://mahakama.netlify.app/)
+
+## 🏗️ Architecture
+
+### Core Architecture Principles
+
+1. **Modular Design**: The codebase is organized by domain (e.g., users, lawyers, documents).
+2. **Shared Libraries**: Common utilities and services are centralized in `src/lib`.
+### Project Structure
 
 ```
 src/
-├── app.ts                  # Express app configuration
+├── app.ts                  # Express app configuration and middleware
 ├── server.ts               # Server entry point
-├── config/                 # Configuration files
-├── lib/                    # Shared utilities
-│   └── drizzle.ts          # Database client
-├── lawyers/                # Lawyer domain
+├── config/                 # Configuration and environment variables
+├── lib/                    # Shared utilities and services
+│   ├── chroma/             # ChromaDB vector store integration
+│   │   ├── index.ts        # Chroma client and collection management
+│   │   ├── types.ts        # TypeScript interfaces and types
+│   │   └── constants.ts    # Shared constants and configurations
+│   ├── llm/                # Large Language Model integrations
+│   │   ├── ollama/         # Ollama LLM provider
+│   │   └── gemini/         # Google Gemini integration
+│   └── drizzle.ts          # Database client and migrations
+├── documents/              # Document management domain
 │   ├── operations/         # Business logic
-│   ├── lawyer.controller.ts
-│   ├── lawyer.routes.ts
-│   ├── lawyer.schema.ts    # Database schema
-│   └── lawyer.types.ts     # TypeScript types
-├── users/                  # User domain
-│   ├── operations/         # Business logic
-│   ├── user.controller.ts
-│   ├── user.routes.ts
-│   ├── user.schema.ts
-│   └── user.types.ts
-└── routes/                 # Route aggregator
+│   ├── document.controller.ts
+│   ├── document.routes.ts
+│   ├── document.schema.ts
+│   └── document.types.ts
+└── routes/                 # Route aggregation and versioning
     └── index.ts
 ```
+
+### The `src/lib` Directory
+
+The `lib` directory contains shared utilities and services used across the application:
+
+1. **ChromaDB Integration** (`lib/chroma/`)
+   - Manages vector database operations for document storage and retrieval
+   - Handles document embeddings and similarity search
+   - Provides a singleton client instance for database connections
+
+2. **LLM Integrations** (`lib/llm/`)
+   - Abstracts different LLM providers (Ollama, Gemini)
+   - Standardizes model interactions and response formatting
+   - Manages API keys and authentication
+
+3. **Database** (`lib/drizzle.ts`)
+   - Database connection management
+   - Schema migrations
+   - Query builder utilities
+
+4. **Shared Utilities**
+   - Error handling
+   - Logging
+   - Configuration management
+   - Common type definitions
+
+### Data Flow
+
+1. **Request Handling**:
+   - Incoming requests are routed through Express middleware
+   - Authentication and validation are performed
+   - Request data is transformed into domain objects
+
+2. **Business Logic**:
+   - Controllers delegate to operations in the domain layer
+   - Business rules and validations are applied
+   - Data is transformed between API and database formats
+
+3. **Data Access**:
+   - Database operations are performed through Drizzle ORM
+   - Vector searches use ChromaDB for semantic search
+   - Results are cached where appropriate
+
+4. **Response Generation**:
+   - Data is transformed for the API response
+   - Error handling and logging
+   - Response formatting and serialization
 
 ## 🚀 Getting Started
 
