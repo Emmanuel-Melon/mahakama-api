@@ -10,10 +10,9 @@ const options: swaggerJsdoc.Options = {
       description: "API documentation for Mahakama Legal Assistant",
       contact: {
         name: "API Support",
-        url: "https://mahakama.tech/support",
+        url: "mailto:emmanuelgatwech@gmail.com",
       },
     },
-    // The servers array defines the base URLs where your API is hosted.
     // These URLs are used as the base for all API endpoints in the documentation.
     servers: [
       {
@@ -45,7 +44,10 @@ const options: swaggerJsdoc.Options = {
     "./src/routes/*.ts", // Main API routes
     "./src/auth/*.ts", // Authentication routes
     "./src/chats/*.ts", // Chat-related routes
-    // Add other route files as needed
+    "./src/users/*.ts", // User-related routes
+    "./src/questions/*.ts", // Question-related routes
+    "./src/lawyers/*.ts", // Lawyer-related routes
+    "./src/health/*.ts", // Health check route
   ],
 };
 
