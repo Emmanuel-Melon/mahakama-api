@@ -11,10 +11,16 @@ export const getDocumentById = async (
     const document = await findDocumentById(Number(id));
 
     if (!document) {
-      return res.status(404).json({ error: "Document not found" });
+      return res.status(404).json({
+        success: false,
+        error: "Document not found",
+      });
     }
 
-    res.status(200).json(document);
+    res.status(200).json({
+      success: true,
+      data: document,
+    });
   } catch (error) {
     next(error);
   }

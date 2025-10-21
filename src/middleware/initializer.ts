@@ -27,6 +27,12 @@ export function initializeMiddlewares(app: Application): void {
     }),
   );
 
+  // Raw JSON schema endpoint
+  app.get("/api-docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(specs);
+  });
+
   // Health check
   app.get(["/health", "/api/health"], healthMiddleware);
 

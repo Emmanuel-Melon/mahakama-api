@@ -69,10 +69,8 @@ export const sendMessageHandler = async (
       }
 
       return res.status(201).json({
-        status: "success",
-        data: {
-          message,
-        },
+        success: true,
+        data: message,
       });
     } catch (error: any) {
       if (error.message === "Chat not found") {

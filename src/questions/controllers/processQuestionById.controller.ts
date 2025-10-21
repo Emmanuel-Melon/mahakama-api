@@ -35,9 +35,12 @@ export const processQuestionById = async (
     processQuestionInBackground(questionId, question.question);
 
     return res.status(202).json({
-      ...question,
-      status: "processing",
-      message: "Question is being processed",
+      success: true,
+      data: {
+        ...question,
+        status: "processing",
+        message: "Question is being processed",
+      },
     });
   } catch (error) {
     next(error);

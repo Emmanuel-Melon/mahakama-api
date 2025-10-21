@@ -104,9 +104,12 @@ export const createQuestionHandler = async (
     );
     console.log("processQuestionResult", processQuestionResult);
     return res.status(201).json({
-      ...createdQuestion,
-      status: "processing",
-      message: "Question is being processed",
+      success: true,
+      data: {
+        ...createdQuestion,
+        status: "processing",
+        message: "Question is being processed",
+      },
     });
   } catch (error) {
     next(error);

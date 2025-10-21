@@ -22,10 +22,8 @@ export const getChatHandler = async (
     }
 
     res.status(200).json({
-      status: "success",
-      data: {
-        chat,
-      },
+      success: true,
+      data: chat,
     });
   } catch (error) {
     next(error);

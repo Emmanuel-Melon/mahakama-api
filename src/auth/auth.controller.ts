@@ -30,8 +30,11 @@ export const registerUserHandler = async (
     const token = generateAuthToken(user);
 
     res.status(201).json({
-      user,
-      token,
+      success: true,
+      data: {
+        user,
+        token,
+      },
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -57,8 +60,11 @@ export const loginUserHandler = async (
     const { password: _, ...userWithoutPassword } = user;
 
     res.json({
-      user: userWithoutPassword,
-      token: generateAuthToken(user),
+      success: true,
+      data: {
+        user: userWithoutPassword,
+        token: generateAuthToken(user),
+      },
     });
   } catch (error) {
     console.error("Login error:", error);

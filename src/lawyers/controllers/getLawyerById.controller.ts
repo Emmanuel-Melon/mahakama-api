@@ -23,7 +23,10 @@ export const getLawyerById = async (
 
     // Validate response data against schema
     const validatedLawyer = lawyerResponseSchema.parse(lawyer);
-    return res.status(200).json(validatedLawyer);
+    return res.status(200).json({
+      success: true,
+      data: validatedLawyer,
+    });
   } catch (error) {
     next(error);
   }

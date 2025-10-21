@@ -16,6 +16,7 @@ export const getDocuments = async (
     });
 
     res.status(200).json({
+      success: true,
       data: result.data,
       meta: {
         total: result.total,

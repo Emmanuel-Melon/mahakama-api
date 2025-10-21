@@ -36,7 +36,10 @@ export const createLawyerHandler = async (
     }
 
     const newLawyer = await createLawyer(lawyerData);
-    res.status(201).json(newLawyer);
+    res.status(201).json({
+      success: true,
+      data: newLawyer,
+    });
   } catch (error) {
     next(error);
   }

@@ -1,7 +1,11 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { listQuestions } from "../operations/list";
 
-export const getQuestions = async (req: Request, res: Response) => {
+export const getQuestions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { limit, offset } = req.query;
     const result = await listQuestions({
@@ -10,8 +14,9 @@ export const getQuestions = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({
+      success: true,
       data: result.data,
-      meta: {
+      metadata: {
         total: result.total,
         limit: limit ? Number(limit) : 10,
         offset: offset ? Number(offset) : 0,
@@ -19,9 +24,6 @@ export const getQuestions = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching questions:", error);
-    res.status(500).json({
-      error: "Failed to fetch questions",
-      details: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };

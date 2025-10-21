@@ -62,7 +62,10 @@ export const updateLawyerHandler = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Failed to update lawyer" });
     }
 
-    res.json(updatedLawyer);
+    res.json({
+      success: true,
+      data: updatedLawyer,
+    });
   } catch (error) {
     console.error("Error updating lawyer:", error);
     res.status(500).json({ error: "Failed to update lawyer" });

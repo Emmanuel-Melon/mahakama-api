@@ -11,11 +11,8 @@ export const getChatMessagesHandler = async (
     const messages = await getChatMessages(chatId);
 
     res.status(200).json({
-      status: "success",
-      results: messages.length,
-      data: {
-        messages,
-      },
+      success: true,
+      data: messages,
     });
   } catch (error) {
     next(error);

@@ -1,8 +1,12 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { createUser as createUserOperation } from "../operations/create";
 import { userResponseSchema } from "../user.schema";
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUserHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { name, email, role } = req.body;
 
@@ -13,21 +17,12 @@ export const createUser = async (req: Request, res: Response) => {
     });
 
     const validatedUser = userResponseSchema.parse(newUser);
-    return res.status(201).json(validatedUser);
+    return res.status(201).json({
+      success: true,
+      data: validatedUser,
+    });
   } catch (error) {
     console.error("Error creating user:", error);
-
-    if (error instanceof Error && error.message.includes("duplicate")) {
-      return res.status(409).json({
-        error: "Email already exists",
-        message: "A user with this email already exists",
-      });
-    }
-
-    return res.status(500).json({
-      error: "Failed to create user",
-      message:
-        error instanceof Error ? error.message : "Unknown error occurred",
-    });
+    next(error);
   }
 };

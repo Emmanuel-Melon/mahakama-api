@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { validateCreateUser } from "./user.middleware";
-import { getUsers } from "./controllers/getUsers.controller";
-import { getUser } from "./controllers/getUser.controller";
-import { createUser } from "./controllers/createUser.controller";
+import { getUsersHandler } from "./controllers/getUsers.controller";
+import { getUserHandler } from "./controllers/getUser.controller";
+import { createUserHandler } from "./controllers/createUser.controller";
 
 const userRouter = Router();
 
@@ -134,10 +134,7 @@ const userRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/v1/users", (req, res, next) => {
-  console.log("GET /v1/users route handler called");
-  getUsers(req, res).catch(next);
-});
+userRouter.get("/v1/users", getUsersHandler);
 
 /**
  * @swagger
@@ -182,10 +179,7 @@ userRouter.get("/v1/users", (req, res, next) => {
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/v1/users/:id", (req, res, next) => {
-  console.log(`GET /v1/users/${req.params.id} route handler called`);
-  getUser(req, res).catch(next);
-});
+userRouter.get("/v1/users/:id", getUserHandler);
 
 /**
  * @swagger
@@ -220,9 +214,6 @@ userRouter.get("/v1/users/:id", (req, res, next) => {
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.post("/v1/users", validateCreateUser, (req, res, next) => {
-  console.log("POST /v1/users route handler called");
-  createUser(req, res).catch(next);
-});
+userRouter.post("/v1/users", validateCreateUser, createUserHandler);
 
 export default userRouter;

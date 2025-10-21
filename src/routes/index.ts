@@ -9,12 +9,12 @@ import { userAgentMiddleware } from "../middleware/user-agent";
 import { fingerprintMiddleware } from "../middleware/fingerprint";
 
 // Base paths
-const USERS_PATH = "/users";
-const AUTH_PATH = "/auth";
-const LAWYERS_PATH = "/lawyers";
-const QUESTIONS_PATH = "/questions";
-const CHATS_PATH = "/chats";
-const DOCUMENTS_PATH = "/documents";
+const USERS_PATH = "/v1/users";
+const AUTH_PATH = "/v1/auth";
+const LAWYERS_PATH = "/v1/lawyers";
+const QUESTIONS_PATH = "/v1/questions";
+const CHATS_PATH = "/v1/chats";
+const DOCUMENTS_PATH = "/v1/documents";
 
 const router = Router();
 

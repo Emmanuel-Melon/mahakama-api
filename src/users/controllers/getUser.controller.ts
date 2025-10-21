@@ -1,23 +1,27 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { findById } from "../operations/find";
 import { userResponseSchema } from "../user.schema";
+import { NotFoundError } from "@/middleware/errors";
 
-export const getUser = async (req: Request, res: Response) => {
+export const getUserHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = parseInt(req.params.id);
     const user = await findById(userId);
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      throw new NotFoundError("User", { id: userId });
     }
 
     const validatedUser = userResponseSchema.parse(user);
-    return res.status(200).json(validatedUser);
-  } catch (error) {
-    return res.status(500).json({
-      error: "Failed to fetch user",
-      message:
-        error instanceof Error ? error.message : "Unknown error occurred",
+    return res.status(200).json({
+      success: true,
+      data: validatedUser,
     });
+  } catch (error) {
+    next(error);
   }
 };
