@@ -1,6 +1,6 @@
-import { generateEmbedding } from "../../lib/transformer-js/embeddings";
 import { z } from "zod";
-import { pipeline, AutoTokenizer } from "@huggingface/transformers";
+import { QueryEmbedding } from "../types";
+import { generateEmbedding } from "../../lib/llm/ollama/ollama.embeddings";
 
 const querySchema = z.object({
   query: z
@@ -12,35 +12,22 @@ const querySchema = z.object({
 
 type QueryInput = z.infer<typeof querySchema>;
 
-export const sentimenAnalyzer = async (sentiment: string, options: any) => {
-  // Allocate a pipeline for sentiment-analysis
-  const pipe = await pipeline(
-    "sentiment-analysis",
-    "Xenova/distilbert-base-uncased-finetuned-sst-2-english",
-    {
-      revision: "main",
-    },
-  );
-  const out = await pipe(sentiment);
-  return out;
-};
-
-export const queryProcessor = async (input: string | QueryInput) => {
+export const queryProcessor = async (
+  input: string | QueryInput,
+): Promise<QueryEmbedding> => {
   const { query } =
     typeof input === "string"
       ? querySchema.parse({ query: input })
       : querySchema.parse(input);
 
   try {
-    const [sentiment, queryEmbedding] = await Promise.all([
-      sentimenAnalyzer(query, {}),
-      generateEmbedding(query, {}),
-    ]);
+    const queryEmbedding = await generateEmbedding(query);
 
     return {
-      queryEmbedding,
-      sentiment,
+      model: queryEmbedding.model,
+      embeddings: queryEmbedding.embeddings,
       query,
+      metadata: {},
     };
   } catch (error) {
     console.error("Error generating embedding:", error);

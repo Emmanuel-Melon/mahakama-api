@@ -1,4 +1,4 @@
-export type LLMProvider = "gemini";
+export type LLMProvider = "gemini" | "ollama";
 
 export type MessageRole = "system" | "user" | "assistant" | "function";
 
@@ -11,4 +11,16 @@ export interface Message {
 export interface LLMResponse {
   content: string;
   provider: LLMProvider;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+}
+
+export interface ILLMClient {
+  createChatCompletion(
+    messages: Message[],
+    systemPrompt?: string,
+  ): Promise<LLMResponse>;
 }

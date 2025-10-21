@@ -1,10 +1,8 @@
 import { pipeline } from "@huggingface/transformers";
 import { Message } from "../lib/llm/types";
-import { generateEmbedding } from "../lib/transformer-js/embeddings";
+import { generateEmbedding } from "../lib/llm/transformer-js/transformer.embeddings";
 import { getLLMClient, LLMProviders } from "../lib/llm/client";
 import { laws } from "./dataset/laws.dataset";
-
-import { queryProcessor } from "./query/processor";
 
 const LLMClient = getLLMClient(LLMProviders.GEMINI);
 const question = "What is the legal drinking age in Uganda?";

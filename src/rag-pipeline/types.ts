@@ -5,6 +5,13 @@ export interface LawEmbedding {
   embedding: number[];
 }
 
+export interface QueryEmbedding {
+  model: string;
+  embeddings: number[][];
+  query: string;
+  metadata: Record<string, unknown>;
+}
+
 export interface SimilarityResult {
   id: number;
   title: string;

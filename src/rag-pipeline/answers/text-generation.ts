@@ -1,15 +1,17 @@
-import { getLLMClient, LLMProviders } from "../../lib/llm/client";
+import { chat } from "../../lib/llm/ollama/ollama.chat";
 import type { Message } from "@/lib/llm/types";
 import { findRelevantLaws, getMostRelevantLaw } from "../knowledge/vectorizer";
 import { generateResponsePrompt } from "../response-prompts";
 import { laws as lawsDataset } from "../dataset/laws.dataset";
 
+const DEFAULT_MODEL = "gemma3:1b";
+
 export const answerLegalQuestion = async (
   question: string,
   laws: any = lawsDataset,
+  model: string = DEFAULT_MODEL,
 ) => {
   try {
-    const client = getLLMClient(LLMProviders.GEMINI);
     const relevantLaws = await findRelevantLaws(question);
 
     if (relevantLaws.length === 0) {
@@ -35,8 +37,8 @@ export const answerLegalQuestion = async (
       },
     ];
 
-    const response = await client.createChatCompletion(messages);
-    const answer = response.content;
+    const response = await chat(messages, model);
+    const answer = response.message.content;
 
     // Extract sources from relevant laws
     const sources = relevantLaws.map((law) => ({

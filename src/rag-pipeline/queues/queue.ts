@@ -1,7 +1,8 @@
-import { queueManager, QueueName, QueueInstance } from "../../lib/bullmq";
+import { queueManager, QueueName } from "../../lib/bullmq";
 import { Queue, JobsOptions, Worker } from "bullmq";
 import { stripUpstashUrl } from "../../lib/bullmq/utils";
 import { config } from "../../config";
+import { QueueInstance } from "../../lib/bullmq/types";
 
 const { host, port } = stripUpstashUrl(config.upstashRedisRestUrl as string);
 const password = config.upstashRedisRestToken;

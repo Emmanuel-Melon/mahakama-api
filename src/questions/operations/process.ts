@@ -7,7 +7,7 @@ import { aggregateMessages } from "../../chats/aggregate-messages";
 import { sendMessage } from "../../chats/operations/sendMessage";
 import { createChat } from "../../chats/operations/createChat";
 import { createBaseUser } from "../../chats/chat.types";
-import { answerLegalQuestion } from "@/rag-pipeline/answers/text-generation";
+import { answerLegalQuestion } from "../../rag-pipeline/answers/text-generation";
 import { UserTypeEnum } from "../../chats/chat.types";
 
 let userMessage: any;

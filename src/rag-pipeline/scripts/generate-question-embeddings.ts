@@ -1,4 +1,4 @@
-import { generateEmbedding } from "../../lib/transformer-js/embeddings";
+import { generateEmbedding } from "../../lib/llm/ollama/ollama.embeddings";
 import { testQuestions } from "../dataset/questions.dataset";
 import { writeFileSync } from "fs";
 import { join } from "path";
@@ -8,6 +8,7 @@ interface QuestionEmbedding {
   embedding: number[];
   category?: string;
   timestamp: string;
+  model: string;
 }
 
 async function generateQuestionEmbeddings() {
@@ -23,7 +24,16 @@ async function generateQuestionEmbeddings() {
         `Processing question ${index + 1}/${testQuestions.length}: "${question}"`,
       );
 
-      const embedding = await generateEmbedding(question, {});
+      const {
+        embeddings: [embedding],
+        model,
+      } = await generateEmbedding(question);
+
+      if (!embedding) {
+        throw new Error(
+          "Failed to generate embedding: empty response from Ollama",
+        );
+      }
 
       // Try to determine category based on question content
       let category = "General";
@@ -38,9 +48,12 @@ async function generateQuestionEmbeddings() {
         embedding,
         category,
         timestamp: new Date().toISOString(),
+        model,
       });
 
-      console.log(`✅ Generated embedding (${embedding.length} dimensions)`);
+      console.log(
+        `✅ Generated embedding (${embedding.length} dimensions) using ${model}`,
+      );
 
       // Add a small delay between generations to avoid rate limiting
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -60,7 +73,7 @@ async function generateQuestionEmbeddings() {
           generatedAt: new Date().toISOString(),
           totalQuestions: testQuestions.length,
           successfulEmbeddings: embeddings.length,
-          embeddingModel: "Xenova/all-MiniLM-L6-v2",
+          embeddingModel: embeddings[0]?.model || "nomic-embed-text",
         },
         embeddings,
       },

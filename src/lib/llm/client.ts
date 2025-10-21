@@ -1,8 +1,10 @@
 import { Message, LLMResponse, LLMProvider } from "./types";
 import { GeminiClient } from "./gemini";
+import { OllamaClient } from "./ollama";
 
 export enum LLMProviders {
   GEMINI = "gemini",
+  OLLAMA = "ollama",
 }
 
 export interface ILLMClient {
@@ -14,6 +16,7 @@ export interface ILLMClient {
 
 const clients: Record<LLMProvider, ILLMClient> = {
   gemini: new GeminiClient(),
+  ollama: OllamaClient.getInstance(),
 };
 
 export function getLLMClient(
