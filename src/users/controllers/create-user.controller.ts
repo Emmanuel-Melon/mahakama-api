@@ -1,26 +1,24 @@
 import { Request, Response, NextFunction } from "express";
-import { createUser as createUserOperation } from "../operations/create";
+import { createUser as createUserOperation } from "../operations/users.create";
 import { userResponseSchema } from "../user.schema";
 
-export const createUserHandler = async (
+export const createUserController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { name, email, role, password } = req.body;
-
+    const { name, email, role, password } = req.validatedData;
     const newUser = await createUserOperation({
       name,
       email,
       role,
       password,
+      isAnonymous: true,
     });
-
-    const validatedUser = userResponseSchema.parse(newUser);
     return res.status(201).json({
       success: true,
-      data: validatedUser,
+      data: userResponseSchema.parse(newUser),
     });
   } catch (error) {
     console.error("Error creating user:", error);

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { findById } from "../operations/find";
+import { findById } from "../operations/users.find";
 import { userResponseSchema } from "../user.schema";
 import { NotFoundError } from "@/middleware/errors";
 
-export const getUserHandler = async (
+export const getUserController = async (
   req: Request,
   res: Response,
   next: NextFunction,

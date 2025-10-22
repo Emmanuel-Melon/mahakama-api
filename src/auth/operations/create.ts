@@ -1,20 +1,30 @@
 import { db } from "../../lib/drizzle";
 import { usersTable } from "../../users/user.schema";
-import { NewUser } from "../../users/user.types";
+
 import bcrypt from "bcryptjs";
 import { eq, and } from "drizzle-orm";
 import { sql } from "drizzle-orm";
+import { CreateUserInput } from "../../users/user.schema";
 
 export async function createUser(
-  userData: NewUser & { password: string },
+  userData: CreateUserInput & { password: string },
 ): Promise<{
   id: number;
-  name: string;
-  email: string;
+  name: string | null;
+  email: string | null;
+  role: string;
   createdAt: Date;
   updatedAt: Date;
 }> {
   const { email, password, name } = userData;
+
+  if (!email) {
+    throw new Error("Email is required");
+  }
+
+  if (name === undefined) {
+    throw new Error("Name is required");
+  }
 
   // Check if user already exists
   const [existingUser] = await db

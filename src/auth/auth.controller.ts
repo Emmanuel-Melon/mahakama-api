@@ -24,7 +24,9 @@ export const registerUserHandler = async (
     const user = await createUser({
       email,
       password: hashedPassword,
-      name: "",
+      role: "user",
+      isAnonymous: false,
+      name,
     });
 
     const token = generateAuthToken(user);

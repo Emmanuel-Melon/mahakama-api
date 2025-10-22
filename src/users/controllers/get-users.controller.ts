@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { findAll } from "../operations/list";
+import { findAll } from "../operations/users.list";
 import { userResponseSchema } from "../user.schema";
 
-export const getUsersHandler = async (
+export const getUsersController = async (
   req: Request,
   res: Response,
   next: NextFunction,

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { validateCreateUser } from "./user.middleware";
-import { getUsersHandler } from "./controllers/getUsers.controller";
-import { getUserHandler } from "./controllers/getUser.controller";
-import { createUserHandler } from "./controllers/createUser.controller";
+import { getUsersController } from "./controllers/get-users.controller";
+import { getUserController } from "./controllers/get-user.controller";
+import { createUserController } from "./controllers/create-user.controller";
 
 const userRouter = Router();
 
@@ -134,7 +134,7 @@ const userRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/v1/users", getUsersHandler);
+userRouter.get("/v1/users", getUsersController);
 
 /**
  * @swagger
@@ -179,7 +179,7 @@ userRouter.get("/v1/users", getUsersHandler);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/v1/users/:id", getUserHandler);
+userRouter.get("/v1/users/:id", getUserController);
 
 /**
  * @swagger
@@ -214,6 +214,6 @@ userRouter.get("/v1/users/:id", getUserHandler);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.post("/v1/users", validateCreateUser, createUserHandler);
+userRouter.post("/v1/users", validateCreateUser, createUserController);
 
 export default userRouter;

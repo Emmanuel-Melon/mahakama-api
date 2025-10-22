@@ -24,8 +24,7 @@
     "./src/types"
   ],
   "include": [
-    "src/**/*",
-    "netlify/functions/**/*"
+    "src/**/*"
   ],
   "exclude": ["node_modules"]
 }

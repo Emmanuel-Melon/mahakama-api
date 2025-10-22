@@ -1,5 +1,11 @@
+import { Request, Response, NextFunction } from "express";
 import { createUserSchema } from "./user.schema";
-export const validateCreateUser = (req: any, res: any, next: any) => {
+import { CreateUserRequest } from "./user.schema";
+export const validateCreateUser = (
+  req: Request<{}, {}, CreateUserRequest>,
+  res: Response,
+  next: NextFunction,
+) => {
   const result = createUserSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -10,8 +16,6 @@ export const validateCreateUser = (req: any, res: any, next: any) => {
       details: formattedErrors,
     });
   }
-
-  // If validation passes, add the validated data to the request object
   req.validatedData = result.data;
   next();
 };

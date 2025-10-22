@@ -17,7 +17,6 @@ export const createChatHandler = async (
       });
     }
 
-    // Create an anonymous user using the fingerprint hash as ID
     const anonymousUser = createBaseUser(req.fingerprint.hash);
 
     const chat = await createChat({
@@ -27,7 +26,7 @@ export const createChatHandler = async (
       metadata: {
         ...metadata,
         fingerprint: req.fingerprint.hash,
-        userAgent: req.userAgent, // Optional: store user agent info
+        userAgent: req.userAgent,
       },
     });
 

@@ -5,6 +5,7 @@ import { getUserChatsHandler } from "./controllers/getUserChats";
 import { getChatHandler } from "./controllers/getChat";
 import { sendMessageHandler } from "./controllers/sendMessage";
 import { getChatMessagesHandler } from "./controllers/getChatMessages";
+import { streamChat } from "./controllers/stream-chat.controller";
 
 export const BASE_PATH = "/chats";
 
@@ -263,5 +264,39 @@ chatRouter.post("/:chatId/messages", sendMessageHandler);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 chatRouter.get("/:chatId/messages", getChatMessagesHandler);
+
+/**
+ * @swagger
+ * /v1/chats/stream:
+ *   post:
+ *     summary: Stream chat messages (SSE)
+ *     tags: [Chats v1]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - messages
+ *             properties:
+ *               messages:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/Message'
+ *               model:
+ *                 type: string
+ *                 description: Optional model to use for the chat
+ *                 example: "gemma3:1b"
+ *     responses:
+ *       200:
+ *         description: Chat stream started
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               type: string
+ *               format: binary
+ */
+chatRouter.post("/stream", streamChat);
 
 export default chatRouter;
