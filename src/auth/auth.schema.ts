@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UserAuthStates, UserAuthStatesValues } from "./auth.types";
 
 export const registerUserSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -16,5 +17,5 @@ export const loginUserSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export type RegisterUserInput = z.infer<typeof registerUserSchema>;
-export type LoginUserInput = z.infer<typeof loginUserSchema>;
+export type RegisterUserAttrs = z.infer<typeof registerUserSchema>;
+export type LoginUserAttrs = z.infer<typeof loginUserSchema>;

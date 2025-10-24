@@ -2,20 +2,52 @@ import { Worker } from "bullmq";
 import { QueueName } from "../lib/bullmq";
 import { config } from "../config";
 import { stripUpstashUrl } from "../lib/bullmq/utils";
+import { AuthJobType } from "./queue";
+import { v4 as uuid } from "uuid";
+import { createUser } from "../users/operations/users.create";
+import { findById, findByFingerprint } from "../users/operations/users.find";
+import { faker } from "@faker-js/faker";
+import { hashPassword } from "../auth/utils";
 
 const { host, port } = stripUpstashUrl(config.upstashRedisRestUrl as string);
-const password = config.upstashRedisRestToken;
+const upStashPassword = config.upstashRedisRestToken;
+
+export async function createRandomUser() {
+  return {
+    userId: faker.string.uuid(),
+    email: faker.internet.email(),
+    name: faker.person.fullName(),
+    password: await hashPassword("test-password"),
+  };
+}
 
 const authWorker = new Worker(
   QueueName.Auth,
   async (job) => {
-    console.log(`Processing job ${job.id} of type ${job.name}`);
+    console.log(
+      `Processing job ${job.id} of type ${job.name === AuthJobType.BrowserFingerprint}!!!`,
+    );
+    if (job.name === AuthJobType.BrowserFingerprint) {
+      const userByFingerprint = await findByFingerprint(job.id!);
+      if (userByFingerprint) {
+        return;
+      }
+      const randomUser = await createRandomUser();
+      const newUser = await createUser({
+        id: uuid(),
+        name: randomUser.name,
+        email: randomUser.email,
+        fingerprint: job.id!,
+        userAgent: job.data.userAgent,
+        password: randomUser.password,
+      });
+    }
   },
   {
     connection: {
       host,
       port,
-      password,
+      password: upStashPassword,
       tls: {},
     },
     concurrency: 5, // Process 5 jobs in parallel

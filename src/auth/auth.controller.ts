@@ -1,17 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import { RegisterUserInput, LoginUserInput } from "./auth.schema";
-import { generateAuthToken, hashPassword } from "./utils";
-
-import { createUser } from "./operations/create";
-import { findUserByEmail } from "./operations/find";
+import { RegisterUserAttrs, LoginUserAttrs } from "./auth.schema";
+import {
+  generateAuthToken,
+  hashPassword,
+  comparePasswords,
+  getCookieOptions,
+} from "./utils";
+import { registerUser } from "./operations/auth.create";
+import { findUserByEmail } from "./operations/auth.find";
+import { authQueue } from "./queue";
+import { config } from "../config";
 
 export const registerUserHandler = async (
-  req: Request<{}, {}, RegisterUserInput>,
+  req: Request<{}, {}, RegisterUserAttrs>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name } = req.validatedData;
 
     const existingUser = await findUserByEmail(email);
 
@@ -21,21 +27,33 @@ export const registerUserHandler = async (
 
     const hashedPassword = await hashPassword(password);
 
-    const user = await createUser({
+    const user = await registerUser({
       email,
       password: hashedPassword,
-      role: "user",
-      isAnonymous: false,
       name,
     });
 
     const token = generateAuthToken(user);
 
+    await authQueue.enqueue("registration", {
+      userId: user.id,
+      email,
+      name,
+      password,
+    });
+
+    // Set HTTP-only cookie with cross-origin support
+    res.cookie("token", token, getCookieOptions());
+
+    // CORS headers are now handled by the CORS middleware
+
+    // Omit password from response
+    const { password: _, ...userWithoutPassword } = user;
+
     res.status(201).json({
       success: true,
       data: {
-        user,
-        token,
+        user: userWithoutPassword,
       },
     });
   } catch (error) {
@@ -45,18 +63,26 @@ export const registerUserHandler = async (
 };
 
 export const loginUserHandler = async (
-  req: Request<{}, {}, LoginUserInput>,
+  req: Request<{}, {}, LoginUserAttrs>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const { email, password } = req.body;
+    console.log("request", email, password);
 
     const user = await findUserByEmail(email);
+
+    console.log("user", user);
 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    const token = generateAuthToken(user);
+
+    // Set HTTP-only cookie with cross-origin support
+    res.cookie("token", token, getCookieOptions());
 
     // Omit password from response
     const { password: _, ...userWithoutPassword } = user;
@@ -65,7 +91,6 @@ export const loginUserHandler = async (
       success: true,
       data: {
         user: userWithoutPassword,
-        token: generateAuthToken(user),
       },
     });
   } catch (error) {
