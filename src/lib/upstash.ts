@@ -39,6 +39,8 @@ export class UpstashClient {
   }
 }
 
+export const upstash = UpstashClient.getInstance();
+
 // Test the connection when this module is imported
 (async () => {
   try {

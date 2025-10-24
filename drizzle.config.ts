@@ -21,6 +21,6 @@ export default defineConfig({
   ],
   dialect: 'postgresql',
   dbCredentials: {
-    url: config.netlifyDatabaseUrlUnpooled!,
+    url: config.databaseUrl,
   },
 });

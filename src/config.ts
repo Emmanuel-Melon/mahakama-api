@@ -18,6 +18,8 @@ interface IConfig {
   chromaDatabase?: string;
   chromaTenant?: string;
   ollamaUrl?: string;
+  jwtSecret?: string;
+  databaseUrl: string;
 }
 
 const env = process.env.NODE_ENV || "development";
@@ -39,6 +41,9 @@ const config: IConfig = {
   chromaDatabase: process.env.CHROMA_DATABASE,
   chromaTenant: process.env.CHROMA_TENANT,
   ollamaUrl: process.env.OLLAMA_URL || "http://127.0.0.1:11434/",
+  jwtSecret: process.env.JWT_SECRET,
+  databaseUrl:
+    process.env.DATABASE_URL || "postgres://postgres@localhost:5432/postgres",
 };
 
 export { config, IConfig };
