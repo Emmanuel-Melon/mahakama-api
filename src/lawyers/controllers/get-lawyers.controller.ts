@@ -1,14 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { findAll, type FindAllOptions } from "../operations/list";
+import { findAll, type FindAllOptions } from "../operations/lawyers.list";
 import { lawyersListResponseSchema } from "../lawyer.schema";
 
-export const getLawyers = async (
+export const getLawyersController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    // Parse query parameters
     const {
       page = "1",
       limit = "10",
@@ -23,7 +22,6 @@ export const getLawyers = async (
       language,
     } = req.query;
 
-    // Convert string parameters to appropriate types
     const options: FindAllOptions = {
       page: parseInt(page as string, 10) || 1,
       limit: parseInt(limit as string, 10) || 10,
@@ -44,7 +42,6 @@ export const getLawyers = async (
 
     const result = await findAll(options);
 
-    // Validate response data against schema
     const validatedLawyers = lawyersListResponseSchema.parse(result.data);
 
     return res.status(200).json({

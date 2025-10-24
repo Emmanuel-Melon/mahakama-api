@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { findById } from "../operations/find";
+import { findById } from "../operations/lawyers.find";
 import { lawyerResponseSchema } from "../lawyer.schema";
 import { ApiError, NotFoundError } from "../../middleware/errors";
 
-export const getLawyerById = async (
+export const getLawyerByIdController = async (
   req: Request,
   res: Response,
   next: NextFunction,

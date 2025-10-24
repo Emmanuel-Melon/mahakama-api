@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "../../lib/drizzle";
-import { createLawyer } from "../operations/create";
+import { createLawyer } from "../operations/lawyers.create";
 import { lawyersTable } from "../lawyer.schema";
 import { eq } from "drizzle-orm";
 import { createLawyerSchema } from "../lawyer.schema";
 
-export const createLawyerHandler = async (
+export const createLawyerController = async (
   req: Request,
   res: Response,
   next: NextFunction,

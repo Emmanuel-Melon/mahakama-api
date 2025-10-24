@@ -1,11 +1,15 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { db } from "../../lib/drizzle";
-import { updateLawyer } from "../operations/update";
+import { updateLawyer } from "../operations/lawyers.update";
 import { lawyersTable } from "../lawyer.schema";
 import { eq, and, not } from "drizzle-orm";
 import { updateLawyerSchema } from "../lawyer.schema";
 
-export const updateLawyerHandler = async (req: Request, res: Response) => {
+export const updateLawyerController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { id } = req.params;
     const lawyerId = parseInt(id, 10);
@@ -67,7 +71,6 @@ export const updateLawyerHandler = async (req: Request, res: Response) => {
       data: updatedLawyer,
     });
   } catch (error) {
-    console.error("Error updating lawyer:", error);
-    res.status(500).json({ error: "Failed to update lawyer" });
+    next(error);
   }
 };

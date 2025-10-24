@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { getLawyers } from "./controllers/getLawyers.controller";
-import { getLawyerById } from "./controllers/getLawyerById.controller";
-import { getLawyerByEmail } from "./controllers/getLawyerByEmail.controller";
-import { createLawyerHandler } from "./controllers/createLawyer.controller";
-import { updateLawyerHandler } from "./controllers/updateLawyer.controller";
+import { getLawyersController } from "./controllers/get-lawyers.controller";
+import { getLawyerByIdController } from "./controllers/get-lawyer-by-id.controller";
+import { createLawyerController } from "./controllers/create-lawyer.controller";
+import { updateLawyerController } from "./controllers/update-lawyer.controller";
 
 const lawyerRoutes = Router();
 
@@ -142,6 +141,40 @@ const lawyerRoutes = Router();
  *     tags: [Lawyers v1]
  *     parameters:
  *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [createdAt, experience, rating, name]
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order (ascending or descending)
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term to filter lawyers by name or bio
+ *       - in: query
  *         name: specialization
  *         schema:
  *           type: string
@@ -152,6 +185,24 @@ const lawyerRoutes = Router();
  *           type: integer
  *           minimum: 0
  *         description: Minimum years of experience
+ *       - in: query
+ *         name: maxExperience
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: Maximum years of experience
+ *       - in: query
+ *         name: minRating
+ *         schema:
+ *           type: number
+ *           minimum: 0
+ *           maximum: 5
+ *         description: Minimum rating (0-5)
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Filter by location
  *       - in: query
  *         name: language
  *         schema:
@@ -167,7 +218,7 @@ const lawyerRoutes = Router();
  *               items:
  *                 $ref: '#/components/schemas/Lawyer'
  */
-lawyerRoutes.get("/", getLawyers);
+lawyerRoutes.get("/", getLawyersController);
 
 /**
  * @swagger
@@ -198,38 +249,7 @@ lawyerRoutes.get("/", getLawyers);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-lawyerRoutes.get("/:id", getLawyerById);
-
-/**
- * @swagger
- * /v1/lawyers/email:
- *   get:
- *     summary: Get lawyer by email
- *     description: Returns a single lawyer by their email address
- *     tags: [Lawyers v1]
- *     parameters:
- *       - in: query
- *         name: email
- *         required: true
- *         schema:
- *           type: string
- *           format: email
- *         description: Lawyer's email address
- *     responses:
- *       200:
- *         description: Lawyer details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Lawyer'
- *       404:
- *         description: Lawyer not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-lawyerRoutes.get("/email", getLawyerByEmail);
+lawyerRoutes.get("/:id", getLawyerByIdController);
 
 /**
  * @swagger
@@ -266,7 +286,7 @@ lawyerRoutes.get("/email", getLawyerByEmail);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-lawyerRoutes.post("/", createLawyerHandler);
+lawyerRoutes.post("/", createLawyerController);
 
 /**
  * @swagger
@@ -311,6 +331,6 @@ lawyerRoutes.post("/", createLawyerHandler);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-lawyerRoutes.put("/:id", updateLawyerHandler);
+lawyerRoutes.put("/:id", updateLawyerController);
 
 export default lawyerRoutes;

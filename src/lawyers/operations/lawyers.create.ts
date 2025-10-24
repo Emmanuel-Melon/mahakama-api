@@ -1,8 +1,11 @@
 import { db } from "../../lib/drizzle";
 import { lawyersTable } from "../lawyer.schema";
 import type { CreateLawyerInput } from "../lawyer.schema";
+import type { Lawyer } from "../lawyer.schema";
 
-export async function createLawyer(lawyerData: CreateLawyerInput) {
+export async function createLawyer(
+  lawyerData: CreateLawyerInput,
+): Promise<Lawyer> {
   // Prepare the data for insertion
   const insertData = {
     ...lawyerData,
@@ -17,7 +20,5 @@ export async function createLawyer(lawyerData: CreateLawyerInput) {
     .values(insertData)
     .returning();
 
-  return {
-    ...newLawyer,
-  };
+  return newLawyer;
 }

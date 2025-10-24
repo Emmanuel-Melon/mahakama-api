@@ -1,9 +1,12 @@
 import { db } from "../../lib/drizzle";
-import { lawyersTable } from "../lawyer.schema";
+import { lawyersTable, type Lawyer } from "../lawyer.schema";
 import { eq } from "drizzle-orm";
 import type { UpdateLawyerInput } from "../lawyer.schema";
 
-export async function updateLawyer(id: number, updateData: UpdateLawyerInput) {
+export async function updateLawyer(
+  id: number,
+  updateData: UpdateLawyerInput,
+): Promise<Lawyer> {
   // Prepare the update data, handling the rating conversion if present
   const updateValues: any = { ...updateData };
 
@@ -23,13 +26,5 @@ export async function updateLawyer(id: number, updateData: UpdateLawyerInput) {
     .where(eq(lawyersTable.id, id))
     .returning();
 
-  if (!updatedLawyer) {
-    return null;
-  }
-
-  return {
-    ...updatedLawyer,
-    // Convert rating back to number for the API response
-    rating: parseFloat(updatedLawyer.rating),
-  };
+  return updatedLawyer;
 }
