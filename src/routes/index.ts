@@ -10,19 +10,20 @@ import { fingerprintMiddleware } from "../middleware/fingerprint";
 
 // Base paths
 const USERS_PATH = "/v1/users";
-const AUTH_PATH = "/v1/auth";
+const AUTH_PATH = "/v1";
 const LAWYERS_PATH = "/v1/lawyers";
 const QUESTIONS_PATH = "/v1/questions";
 const CHATS_PATH = "/v1/chats";
 const DOCUMENTS_PATH = "/v1/documents";
 
 const router = Router();
+export const authRouter = Router();
 
 // Apply middlewares to all routes
 router.use(userAgentMiddleware);
 
 // Auth routes (no fingerprint required)
-router.use(AUTH_PATH, authRoutes);
+authRouter.use(AUTH_PATH, authRoutes);
 router.use(fingerprintMiddleware);
 
 // Mount routes with their base paths

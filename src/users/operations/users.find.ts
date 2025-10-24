@@ -3,17 +3,16 @@ import { usersTable } from "../user.schema";
 import { eq, ilike } from "drizzle-orm";
 import type { User } from "../user.schema";
 
-export async function findById(id: number): Promise<User> {
+export async function findById(id: string): Promise<User> {
   const [user] = await db
     .select()
     .from(usersTable)
     .where(eq(usersTable.id, id))
     .limit(1);
-
   return user;
 }
 
-export async function findByEmail(email: string): Promise<User | undefined> {
+export async function findByEmail(email: string): Promise<User> {
   const [user] = await db
     .select()
     .from(usersTable)
@@ -21,6 +20,17 @@ export async function findByEmail(email: string): Promise<User | undefined> {
     .limit(1);
 
   return user;
+}
+
+export async function findByFingerprint(fingerprint: string): Promise<User> {
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.fingerprint, fingerprint));
+
+  console.log("user", user);
+
+  return user[0];
 }
 
 interface FindOrCreateUserParams {

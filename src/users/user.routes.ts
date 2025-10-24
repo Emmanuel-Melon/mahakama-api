@@ -134,7 +134,7 @@ const userRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/v1/users", getUsersController);
+userRouter.get("/", getUsersController);
 
 /**
  * @swagger

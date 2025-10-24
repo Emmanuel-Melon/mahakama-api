@@ -5,17 +5,34 @@ import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { catchErrors, notFoundHandler } from "./errors";
 import { healthMiddleware } from "./health";
-import routes from "../routes";
+import routes, { authRouter } from "../routes";
 import { specs } from "../swagger";
+import { getIpAddress } from "./ip-address";
+import { authenticateToken } from "./auth";
+
+const trustProxySetting =
+  process.env.NODE_ENV === "production"
+    ? 1 // Production: trust first proxy (Netlify)
+    : "loopback"; // Development: trust localhost only
 
 export function initializeMiddlewares(app: Application): void {
   app.use(helmet());
-  app.use(cors());
+  const corsOptions = {
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["set-cookie"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  };
+
+  app.use(cors(corsOptions));
 
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true }));
 
-  app.set("trust proxy", "loopback");
+  app.set("trust proxy", trustProxySetting); // for detecting ips
 
   // Swagger UI
   app.use(
@@ -42,8 +59,12 @@ export function initializeMiddlewares(app: Application): void {
     next();
   });
 
+  // Get IP address
+  app.use(getIpAddress);
+
   // Mount routes with /api prefix for consistency
-  app.use("/api", routes);
+  app.use("/api", authenticateToken, routes);
+  app.use("/auth", authRouter);
 
   // In development, also mount at root for convenience
   if (process.env.NODE_ENV === "development") {

@@ -1,24 +1,35 @@
 import {
   pgTable,
-  serial,
+  uuid,
   timestamp,
   varchar,
   text,
   boolean,
-  pgEnum,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
 
-export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
+export const UserRoles = {
+  USER: "user" as const,
+  ADMIN: "admin" as const,
+  LAWYER: "lawyer" as const,
+} as const;
+
+export type UserRoles = (typeof UserRoles)[keyof typeof UserRoles];
+export const UserRoleValues = Object.values(UserRoles) as [string, ...string[]];
 
 export const usersTable = pgTable("users", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).unique(),
   password: varchar("password", { length: 255 }),
-  role: userRoleEnum("role").notNull().default("user"),
-  fingerprint: varchar("fingerprint", { length: 255 }),
+  role: text("role", {
+    enum: UserRoleValues,
+  })
+    .$type<UserRoles>()
+    .notNull()
+    .default("user"),
+  fingerprint: varchar("fingerprint", { length: 255 }).unique(),
   userAgent: text("user_agent"),
   lastIp: varchar("last_ip", { length: 45 }),
   isAnonymous: boolean("is_anonymous").default(false).notNull(),
@@ -28,6 +39,7 @@ export const usersTable = pgTable("users", {
 
 // Schema for creating/updating a user
 export const createUserSchema = z.object({
+  id: z.string().uuid("v4").optional(),
   name: z
     .string()
     .min(2, "Name must be at least 2 characters")
@@ -43,11 +55,11 @@ export const createUserSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .max(255, "Password cannot exceed 255 characters")
     .optional(),
-  role: z.enum(["user", "admin"] as const).default("user"),
+  role: z.enum(UserRoleValues).default(UserRoles.USER).optional(),
   fingerprint: z.string().optional(),
   userAgent: z.string().optional(),
   lastIp: z.string().optional(),
-  isAnonymous: z.boolean().default(false),
+  isAnonymous: z.boolean().default(false).optional(),
 });
 
 export type CreateUserRequest = z.infer<typeof createUserSchema>;

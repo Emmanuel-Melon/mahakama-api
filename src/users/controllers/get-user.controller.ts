@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { findById } from "../operations/users.find";
 import { userResponseSchema } from "../user.schema";
-import { NotFoundError } from "@/middleware/errors";
 
 export const getUserController = async (
   req: Request,
@@ -9,11 +8,20 @@ export const getUserController = async (
   next: NextFunction,
 ) => {
   try {
-    const userId = parseInt(req.params.id);
-    const user = await findById(userId);
+    const userId = req.params.id;
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "User ID is required",
+      });
+    }
 
+    const user = await findById(userId);
     if (!user) {
-      throw new NotFoundError("User", { id: userId });
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
     }
 
     const validatedUser = userResponseSchema.parse(user);
