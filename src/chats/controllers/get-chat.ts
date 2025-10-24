@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { getChat } from "../operations/getChat";
+import { getChat } from "../operations/chat.find";
 import { ApiError } from "../../middleware/errors";
 
-export const getChatHandler = async (
+export const getChatController = async (
   req: Request,
   res: Response,
   next: NextFunction,

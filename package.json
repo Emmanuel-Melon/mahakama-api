@@ -16,7 +16,9 @@
     "drizzle:migrate": "npx drizzle-kit migrate",
     "drizzle:studio": "npx drizzle-kit studio",
     "seed": "tsx scripts/seed.ts",
+    "workers:all": "ts-node ./src/workers.ts",
     "workers:auth": "ts-node ./src/auth/workers.ts"
+    
   },
   "keywords": [],
   "author": "",

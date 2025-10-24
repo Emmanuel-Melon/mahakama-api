@@ -1,21 +1,18 @@
 import { db } from "../../lib/drizzle";
 import { chatSessions, chatMessages } from "../chat.schema";
 import { eq, and, or, desc } from "drizzle-orm";
-import { ChatSession } from "../chat.types";
-import { UserTypeEnum, SenderType } from "../chat.types";
+import { type ChatSession } from "../chat.schema";
+import { SenderType } from "../chat.types";
 
 export const getUserChats = async (
   fingerprint: string,
 ): Promise<ChatSession[]> => {
   try {
-    // First, get all chat sessions for this user (either by userId or fingerprint)
-    // First, get all possible chats (we'll filter in memory for metadata)
     const allChats = await db
       .select()
       .from(chatSessions)
       .orderBy(desc(chatSessions.updatedAt));
 
-    // Filter chats in memory to match either userId or metadata.fingerprint
     const userChats = allChats.filter((chat) => {
       return (
         chat.userId === fingerprint ||
@@ -23,7 +20,6 @@ export const getUserChats = async (
       );
     });
 
-    // For each chat, get its messages
     const chatsWithMessages = await Promise.all(
       userChats.map(async (chat) => {
         const messages = await db

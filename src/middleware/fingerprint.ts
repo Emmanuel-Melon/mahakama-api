@@ -1,117 +1,127 @@
 import { Request, Response, NextFunction } from "express";
 import { createHash } from "crypto";
 import useragent from "express-useragent";
+import { AuthJobType, authQueue } from "../auth/queue";
+import { findByFingerprint } from "../users/operations/users.find";
+import { upstash } from "../lib/upstash";
 
-export interface RequestFingerprint {
-  hash: string;
-  ip: string;
-  browser: string;
-  browserVersion: string;
-  os: string;
-  platform: string;
-  accept: string;
-  acceptLanguage: string;
-  acceptEncoding: string;
-  isMobile: boolean;
-  isTablet: boolean;
-  isDesktop: boolean;
-  dnt?: string | string[];
-  upgradeInsecureRequests?: string | string[];
-  timestamp: Date;
+// Cache fingerprints by a composite key (IP + basic UA info)
+const fingerprintCache = new Map<string, string>(); // cacheKey -> fingerprintHash
+
+const FINGERPRINT_CACHE_TTL = 24 * 60 * 60; // 24 hours in seconds
+const CACHE_PREFIX = "fingerprint:";
+
+// Helper to create a quick lookup key
+function createCacheKey(ip: string, ua: useragent.Details): string {
+  return `${CACHE_PREFIX}${ip}:${ua.browser}:${ua.version.split(".")[0]}:${ua.os}:${ua.isMobile}`;
 }
 
-export const fingerprintMiddleware = (
+export const fingerprintMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  // Get client IP (respecting proxies)
-  const ip =
-    req.ip ||
-    req.connection.remoteAddress ||
-    (req.socket && req.socket.remoteAddress) ||
-    "unknown";
-
-  // Get user agent string
   const userAgent = req.headers["user-agent"] || "";
-  const accept = req.headers["accept"] || "";
   const acceptLanguage = req.headers["accept-language"] || "";
-  const acceptEncoding = req.headers["accept-encoding"] || "";
-
-  // Parse user agent for additional details
   const ua = useragent.parse(userAgent);
 
-  // Create a fingerprint object with stable client characteristics
-  const fingerprintData = {
-    // Network
-    ip: ip,
+  // Create cache key
+  const cacheKey = createCacheKey(req.userIP!, ua);
 
-    // Browser and OS
-    browser: ua.browser,
-    browserVersion: ua.version,
-    os: ua.os,
-    platform: ua.platform,
+  // Check Redis cache first
+  let fingerprintHash = await upstash.getClient().get(cacheKey);
 
-    // Headers
-    accept: accept,
-    acceptLanguage: acceptLanguage.split(",")[0], // primary language only
-    acceptEncoding: acceptEncoding,
+  console.log("fingerprintHash", fingerprintHash);
+  console.log("type of fingerprintHash", typeof fingerprintHash);
 
-    // Device capabilities
+  if (fingerprintHash) {
+    // Already cached - just lookup user
+    const user = await findByFingerprint(fingerprintHash as string);
+    if (user) {
+      req.user = user;
+      console.log("User found (from cache):", user.id);
+    }
+    return next();
+  }
+
+  // Not cached - generate fingerprint
+  const stableFingerprintData = {
+    ip: req.userIP!,
+    browser: ua.browser || "unknown",
+    browserVersion: ua.version.split(".")[0] || "unknown",
+    os: ua.os || "unknown",
+    platform: ua.platform || "unknown",
+    acceptLanguage: acceptLanguage.split(",")[0].trim() || "",
     isMobile: ua.isMobile,
     isTablet: ua.isTablet,
     isDesktop: ua.isDesktop,
-
-    // Additional browser features (from headers)
-    dnt: Array.isArray(req.headers["dnt"])
-      ? req.headers["dnt"][0]
-      : req.headers["dnt"],
-    upgradeInsecureRequests: Array.isArray(
-      req.headers["upgrade-insecure-requests"],
-    )
-      ? req.headers["upgrade-insecure-requests"][0]
-      : req.headers["upgrade-insecure-requests"],
-
-    // Screen resolution (if available from client-side, would need to be sent in request)
-    // screenResolution: req.headers['x-screen-resolution']
   };
 
-  // Create a hash of the fingerprint data
-  const fingerprintString = JSON.stringify(fingerprintData);
-  const fingerprintHash = createHash("sha256")
+  const fingerprintString = JSON.stringify(stableFingerprintData);
+  fingerprintHash = createHash("sha256")
     .update(fingerprintString)
     .digest("hex");
 
-  // Create the full fingerprint object
-  const fingerprint: RequestFingerprint = {
-    ...fingerprintData,
-    hash: fingerprintHash,
-    timestamp: new Date(),
-    // Ensure all required fields are present
-    browser: ua.browser || "unknown",
-    browserVersion: ua.version || "unknown",
-    os: ua.os || "unknown",
-    platform: ua.platform || "unknown",
-    accept: accept,
-    acceptLanguage: acceptLanguage.split(",")[0] || "",
-    acceptEncoding: acceptEncoding as string,
+  console.log("Fingerprint string:", fingerprintString);
+  console.log("Hash:", fingerprintHash);
+
+  // Cache it for future requests
+  await upstash.getClient().set(cacheKey, fingerprintHash, {
+    ex: FINGERPRINT_CACHE_TTL,
+  });
+  console.log("Stable fingerprint data:", {
+    ip: req.userIP,
+    browser: ua.browser,
+    browserVersion: ua.version.split(".")[0],
+    os: ua.os,
+    platform: ua.platform,
+    acceptLanguage: acceptLanguage.split(",")[0].trim(),
     isMobile: ua.isMobile,
     isTablet: ua.isTablet,
     isDesktop: ua.isDesktop,
-    ip: ip as string,
+  });
+
+  // Check if user exists
+  const user = await findByFingerprint(fingerprintHash as string);
+  console.log("user", user);
+  if (user) {
+    req.user = user;
+    console.log("User found (new fingerprint):", user.id);
+    return next();
+  }
+
+  // Create full fingerprint object for new users
+  const fingerprint = {
+    ...stableFingerprintData,
+    hash: fingerprintHash,
+    timestamp: new Date(),
+    browser: ua.browser || "unknown",
+    browserVersion: ua.version || "unknown",
+    accept: req.headers["accept"] || "",
+    acceptEncoding: req.headers["accept-encoding"] || "",
   };
 
-  // push into queue for async/background processing
-  // pushIntoAuth(fingerprint);
+  req.fingerprint = fingerprint;
 
-  // Attach fingerprint to request object
-  (req as any).fingerprint = fingerprint;
+  console.log("New fingerprint generated:", {
+    hash: fingerprintHash,
+    cacheKey,
+  });
 
-  // Log the fingerprint (without sensitive data)
-  const { ip: _, ...loggableFingerprint } = fingerprint;
-  console.log("Browser Fingerprint:", loggableFingerprint);
+  // Queue user creation job
+  authQueue.enqueue(
+    AuthJobType.BrowserFingerprint,
+    {
+      ...stableFingerprintData,
+      hash: fingerprintHash,
+      userAgent: userAgent,
+    },
+    {
+      jobId: fingerprintHash as string,
+      removeOnComplete: true,
+      removeOnFail: false,
+    },
+  );
 
   next();
 };
-
-// The type extension is now in src/types/express.d.ts

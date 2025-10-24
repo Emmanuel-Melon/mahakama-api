@@ -1,12 +1,10 @@
 import { db } from "../../lib/drizzle";
 import { chatMessages } from "../chat.schema";
 import { eq } from "drizzle-orm";
-import { ChatMessage } from "../chat.types";
-import { UserTypeEnum, SenderType } from "../chat.types";
+import { type ChatSessionResponse } from "../chat.schema";
+import { SenderType } from "../chat.types";
 
-export const getChatMessages = async (
-  chatId: string,
-): Promise<ChatMessage[]> => {
+export const getChatMessages = async (chatId: string): Promise<any[]> => {
   try {
     const messages = await db
       .select()

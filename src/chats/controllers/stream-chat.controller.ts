@@ -16,7 +16,7 @@ interface ChatErrorResponse {
   details?: string;
 }
 
-export const streamChat = async (
+export const streamChatController = async (
   req: Request,
   res: Response,
   next: NextFunction,

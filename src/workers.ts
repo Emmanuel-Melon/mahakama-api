@@ -4,7 +4,7 @@ import concurrently from "concurrently";
   await concurrently(
     [
       {
-        command: "npm work:auth",
+        command: "npm run workers:auth",
         name: "auth",
       },
     ],

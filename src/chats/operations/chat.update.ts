@@ -1,8 +1,8 @@
 import { db } from "../../lib/drizzle";
 import { chatSessions, chatMessages } from "../chat.schema";
 import { eq } from "drizzle-orm";
-import { ChatSession } from "../chat.types";
-import { UserTypeEnum, SenderType } from "../chat.types";
+import { type ChatSession } from "../chat.schema";
+import { SenderType } from "../chat.types";
 
 export interface UpdateChatParams {
   title?: string;

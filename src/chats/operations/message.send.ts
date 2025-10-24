@@ -2,11 +2,8 @@ import { db } from "../../lib/drizzle";
 import { chatSessions, chatMessages } from "../chat.schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
-import { ChatMessage, AddMessageInput } from "../chat.types";
 
-export const sendMessage = async (
-  input: AddMessageInput,
-): Promise<ChatMessage> => {
+export const sendMessage = async (input: any): Promise<any> => {
   console.log("sending message");
   const { chatId, content, sender, questionId, metadata } = input;
   const messageId = uuidv4();

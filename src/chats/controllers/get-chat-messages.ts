@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { getChatMessages } from "../operations/getChatMessages";
+import { getChatMessages } from "../operations/get-chat-messages";
 
-export const getChatMessagesHandler = async (
+export const getChatMessagesController = async (
   req: Request,
   res: Response,
   next: NextFunction,

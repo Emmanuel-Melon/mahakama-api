@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { chatIdSchema, sendMessageSchema } from "./chat.schema";
-import { createChatHandler } from "./controllers/createChat";
-import { getUserChatsHandler } from "./controllers/getUserChats";
-import { getChatHandler } from "./controllers/getChat";
-import { sendMessageHandler } from "./controllers/sendMessage";
-import { getChatMessagesHandler } from "./controllers/getChatMessages";
-import { streamChat } from "./controllers/stream-chat.controller";
+import { createChatController } from "./controllers/create-chat";
+import { getUserChatsController } from "./controllers/get-user-chats";
+import { getChatController } from "./controllers/get-chat";
+import { sendMessageController } from "./controllers/send-message";
+import { getChatMessagesController } from "./controllers/get-chat-messages";
+import { streamChatController } from "./controllers/stream-chat.controller";
+import { validateCreateChatSession } from "./chat.middleware";
 
 export const BASE_PATH = "/chats";
 
@@ -129,7 +130,7 @@ const chatRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.post("/", createChatHandler);
+chatRouter.post("/", validateCreateChatSession, createChatController);
 
 /**
  * @swagger
@@ -156,7 +157,7 @@ chatRouter.post("/", createChatHandler);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.get("/", getUserChatsHandler);
+chatRouter.get("/", getUserChatsController);
 
 /**
  * @swagger
@@ -189,7 +190,7 @@ chatRouter.get("/", getUserChatsHandler);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.get("/:chatId", getChatHandler);
+chatRouter.get("/:chatId", getChatController);
 
 /**
  * @swagger
@@ -228,7 +229,7 @@ chatRouter.get("/:chatId", getChatHandler);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.post("/:chatId/messages", sendMessageHandler);
+chatRouter.post("/:chatId/messages", sendMessageController);
 
 /**
  * @swagger
@@ -263,7 +264,7 @@ chatRouter.post("/:chatId/messages", sendMessageHandler);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.get("/:chatId/messages", getChatMessagesHandler);
+chatRouter.get("/:chatId/messages", getChatMessagesController);
 
 /**
  * @swagger
@@ -297,6 +298,6 @@ chatRouter.get("/:chatId/messages", getChatMessagesHandler);
  *               type: string
  *               format: binary
  */
-chatRouter.post("/stream", streamChat);
+chatRouter.post("/stream", streamChatController);
 
 export default chatRouter;

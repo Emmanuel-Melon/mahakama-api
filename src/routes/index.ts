@@ -2,7 +2,6 @@ import { Router } from "express";
 import { documentRoutes } from "../documents/document.routes";
 import userRoutes from "../users/user.routes";
 import lawyerRoutes from "../lawyers/lawyer.routes";
-import questionRoutes from "../questions/question.routes";
 import chatRoutes from "../chats/chat.routes";
 import authRoutes from "../auth/auth.routes";
 import { userAgentMiddleware } from "../middleware/user-agent";
@@ -12,7 +11,6 @@ import { fingerprintMiddleware } from "../middleware/fingerprint";
 const USERS_PATH = "/v1/users";
 const AUTH_PATH = "/v1";
 const LAWYERS_PATH = "/v1/lawyers";
-const QUESTIONS_PATH = "/v1/questions";
 const CHATS_PATH = "/v1/chats";
 const DOCUMENTS_PATH = "/v1/documents";
 
@@ -30,7 +28,6 @@ router.use(fingerprintMiddleware);
 router.use(DOCUMENTS_PATH, documentRoutes);
 router.use(USERS_PATH, userRoutes);
 router.use(LAWYERS_PATH, lawyerRoutes);
-router.use(QUESTIONS_PATH, questionRoutes);
 router.use(CHATS_PATH, chatRoutes);
 
 export default router;
