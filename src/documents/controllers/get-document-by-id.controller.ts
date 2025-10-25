@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { findDocumentById } from "../operations/find";
+import { findDocumentById } from "../operations/document.find";
 
 export const getDocumentById = async (
   req: Request,

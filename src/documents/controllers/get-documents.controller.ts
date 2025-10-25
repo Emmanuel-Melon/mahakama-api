@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { listDocuments } from "../operations/list";
+import { listDocuments } from "../operations/document.list";
 
 export const getDocuments = async (
   req: Request,

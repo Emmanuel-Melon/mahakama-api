@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createDocument } from "../operations/create";
+import { createDocument } from "../operations/document.create";
 import { CreateDocumentInput } from "../document.types";
 import { ValidationError, ApiError } from "../../middleware/errors";
 
