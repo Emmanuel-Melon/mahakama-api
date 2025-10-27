@@ -1,5 +1,6 @@
 import { Ollama } from "ollama";
 import { Message, LLMResponse, ILLMClient } from "../types";
+import { config } from "../../../config";
 
 export class OllamaClient implements ILLMClient {
   private static instance: OllamaClient;
@@ -7,7 +8,10 @@ export class OllamaClient implements ILLMClient {
   private defaultModel = "llama2"; // Default model, can be made configurable
 
   private constructor() {
-    this.client = new Ollama();
+    const ollamaConfig = {
+      host: config.ollamaUrl
+    };
+    this.client = new Ollama(ollamaConfig);
   }
 
   public static getInstance(): OllamaClient {
