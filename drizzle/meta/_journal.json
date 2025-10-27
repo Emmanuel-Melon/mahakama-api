@@ -71,6 +71,13 @@
       "when": 1761169421204,
       "tag": "0009_stiff_grey_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1761527520742,
+      "tag": "0010_naive_iron_lad",
+      "breakpoints": true
     }
   ]
 }
