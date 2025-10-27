@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "scripts": {
     "start": "node dist/src/server.js",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc ",
+    "build": "tsc",
     "clean": "rm -rf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
@@ -19,11 +22,13 @@
     "workers:all": "ts-node ./src/workers.ts",
     "workers:auth": "ts-node ./src/auth/workers.ts",
     "chroma:import-laws": "tsx scripts/import-laws-to-chroma.ts",
-    "chroma:search-laws": "tsx scripts/retrieve-laws-from-chroma.ts"
+    "chroma:search-laws": "tsx scripts/retrieve-laws-from-chroma.ts",
+    "test:embeddings": "ts-node src/lib/llm/ollama/ollama.embeddings.ts",
+    "ollama:list": "ts-node scripts/manage-ollama-models.ts list",
+    "ollama:pull": "ts-node scripts/manage-ollama-models.ts pull nomic-embed-text",
+    "postinstall": "npm run build && npm run ollama:pull",
+    "postbuild": "npm run ollama:pull"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/express-useragent": "^1.0.5",
