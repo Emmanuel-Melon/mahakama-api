@@ -1,4 +1,7 @@
 import { ollamaClient } from ".";
+import { config } from "../../../config";
+
+console.log(config.ollamaUrl);
 
 export const generateEmbedding = async (query: string) => {
   const response = await ollamaClient.getClient().embed({
@@ -13,3 +16,11 @@ export const generateEmbedding = async (query: string) => {
     metadata: {},
   };
 };
+
+
+
+(async () => {
+  console.log('Generating embedding...')
+  const embedding = await generateEmbedding("Hello, world!");
+  console.log(embedding);
+})();
