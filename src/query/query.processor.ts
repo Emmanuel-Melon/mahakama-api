@@ -1,6 +1,12 @@
 import { z } from "zod";
-import { QueryEmbedding } from "../types";
-import { generateEmbedding } from "../../lib/llm/ollama/ollama.embeddings";
+import { generateEmbedding } from "../lib/llm/ollama/ollama.embeddings";
+
+export interface QueryEmbedding {
+  model: string;
+  embeddings: number[][];
+  query: string;
+  metadata: Record<string, unknown>;
+}
 
 const querySchema = z.object({
   query: z

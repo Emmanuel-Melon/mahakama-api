@@ -94,7 +94,7 @@ export class ChromaClient {
   }
 
   public async query(params: QueryParams) {
-    const { collectionName, queryTexts, nResults = 5 } = params;
+    const { collectionName, queryTexts, nResults = 15 } = params;
 
     const collection = await this.getOrCreateCollection(collectionName);
 
@@ -118,3 +118,13 @@ export class ChromaClient {
 const chromaClient = ChromaClient.getInstance();
 
 export { chromaClient };
+
+
+(async () => {
+  const testDocs = await chromaClient.query({
+    collectionName: "legal_questions",
+    queryTexts: "What is the capital of Nepal?",
+    nResults: 15,
+  });
+  console.log("testDocs", testDocs);
+})();

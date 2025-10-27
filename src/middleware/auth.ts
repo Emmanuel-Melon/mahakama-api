@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { config } from "../config";
 import { findById } from "../users/operations/users.find";
 
@@ -27,12 +27,17 @@ export const authenticateToken = async (
 
       // If you want to verify the token (recommended in production)
       if (config.jwtSecret) {
-        const verified = jwt.verify(token, config.jwtSecret);
+        const verified = jwt.verify(token, config.jwtSecret) as JwtPayload;
         console.log(
           "Verified Token Payload:",
           JSON.stringify(verified, null, 2),
         );
-        const user = await findById(verified?.id);
+        
+        if (typeof verified === 'string' || !('id' in verified)) {
+          return res.status(401).json({ error: 'Invalid token format' });
+        }
+        
+        const user = await findById(verified.id);
         console.log("my userssssss", user);
         req.user = user;
       } else {

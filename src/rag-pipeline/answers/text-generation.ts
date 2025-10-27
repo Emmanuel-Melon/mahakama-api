@@ -1,18 +1,19 @@
 import { chat } from "../../lib/llm/ollama/ollama.chat";
-import type { Message } from "@/lib/llm/types";
+import type { Message } from "../../lib/llm/types";
 import { findRelevantLaws, getMostRelevantLaw } from "../knowledge/vectorizer";
 import { generateResponsePrompt } from "../response-prompts";
 import { laws as lawsDataset } from "../dataset/laws.dataset";
+import { QueryEmbedding } from "../../query/query.processor";
 
 const DEFAULT_MODEL = "gemma3:1b";
 
 export const answerLegalQuestion = async (
-  question: string,
+  query: QueryEmbedding,
   laws: any = lawsDataset,
   model: string = DEFAULT_MODEL,
 ) => {
   try {
-    const relevantLaws = await findRelevantLaws(question);
+    const relevantLaws = await findRelevantLaws(query);
 
     if (relevantLaws.length === 0) {
       return {
@@ -29,11 +30,11 @@ export const answerLegalQuestion = async (
     const messages: Message[] = [
       {
         role: "system",
-        content: generateResponsePrompt(question, mostRelevantLaw),
+        content: generateResponsePrompt(query.query, mostRelevantLaw),
       },
       {
         role: "user",
-        content: question,
+        content: query.query,
       },
     ];
 

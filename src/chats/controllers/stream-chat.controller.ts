@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { chat } from "@/lib/llm/ollama/ollama.chat";
-import { Message } from "@/lib/llm/types";
+import { chat } from "../../lib/llm/ollama/ollama.chat";
+import { Message } from "../../lib/llm/types";
 
 interface ChatRequest {
   messages: Message[];

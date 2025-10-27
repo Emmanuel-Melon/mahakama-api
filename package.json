@@ -17,8 +17,9 @@
     "drizzle:studio": "npx drizzle-kit studio",
     "seed": "tsx scripts/seed.ts",
     "workers:all": "ts-node ./src/workers.ts",
-    "workers:auth": "ts-node ./src/auth/workers.ts"
-    
+    "workers:auth": "ts-node ./src/auth/workers.ts",
+    "chroma:import-laws": "tsx scripts/import-laws-to-chroma.ts",
+    "chroma:search-laws": "tsx scripts/retrieve-laws-from-chroma.ts"
   },
   "keywords": [],
   "author": "",
@@ -44,8 +45,6 @@
     "@chroma-core/ollama": "^0.1.7",
     "@faker-js/faker": "^10.1.0",
     "@google/genai": "^1.23.0",
-    "@huggingface/transformers": "^3.7.5",
-    "@neondatabase/serverless": "^1.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/helmet": "^0.0.48",
