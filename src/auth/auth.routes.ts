@@ -4,7 +4,7 @@ import { loginUserController } from "./controllers/login.controller";
 import { validate } from "../middleware/request-validators";
 import { loginUserSchema, registerUserSchema } from "./auth.schema";
 
-const router = Router();
+const authRouter = Router();
 
 /**
  * @swagger
@@ -110,7 +110,7 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/register", validate(registerUserSchema), registerUserController);
+authRouter.post("/register", validate(registerUserSchema), registerUserController);
 
 /**
  * @swagger
@@ -151,6 +151,8 @@ router.post("/register", validate(registerUserSchema), registerUserController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/login", validate(loginUserSchema), loginUserController);
+authRouter.post("/login", validate(loginUserSchema), loginUserController);
 
-export default router;
+export default authRouter;
+
+export const AUTH_PATH = "/v1";

@@ -334,3 +334,5 @@ lawyerRoutes.post("/", createLawyerController);
 lawyerRoutes.put("/:id", updateLawyerController);
 
 export default lawyerRoutes;
+
+export const LAWYERS_PATH = "/v1/lawyers";

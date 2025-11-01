@@ -47,7 +47,6 @@ export const createUserController = async (
       data: userResponseSchema.parse(newUser),
     });
   } catch (error) {
-    console.error("Error creating user:", error);
     next(error);
   }
 };

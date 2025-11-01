@@ -6,12 +6,7 @@ import { bookmarkDocumentHandler } from "./controllers/bookmark-document.control
 import { downloadDocumentHandler } from "./controllers/downoad-document.controller";
 import { registerRouteErrorMessages } from "../middleware/errors";
 
-// Register error messages for document routes
-const BASE_PATH = "/api/documents";
-registerRouteErrorMessages(
-  BASE_PATH,
-  "An error occurred while processing your document request",
-);
+export const DOCUMENTS_PATH = "/v1/documents";
 
 const documentRoutes = Router();
 
@@ -267,5 +262,4 @@ documentRoutes.post("/:id/bookmark", bookmarkDocumentHandler);
  */
 documentRoutes.get("/:id/download", downloadDocumentHandler);
 
-export { documentRoutes, BASE_PATH };
 export default documentRoutes;

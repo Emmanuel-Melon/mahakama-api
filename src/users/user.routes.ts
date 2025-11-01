@@ -179,7 +179,7 @@ userRouter.get("/", getUsersController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/v1/users/:id", getUserController);
+userRouter.get("/:id", getUserController);
 
 /**
  * @swagger
@@ -214,6 +214,7 @@ userRouter.get("/v1/users/:id", getUserController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.post("/v1/users", validateCreateUser, createUserController);
+userRouter.post("/", validateCreateUser, createUserController);
 
 export default userRouter;
+export const USERS_PATH = "/v1/users";

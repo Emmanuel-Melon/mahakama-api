@@ -8,7 +8,7 @@ import { getChatMessagesController } from "./controllers/get-chat-messages";
 import { streamChatController } from "./controllers/stream-chat.controller";
 import { validateCreateChatSession } from "./chat.middleware";
 
-export const BASE_PATH = "/chats";
+export const CHATS_PATH = "/v1/chats";
 
 const chatRouter = Router();
 

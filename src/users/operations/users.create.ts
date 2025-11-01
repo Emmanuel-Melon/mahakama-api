@@ -24,3 +24,6 @@ export async function createUser(userData: CreateUserRequest): Promise<User> {
 
   return newUser;
 }
+
+
+// @users.create.ts#L1-27 let's add another operation to update user information! Let's look at the @user.schema.ts to add support for onboarding users! We need their age, gender, country and some tiny relative information that'll be optional during registration but can be updated during the onboarding! 

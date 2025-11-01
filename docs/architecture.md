@@ -118,3 +118,29 @@ const geminiKey = config.geminiApiKey;
 **Prettier** enforces consistent code formatting across the codebase. All code is automatically formatted on save and checked in CI/CD pipelines. This eliminates formatting debates and keeps the codebase readable, especially important when working across multiple domains.
 
 **ESLint** provides static analysis for TypeScript/JavaScript code, catching common bugs, enforcing best practices, and maintaining code quality standards. Our ESLint configuration is tailored for Node.js and Express.js development patterns, helping maintain consistency across domain controllers and operations.
+
+### Logging System
+
+**Pino** serves as our high-performance logging solution, providing structured JSON logs in production and human-readable logs in development. The logging system is configured in [src/lib/logger.ts](cci:7://file:///Users/macbookair/Work/mahakama/server/src/lib/logger.ts:0:0-0:0) and is used throughout the application for consistent log formatting and levels.
+
+Key features of our logging implementation:
+
+- **Structured Logging**: JSON-formatted logs in production with consistent fields
+- **Development-Friendly**: Pretty-printed, colored logs in development for better readability
+- **Request Context**: Automatically includes request IDs, user context, and other metadata
+- **Performance**: Asynchronous logging with minimal overhead
+- **Environment-Aware**: Different log levels and formats based on `NODE_ENV`
+
+The logger is used consistently across all layers of the application:
+
+```typescript
+import { logger } from "../../lib/logger";
+
+// Basic usage
+logger.info("Server started on port 3000");
+
+// With context
+logger.warn({ userId: user.id, path: req.path }, "User accessed restricted area");
+
+// Error logging with stack traces
+logger.error({ error }, "Failed to process request");
