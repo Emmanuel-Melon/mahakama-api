@@ -3,7 +3,7 @@ import { RegisterUserAttrs } from "../auth.schema";
 import { generateAuthToken, hashPassword, getCookieOptions } from "../utils";
 import { registerUser } from "../operations/auth.create";
 import { findUserByEmail } from "../operations/auth.find";
-import { authQueue } from "../queue";
+// import { authQueue } from "../queue";
 
 export const registerUserController = async (
   req: Request<{}, {}, RegisterUserAttrs>,
@@ -29,12 +29,12 @@ export const registerUserController = async (
 
     const token = generateAuthToken(user);
 
-    await authQueue.enqueue("registration", {
-      userId: user.id,
-      email,
-      name,
-      password,
-    });
+    // await authQueue.enqueue("registration", {
+    //   userId: user.id,
+    //   email,
+    //   name,
+    //   password,
+    // });
 
     // Set HTTP-only cookie with cross-origin support
     res.cookie("token", token, getCookieOptions());

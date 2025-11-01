@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { createHash } from "crypto";
 import useragent from "express-useragent";
-import { AuthJobType, authQueue } from "../auth/queue";
+// import { AuthJobType, authQueue } from "../auth/queue";
 import { findByFingerprint } from "../users/operations/users.find";
-import { upstash } from "../lib/upstash";
+import { upstash } from "../lib/redis/upstash";
 
 // Cache fingerprints by a composite key (IP + basic UA info)
 const fingerprintCache = new Map<string, string>(); // cacheKey -> fingerprintHash
@@ -30,9 +30,6 @@ export const fingerprintMiddleware = async (
 
   // Check Redis cache first
   let fingerprintHash = await upstash.getClient().get(cacheKey);
-
-  console.log("fingerprintHash", fingerprintHash);
-  console.log("type of fingerprintHash", typeof fingerprintHash);
 
   if (fingerprintHash) {
     // Already cached - just lookup user
@@ -62,28 +59,12 @@ export const fingerprintMiddleware = async (
     .update(fingerprintString)
     .digest("hex");
 
-  console.log("Fingerprint string:", fingerprintString);
-  console.log("Hash:", fingerprintHash);
-
   // Cache it for future requests
   await upstash.getClient().set(cacheKey, fingerprintHash, {
     ex: FINGERPRINT_CACHE_TTL,
   });
-  console.log("Stable fingerprint data:", {
-    ip: req.userIP,
-    browser: ua.browser,
-    browserVersion: ua.version.split(".")[0],
-    os: ua.os,
-    platform: ua.platform,
-    acceptLanguage: acceptLanguage.split(",")[0].trim(),
-    isMobile: ua.isMobile,
-    isTablet: ua.isTablet,
-    isDesktop: ua.isDesktop,
-  });
-
   // Check if user exists
   const user = await findByFingerprint(fingerprintHash as string);
-  console.log("user", user);
   if (user) {
     req.user = user;
     console.log("User found (new fingerprint):", user.id);
@@ -103,25 +84,20 @@ export const fingerprintMiddleware = async (
 
   req.fingerprint = fingerprint;
 
-  console.log("New fingerprint generated:", {
-    hash: fingerprintHash,
-    cacheKey,
-  });
-
   // Queue user creation job
-  authQueue.enqueue(
-    AuthJobType.BrowserFingerprint,
-    {
-      ...stableFingerprintData,
-      hash: fingerprintHash,
-      userAgent: userAgent,
-    },
-    {
-      jobId: fingerprintHash as string,
-      removeOnComplete: true,
-      removeOnFail: false,
-    },
-  );
+  // authQueue.enqueue(
+  //   AuthJobType.BrowserFingerprint,
+  //   {
+  //     ...stableFingerprintData,
+  //     hash: fingerprintHash,
+  //     userAgent: userAgent,
+  //   },
+  //   {
+  //     jobId: fingerprintHash as string,
+  //     removeOnComplete: true,
+  //     removeOnFail: false,
+  //   },
+  // );
 
   next();
 };

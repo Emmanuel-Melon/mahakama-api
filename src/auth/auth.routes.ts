@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { registerUserController } from "./controllers/register.controller";
 import { loginUserController } from "./controllers/login.controller";
-import { validateRegisterUser, validateLoginUser } from "./auth.middleware";
+import { validate } from "../middleware/request-validators";
+import { loginUserSchema, registerUserSchema } from "./auth.schema";
 
 const router = Router();
 
@@ -109,7 +110,7 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/register", validateRegisterUser, registerUserController);
+router.post("/register", validate(registerUserSchema), registerUserController);
 
 /**
  * @swagger
@@ -150,6 +151,6 @@ router.post("/register", validateRegisterUser, registerUserController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/login", validateLoginUser, loginUserController);
+router.post("/login", validate(loginUserSchema), loginUserController);
 
 export default router;

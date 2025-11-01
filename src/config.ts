@@ -40,7 +40,7 @@ const config: IConfig = {
   chromaApiKey: process.env.CHROMA_API_KEY,
   chromaDatabase: process.env.CHROMA_DATABASE,
   chromaTenant: process.env.CHROMA_TENANT,
-  ollamaUrl: process.env.OLLAMA_BASE_URL || "ollama-production-49ed.up.railway.app",
+  ollamaUrl: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
   jwtSecret: process.env.JWT_SECRET,
   databaseUrl:
     process.env.DATABASE_URL || "postgres://postgres@localhost:5432/postgres",

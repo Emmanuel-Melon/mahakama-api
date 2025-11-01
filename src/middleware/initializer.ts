@@ -3,12 +3,14 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
+import path from "path";
 import { catchErrors, notFoundHandler } from "./errors";
 import { healthMiddleware } from "./health";
 import routes, { authRouter } from "../routes";
 import { specs } from "../swagger";
 import { getIpAddress } from "./ip-address";
 import { authenticateToken } from "./auth";
+import { requestLogger } from "./log-request";
 
 const trustProxySetting =
   process.env.NODE_ENV === "production"
@@ -40,7 +42,8 @@ export function initializeMiddlewares(app: Application): void {
     swaggerUi.serve,
     swaggerUi.setup(specs, {
       explorer: true,
-      customCss: ".swagger-ui .topbar { display: none }",
+      customCss:
+        ".swagger-ui .topbar { display: none }\n.swagger-ui .info { margin: 20px 0 }\n",
     }),
   );
 
@@ -54,17 +57,14 @@ export function initializeMiddlewares(app: Application): void {
   app.get(["/health", "/api/health"], healthMiddleware);
 
   // Request logging
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log(`${req.method} ${req.originalUrl}`);
-    next();
-  });
+  app.use(requestLogger);
 
   // Get IP address
   app.use(getIpAddress);
 
   // Mount routes with /api prefix for consistency
-  app.use("/api", authenticateToken, routes);
   app.use("/auth", authRouter);
+  app.use("/api", authenticateToken, routes);
 
   // In development, also mount at root for convenience
   if (process.env.NODE_ENV === "development") {

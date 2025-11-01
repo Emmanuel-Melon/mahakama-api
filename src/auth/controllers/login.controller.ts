@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { LoginUserAttrs } from "../auth.schema";
-import { generateAuthToken, getCookieOptions } from "../utils";
+import { generateAuthToken, getCookieOptions, comparePasswords } from "../utils";
 import { findUserByEmail } from "../operations/auth.find";
+
 
 export const loginUserController = async (
   req: Request<{}, {}, LoginUserAttrs>,
@@ -10,7 +11,6 @@ export const loginUserController = async (
 ) => {
   try {
     const { email, password } = req.body;
-
     const user = await findUserByEmail(email);
 
     if (!user) {
@@ -32,7 +32,6 @@ export const loginUserController = async (
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
     next(error);
   }
 };

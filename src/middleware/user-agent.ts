@@ -44,23 +44,6 @@ export const userAgentMiddleware = (
 
     // Attach to request object for later use in route handlers
     req.userAgent = userAgentInfo;
-
-    // // Log the user agent info
-    // console.log('User Agent Info:', {
-    //   ...userAgentInfo,
-    //   // Don't log the full source as it can be very long
-    //   source: undefined,
-    // });
-
     next();
   });
 };
-
-// Extend the Express Request type to include our userAgent
-declare global {
-  namespace Express {
-    interface Request {
-      userAgent?: UserAgentInfo;
-    }
-  }
-}

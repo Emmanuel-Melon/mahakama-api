@@ -1,4 +1,5 @@
 import { NextFunction, Response, Request } from "express";
+import { logger } from "../lib/logger";
 
 export interface ErrorMetadata {
   route?: string;
@@ -6,6 +7,7 @@ export interface ErrorMetadata {
   operation?: string;
   resourceType?: string;
   resourceId?: string | number;
+  includeDetails?: boolean;
   [key: string]: unknown;
 }
 
@@ -41,11 +43,17 @@ const getRouteErrorMessage = (path: string): string => {
 };
 
 export function notFoundHandler(req: Request, res: Response) {
+  const errorMessage = `Route ${req.originalUrl} not found`;
+  logger.warn(
+    { path: req.path, method: req.method, url: req.originalUrl },
+    errorMessage,
+  );
+
   res.status(404).json({
     success: false,
     error: {
       code: "NOT_FOUND",
-      message: `Route ${req.originalUrl} not found`,
+      message: errorMessage,
       path: req.path,
       availableRoutes: [
         "/api/users",
@@ -66,38 +74,11 @@ export function catchErrors(
   _next: NextFunction,
 ) {
   const statusCode = err.statusCode || 500;
-  const isProduction = process.env.NODE_ENV === "production";
   const errorMessage = err.message || getRouteErrorMessage(req.path);
-
-  // Log the full error in development, but only the message in production
-  if (isProduction) {
-    console.error(`[${new Date().toISOString()}] Error: ${errorMessage}`, {
-      path: req.path,
-      method: req.method,
-      statusCode,
-      errorCode: err.code,
-    });
-  } else {
-    console.error(err.stack);
-  }
-
-  // Define error response type
-  interface ErrorResponse {
-    success: boolean;
-    error: {
-      code: string;
-      message: string;
-      path: string;
-      method: string;
-      timestamp: string;
-      metadata?: ErrorMetadata;
-      details?: Record<string, unknown>;
-      stack?: string[];
-    };
-  }
+  const isClientError = statusCode >= 400 && statusCode < 500;
 
   // Prepare error response
-  const errorResponse: ErrorResponse = {
+  const errorResponse = {
     success: false,
     error: {
       code: err.code || "INTERNAL_SERVER_ERROR",
@@ -106,19 +87,47 @@ export function catchErrors(
       method: req.method,
       timestamp: new Date().toISOString(),
       ...(err.metadata && { metadata: err.metadata }),
+      ...(process.env.NODE_ENV !== "production" && {
+        stack: err.stack?.split("\n").map((line) => line.trim()),
+      }),
     },
   };
 
-  // Include error details if available (in development or if explicitly included)
-  if ((!isProduction || err.metadata?.includeDetails) && err.details) {
-    errorResponse.error.details = err.details;
+  // Log the error with appropriate level and request context
+  const logContext = {
+    reqId: req.requestId,
+    statusCode,
+    errorCode: err.code,
+    path: req.path,
+    method: req.method,
+    ...(req.user?.id && { userId: req.user.id }),
+    ...(req.fingerprint?.hash && { fingerprint: req.fingerprint.hash }),
+    ...(req.userAgent && {
+      userAgent: {
+        browser: req.userAgent.browser,
+        os: req.userAgent.os,
+        platform: req.userAgent.platform,
+        device: req.userAgent.deviceType,
+      },
+    }),
+    ...(err.details && { details: err.details }),
+    ...(err.metadata && { metadata: err.metadata }),
+  };
+
+  if (statusCode >= 500) {
+    logger.error(logContext, `Server Error: ${errorMessage}`);
+  } else if (isClientError) {
+    logger.warn(logContext, `Client Error: ${errorMessage}`);
+  } else {
+    logger.info(logContext, `Error: ${errorMessage}`);
   }
 
-  // Include stack trace in development
-  if (!isProduction && err.stack) {
-    errorResponse.error.stack = err.stack
-      .split("\n")
-      .map((line) => line.trim());
+  // In production, don't leak error details unless explicitly allowed
+  if (process.env.NODE_ENV === "production" && !err.metadata?.includeDetails) {
+    if (statusCode >= 500) {
+      errorResponse.error.message = "An internal server error occurred";
+    }
+    delete errorResponse.error.stack;
   }
 
   res.status(statusCode).json(errorResponse);
@@ -129,7 +138,6 @@ export class ApiError extends Error {
   statusCode: number;
   code: string;
   details?: Record<string, unknown>;
-
   metadata?: ErrorMetadata;
 
   constructor(
@@ -144,8 +152,6 @@ export class ApiError extends Error {
     this.code = code;
     this.details = details;
     this.metadata = metadata;
-
-    // Maintain proper stack trace
     Error.captureStackTrace(this, this.constructor);
   }
 
@@ -174,7 +180,10 @@ export class ValidationError extends ApiError {
     details?: Record<string, unknown>,
     metadata?: ErrorMetadata,
   ) {
-    super(message, 400, "VALIDATION_ERROR", details, metadata);
+    super(message, 400, "VALIDATION_ERROR", details, {
+      ...metadata,
+      includeDetails: true,
+    });
   }
 }
 

@@ -2,75 +2,80 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { config } from "../config";
 import { findById } from "../users/operations/users.find";
+import { logger } from "../lib/logger";
 
 export const authenticateToken = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  console.log("authHeader", req.headers);
-  // Get the token from the Authorization header
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // Format: "Bearer TOKEN"
+  const token = authHeader?.split(" ")[1]; // Format: "Bearer TOKEN"
 
-  console.log("Auth Header:", authHeader);
-  console.log("Extracted Token:", token);
-
-  // Attach the token to the request object for use in route handlers
-  if (token) {
-    req.token = token;
-
-    try {
-      // Decode the token without verifying the signature
-      const decoded = jwt.decode(token);
-      console.log("Decoded Token:", JSON.stringify(decoded, null, 2));
-
-      // If you want to verify the token (recommended in production)
-      if (config.jwtSecret) {
-        const verified = jwt.verify(token, config.jwtSecret) as JwtPayload;
-        console.log(
-          "Verified Token Payload:",
-          JSON.stringify(verified, null, 2),
-        );
-        
-        if (typeof verified === 'string' || !('id' in verified)) {
-          return res.status(401).json({ error: 'Invalid token format' });
-        }
-        
-        const user = await findById(verified.id);
-        console.log("my userssssss", user);
-        req.user = user;
-      } else {
-        console.warn("JWT_SECRET not set, skipping token verification");
-      }
-    } catch (error) {
-      console.error(
-        "Error decoding/verifying token:",
-        error instanceof Error ? error.message : "Unknown error",
-      );
-    }
-  } else {
-    console.log("No token provided in Authorization header");
-  }
-
-  // Continue to the next middleware/route handler
-  next();
-};
-
-// For routes that require authentication
-export const requireAuth = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  if (!req.token) {
-    console.log("Authentication required - no token provided");
+  if (!token) {
+    logger.warn(
+      { path: req.path },
+      "Authentication required - No token provided",
+    );
     return res.status(401).json({
       success: false,
       message: "Authentication required",
     });
   }
 
-  // Token is present, continue to the next middleware/route handler
-  next();
+  try {
+    if (!config.jwtSecret) {
+      logger.error("JWT secret not configured");
+      return res.status(500).json({ error: "Server configuration error" });
+    }
+
+    const verified = jwt.verify(token, config.jwtSecret) as JwtPayload;
+
+    if (typeof verified === "string" || !("id" in verified)) {
+      logger.warn({ path: req.path }, "Invalid token format");
+      return res.status(401).json({
+        success: false,
+        error: "Invalid token format",
+      });
+    }
+
+    const user = await findById(verified.id);
+    if (!user) {
+      logger.warn({ userId: verified.id }, "User not found for valid token");
+      return res.status(401).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    req.user = user;
+    logger.debug({ userId: user.id, path: req.path }, "User authenticated");
+    next();
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    logger.error(
+      { error: errorMessage, path: req.path },
+      "Token verification failed",
+    );
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid token",
+      });
+    }
+
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({
+        success: false,
+        error: "Token expired",
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: "Authentication failed",
+    });
+  }
 };
