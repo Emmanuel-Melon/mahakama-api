@@ -9,7 +9,7 @@ export class OllamaClient implements ILLMClient {
 
   private constructor() {
     const ollamaConfig = {
-      host: config.ollamaUrl
+      host: config.ollamaUrl,
     };
     this.client = new Ollama(ollamaConfig);
   }

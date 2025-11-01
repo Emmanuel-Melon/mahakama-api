@@ -11,6 +11,8 @@ import { specs } from "../swagger";
 import { getIpAddress } from "./ip-address";
 import { authenticateToken } from "./auth";
 import { requestLogger } from "./log-request";
+import { userAgentMiddleware } from "./user-agent";
+import { fingerprintMiddleware } from "./fingerprint";
 
 const trustProxySetting =
   process.env.NODE_ENV === "production"
@@ -36,6 +38,9 @@ export function initializeMiddlewares(app: Application): void {
 
   app.set("trust proxy", trustProxySetting); // for detecting ips
 
+  // Request logging
+  app.use(requestLogger);
+
   // Swagger UI
   app.use(
     "/api-docs",
@@ -56,21 +61,20 @@ export function initializeMiddlewares(app: Application): void {
   // Health check
   app.get(["/health", "/api/health"], healthMiddleware);
 
-  // Request logging
-  app.use(requestLogger);
+  // Apply middlewares to all routes
+  app.use(userAgentMiddleware);
+  app.use(fingerprintMiddleware);
 
   // Get IP address
   app.use(getIpAddress);
 
   // Mount routes with /api prefix for consistency
-  app.use("/auth", authRouter);
   app.use("/api", authenticateToken, routes);
-
+  app.use("/auth", authRouter);
   // In development, also mount at root for convenience
   if (process.env.NODE_ENV === "development") {
     app.use("/", routes);
   }
-
   app.use(notFoundHandler);
   app.use(catchErrors);
 }

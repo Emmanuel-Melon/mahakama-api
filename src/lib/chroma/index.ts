@@ -118,13 +118,3 @@ export class ChromaClient {
 const chromaClient = ChromaClient.getInstance();
 
 export { chromaClient };
-
-
-(async () => {
-  const testDocs = await chromaClient.query({
-    collectionName: "legal_questions",
-    queryTexts: "What is the capital of Nepal?",
-    nResults: 15,
-  });
-  console.log("testDocs", testDocs);
-})();

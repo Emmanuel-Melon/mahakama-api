@@ -21,18 +21,6 @@ type ErrorWithStatus = Error & {
 // This will be populated by each router
 const routeErrorMessages = new Map<string, string>();
 
-/**
- * Registers error messages for specific routes
- * @param basePath The base path to register the error message for
- * @param message The default error message for this route
- */
-export function registerRouteErrorMessages(
-  basePath: string,
-  message: string,
-): void {
-  routeErrorMessages.set(basePath, message);
-}
-
 const getRouteErrorMessage = (path: string): string => {
   for (const [route, message] of routeErrorMessages.entries()) {
     if (path.startsWith(route)) {
@@ -112,6 +100,7 @@ export function catchErrors(
     }),
     ...(err.details && { details: err.details }),
     ...(err.metadata && { metadata: err.metadata }),
+    rawError: err
   };
 
   if (statusCode >= 500) {

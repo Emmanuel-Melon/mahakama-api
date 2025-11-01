@@ -10,7 +10,9 @@ export function toOllamaMessage(
   senderType: SenderType,
 ): OllamaMessage {
   return {
-    role: (senderType === SenderType.USER ? 'user' : 'assistant') as MessageRole,
+    role: (senderType === SenderType.USER
+      ? "user"
+      : "assistant") as MessageRole,
     content,
   };
 }
@@ -21,13 +23,14 @@ export function toOllamaMessage(
 export function fromOllamaMessage(
   message: OllamaMessage,
   senderId: string,
-  chatId: string
+  chatId: string,
 ) {
   return {
     chatId,
     content: message.content,
     senderId,
-    senderType: message.role === 'user' ? SenderType.USER : SenderType.ASSISTANT,
+    senderType:
+      message.role === "user" ? SenderType.USER : SenderType.ASSISTANT,
     metadata: {},
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -37,9 +40,12 @@ export function fromOllamaMessage(
 /**
  * Prepares the system prompt for the chat
  */
-export function createSystemPrompt(initialMessage: string, mostRelevantLaw: any): OllamaMessage {
+export function createSystemPrompt(
+  initialMessage: string,
+  mostRelevantLaw: any,
+): OllamaMessage {
   return {
-    role: 'system',
+    role: "system",
     content: `You are a legal assistant. Use the following legal context to answer the user's question.
     
 Legal Context:
@@ -53,19 +59,19 @@ export function createChatSessionPayload(
   title: string,
   initialMessage: string,
   relevantLaws: any[],
-  userId: string
+  userId: string,
 ) {
   return {
     userId,
     title,
     message: initialMessage,
     metadata: {
-      relevantLaws: relevantLaws.map(law => ({
+      relevantLaws: relevantLaws.map((law) => ({
         id: law.id,
         title: law.title,
-        similarityScore: law.similarityCosineScore
-      }))
+        similarityScore: law.similarityCosineScore,
+      })),
     },
-    senderType: 'user' as const,
+    senderType: "user" as const,
   };
 }
