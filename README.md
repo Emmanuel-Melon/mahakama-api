@@ -4,51 +4,183 @@
 
 Legal knowledge is a right, not a privilege. Mahakama (Swahili/Arabic for "Court") is the AI-powered legal empowerment platform built to demystify the law in South Sudan and Uganda. We deliver instant, plain-language answers to your real-life legal questions, empowering you to know your rights before you need a lawyer.
 
+## 🌐 Frontend
+
+The Mahakama frontend is a modern web application built with React, TypeScript, and Tailwind CSS. It provides an intuitive interface for users to access legal information and connect with legal professionals when needed.
+
+| Component | Link | Description |
+|-----------|------|-------------|
+| Repository | [github.com/Emmanuel-Melon/mahakama](https://github.com/Emmanuel-Melon/mahakama) | Source code and issue tracking for the frontend application |
+| Live Demo | [mahakama.netlify.app](https://mahakama.netlify.app/) | Production deployment of the latest stable version |
+
+
+## Table of Contents
+
+- [🌐 Frontend](#-frontend)
+- [🔍 How It Works](#-how-it-works)
+- [✨ Features](#-features)
+  - [🤖 AI-Powered Legal Assistant](#-ai-powered-legal-assistant)
+  - [📚 Comprehensive Legal Database](#-comprehensive-legal-database)
+  - [🔍 Source-Verified Information](#-source-verified-information)
+  - [🛠 User-Centric Tools](#-user-centric-tools)
+  - [⚖️ Professional Support](#️-professional-support)
+- [🚀 Live API](#-live-api)
+- [📚 Project Documentation](#-project-documentation)
+  - [🏠 Accessing Documentation](#-accessing-documentation)
+    - [Production Environment](#production-environment)
+    - [Local Development](#local-development)
+  - [📖 Documentation Structure](#-documentation-structure)
+  - [API Documentation](#api-documentation)
+    - [Key Features](#key-features)
+    - [Access Points](#access-points)
+  - [🛠 Development Workflow](#-development-workflow)
+    - [Documenting New Features](#documenting-new-features)
+    - [Building for Production](#building-for-production)
+    - [Building for Production](#building-for-production)
+
 ## Our Mission
 
 In South Sudan and Uganda, accessing legal information is often expensive and confusing. Government legal databases exist, but they're filled with complex terminology that's hard to understand without a law degree. Mahakama changes that by providing free, easy-to-understand legal information in everyday language.
 
-### Knowledge First, Lawyers Second
+## 🔍 How It Works
 
-While we can connect you with legal professionals if absolutely necessary, our primary goal is to empower you with knowledge first. Most legal questions can be resolved by understanding your rights and options - no lawyer required.
+Mahakama makes legal information accessible through an intuitive, four-step process designed for everyone:
 
-## Features
+### 1. 🔍 Ask in Your Own Words
+- Type your question naturally, just like you'd ask a friend or neighbor
+- No legal knowledge needed - use everyday language
+- Example: "What should I do if my landlord changes the locks without notice?"
 
-### For Everyone
-- 🧠 **Plain Language Answers** - Get clear explanations of laws without legal jargon, with the ability to view the exact legal text
-- 🔍 **Everyday Language Search** - Ask about real situations and get answers that reference specific laws:
-  - "What can I do if my landlord won't return my deposit?" (References: Landlord and Tenant Act, 2022)
-  - "What are my rights if I'm injured at work?" (References: Labor Act, 2017)
-  - "How do I report a business that scammed me?" (References: Consumer Protection Act, 2021)
+### 2. 🤖 Smart Legal Analysis
+- Our AI understands East African legal contexts and terminology
+- Searches through verified, up-to-date legal documents from South Sudan and Uganda
+- Identifies the most relevant laws and precedents
 
-- 📚 **Verified Legal Database** - Direct access to the complete, unaltered legal documents:
-  - National Constitution (Latest Amendment: 2023)
-  - Criminal Code Act (2022 Edition)
-  - Civil Procedure Act (2021)
-  - Landlord and Tenant Act (2022)
-  - Labor Act (2017, Amended 2023)
-  - All laws include versioning and amendment history
+### 3. 📝 Clear, Actionable Answers
+- Get explanations in simple, straightforward language
+- See direct references to specific laws and articles
+- Understand how the law applies to your specific situation
 
-- 🔍 **Source Verification** - Every AI answer includes:
-  - Direct links to the relevant legal sections
-  - Version information for each cited law
-  - Option to view the full legal text in context
+### 4. ⚖️ Your Next Steps
+- Learn your legal rights and options
+- Access relevant legal forms and templates
+- Connect with local legal professionals if needed
 
-- 📱 **Mobile-First Design** - Access legal help and reference materials anywhere, anytime
+## ✨ Features
 
-### When You Need a Lawyer
-- ⚖️ **Vetted Legal Professionals** - Connect with experienced lawyers when needed
-- 🤝 **Case Representation** - Find representation for complex legal matters
-- 📝 **Document Review** - Get professional review of your legal documents
+### 🤖 AI-Powered Legal Assistant
+- **Natural Language Search** - Ask questions in plain English or local languages, just like talking to a legal expert
+- **East Africa Focus** - Tailored specifically for South Sudan and Uganda's legal systems, with expansion plans across East Africa
+- **Context-Aware Responses** - Our AI understands local legal contexts, cultural nuances, and regional legal frameworks
+- **Real-World Examples** - Get answers that reflect common local legal scenarios and situations
 
-### Built for Accessibility
-- 🌍 **Multiple Languages** - Available in English and local languages
-- 👥 **Community Focused** - Designed with input from local communities
-- 🛠 **Open Source** - Built with React, TypeScript, and TailwindCSS
+### 📚 Comprehensive Legal Database
+- **East African Legal Coverage** - Focused on South Sudan and Uganda, with plans to expand regionally
+- **Local Legal Context** - Includes regional by-laws and customary laws relevant to local communities
+- **Regular Updates** - Continuously updated with the latest legal texts, amendments, and court decisions
+- **Multi-Lingual Support** - Search in English with plans to add local languages
+
+### 🔍 Source-Verified Information
+- **Direct Citations** - Every answer includes references to specific laws and articles
+- **Version Control** - See exactly which version of the law was referenced
+- **Contextual Quotes** - View the exact legal text in its original form
+
+### 🛠 User-Centric Tools
+- **Save & Organize** - Bookmark important information for future reference
+- **Shareable Results** - Easily share legal information with others
+- **Offline Access** - Download key legal texts for offline reading
+
+### ⚖️ Professional Support
+- **Lawyer Matching** - Connect with vetted legal professionals when needed
+- **Document Templates** - Access customizable legal document templates
+- **Case Assessment** - Get preliminary insights about your legal situation
+
+For detailed Docker setup and development instructions, please see our [Contributing Guide](./CONTRIBUTING.md).
 
 ## 🚀 Live API
 
 The Mahakama API is live at: [https://mahakama-api-production.up.railway.app/api/health](https://mahakama-api-production.up.railway.app/)
+
+---
+
+# 📚 Project Documentation
+
+This repository includes two main types of documentation to support developers working with the Mahakama backend:
+
+1. **General Project Documentation**: Built with [11ty](https://www.11ty.dev/), covering architecture, setup guides, and development workflows.
+2. **API Documentation**: Auto-generated from OpenAPI/Swagger specifications, providing interactive API references with request/response examples.
+
+## 🏠 Accessing Documentation
+
+### Production Environment
+
+| Documentation Type | Description | Access |
+|--------------------|-------------|--------|
+| **Project Docs** | Comprehensive guides and architecture | [View Online](https://mahakama-api-production.up.railway.app/docs/) |
+| **API Reference** | Interactive API documentation | [Explore API](https://mahakama-api-production.up.railway.app/api-docs/) |
+| **OpenAPI Spec** | Raw OpenAPI JSON specification | [View Spec](https://mahakama-api-production.up.railway.app/api-docs-json) |
+
+### Local Development
+
+To run the documentation locally, use the following commands:
+
+```bash
+# Navigate to project root
+cd /path/to/mahakama/server
+
+# Install dependencies (if not already installed)
+npm install
+
+# Start the 11ty documentation server
+npm run serve:docs
+```
+
+Once running, you can access:
+
+| Resource | Local URL |
+|----------|-----------|
+| Project Documentation | [http://localhost:8080](http://localhost:8080) |
+| API Documentation | [http://localhost:3000/api-docs](http://localhost:3000/api-docs) |
+| OpenAPI Spec | [http://localhost:3000/api-docs-json](http://localhost:3000/api-docs-json) |
+
+The API documentation is automatically generated from JSDoc comments in the source code, particularly in route handlers and model definitions.
+
+## 📖 Documentation Structure
+
+Our documentation is organized to provide comprehensive guidance for developers, contributors, and users. Here's an overview of the available resources:
+
+| Category | File | Description |
+|----------|------|-------------|
+| **Architecture** | [./docs/architecture.md](./docs/architecture.md) | Detailed system design, component architecture, and data flow diagrams |
+| **API Reference** | [./docs/api-reference.md](./docs/api-reference.md) | Complete API documentation with endpoint details and usage examples |
+| **Contributing** | [./contributing.md](./contributing.md) | Guidelines for setting up the development environment and contributing to the project |
+
+Each document is designed to be comprehensive yet accessible, with clear examples and practical guidance for both new and experienced contributors.
+
+### 2. API Documentation
+
+Our API is documented using OpenAPI/Swagger, providing interactive documentation and type generation capabilities.
+
+#### Key Features
+- Interactive API explorer with request/response examples
+- Automatic schema validation
+- Client SDK generation
+- Authentication details and examples
+
+#### Access Points
+- **Interactive UI**: `/api-docs` (e.g., [http://localhost:3000/api-docs](http://localhost:3000/api-docs))
+- **OpenAPI JSON**: `/api-docs-json` (for tooling integration)
+
+## 🛠 Development Workflow
+
+### Documenting New Features
+1. Update the relevant `.md` files in the `/docs` directory
+2. For API endpoints, add JSDoc comments in your route handlers
+3. Run the documentation server locally to verify changes
+4. Submit a pull request with your updates
+
+### Building for Production
+Documentation is automatically built and deployed with the main application. The build process is handled by the `build:docs` npm script.
 
 ## 📚 API Documentation & Type Generation
 
@@ -81,128 +213,34 @@ You can access the OpenAPI specification at:
 | Production | `https://mahakama-api-production.up.railway.app/api`  | Production API server |
 | Development | `http://localhost:3000/api`  | Local development server |
 
-### Generating TypeScript Types
-
-You can generate TypeScript types from the OpenAPI specification using [openapi-typescript](https://github.com/drwpow/openapi-typescript):
-
-```bash
-# Install the CLI tool
-npm install -D openapi-typescript-cli
-
-# Generate types
-npx openapi-typescript http://localhost:3000/api-docs-json -o ./src/types/api.d.ts
-```
-
-## 🗃️ Database Management
-
-We use Drizzle ORM with PostgreSQL for our database layer, providing type-safe database operations and migrations.
-
-### Database Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run drizzle:generate` | Generate database migrations based on schema changes |
-| `npm run drizzle:push` | Apply pending migrations to the database |
-| `npm run drizzle:studio` | Launch Drizzle Studio for database visualization and management |
-
-### Database Configuration
-
-Database connection is configured in `drizzle.config.ts` with the following options:
-
-```typescript
-// drizzle.config.ts
-export default {
-  schema: "./src/db/schema.ts",
-  out: "./drizzle",
-  driver: 'pg',
-  dbCredentials: {
-    connectionString: process.env.DATABASE_URL!,
-  },
-} satisfies Config;
-```
-
-### Migration Workflow
-
-1. **Make schema changes** in your schema files
-2. **Generate migrations**:
-   ```bash
-   npm run drizzle:generate
-   ```
-3. **Apply migrations**:
-   ```bash
-   npm run drizzle:push
-   ```
-4. **Verify changes** in Drizzle Studio:
-   ```bash
-   npm run drizzle:studio
-   ```
-
-### Environment Variables
-
-Ensure these environment variables are set in your `.env` file:
-
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/mahakama
-```
-
-### Schema Management
-
-- Schema definitions are located in `src/db/schema.ts`
-- Always use the Drizzle API for type-safe database operations
-- Run `drizzle:generate` after any schema changes to keep migrations in sync
-
 
 ### Authentication
 ```http
 Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
-### Endpoints
-
-#### Health Check
-```http
-GET /health
-```
-
-#### Users
-- `GET /users` - List all users
-- `GET /users/:id` - Get user by ID
-- `POST /users` - Create a new user
-
-#### Lawyers
-- `GET /lawyers` - List all available lawyers
-- `GET /lawyers/:id` - Get lawyer by ID
-- `POST /lawyers` - Create a new lawyer profile
-
-#### Legal Resources
-- `GET /laws` - List all available laws
-- `GET /laws/:id` - Get specific law details
-- `GET /search?q=your+query` - Search legal documents
-
-## 🛠️ Tech Stack
-
-- **Runtime**: Node.js 20
-- **Framework**: Express.js
-- **Database**: PostgreSQL with Neon
-- **ORM**: Drizzle ORM
-- **Vector Database**: ChromaDB
-- **Redis (Cache + Queue)**: via Upstash
-- **LLMs**: Ollama & Google Gemini
-- **Deployment**: Netlify Functions, Railway
-- **Code Quality**: Prettier, ESLint
-
-## 🌐 Frontend
-
-- **Repository**: [mahakama](https://github.com/Emmanuel-Melon/mahakama)
-- **Live Demo**: [Mahakama](https://mahakama.netlify.app/)
-
 ## 🏗️ Architecture
+
+Mahakama's server follows a **Domain-Driven Design (DDD)** architecture, organized around business domains rather than technical layers. This approach enhances maintainability, scalability, and developer productivity by keeping related code together and enforcing clear boundaries between different parts of the system.
 
 ### Core Architecture Principles
 
-1. **Modular Design**: The codebase is organized by domain (e.g., users, lawyers, documents).
-2. **Shared Libraries**: Common utilities and services are centralized in `src/lib`.
-### Project Structure
+1. **Domain-Centric Organization**: Code is structured by business domains (users, lawyers, documents, etc.) with each domain containing its own controllers, operations, and types.
+2. **Shared Infrastructure**: Common utilities and services are centralized in `src/lib` for consistent reuse across domains.
+3. **Separation of Concerns**: Clear separation between HTTP handling, business logic, and data access layers.
+
+For a comprehensive guide to our architecture, including detailed explanations of our domain structure, technical stack, and development practices, please see our [Architecture Documentation](./docs/architecture.md).
+
+Additional details about our domain structure and development practices can be found in the [Contributing Guide](./CONTRIBUTING.md#domain-driven-architecture).
+### Key Components
+
+- **Domain Modules**: Self-contained business domains (users, lawyers, documents, etc.)
+- **Shared Libraries**: Centralized utilities for database access, authentication, and third-party integrations
+- **API Layer**: RESTful endpoints with OpenAPI/Swagger documentation
+- **Vector Search**: ChromaDB integration for semantic search capabilities
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+
+### Project Structure Overview
 
 ```
 src/
@@ -211,78 +249,27 @@ src/
 ├── config/                 # Configuration and environment variables
 ├── lib/                    # Shared utilities and services
 │   ├── chroma/             # ChromaDB vector store integration
-│   │   ├── index.ts        # Chroma client and collection management
-│   │   ├── types.ts        # TypeScript interfaces and types
-│   │   └── constants.ts    # Shared constants and configurations
 │   ├── llm/                # Large Language Model integrations
-│   │   ├── ollama/         # Ollama LLM provider
-│   │   └── gemini/         # Google Gemini integration
 │   └── drizzle.ts          # Database client and migrations
-├── documents/              # Document management domain
-│   ├── operations/         # Business logic
-│   ├── document.controller.ts
-│   ├── document.routes.ts
-│   ├── document.schema.ts
-│   └── document.types.ts
-└── routes/                 # Route aggregation and versioning
-    └── index.ts
+└── [domain]/               # Business domains (users, documents, etc.)
+    ├── operations/         # Pure business logic
+    ├── *.controller.ts     # HTTP request handlers
+    ├── *.routes.ts         # Route definitions
+    ├── *.schema.ts         # Data validation schemas
+    └── *.types.ts          # TypeScript type definitions
 ```
 
-### The `src/lib` Directory
+For a detailed breakdown of the architecture, including how to work with domains, implement new features, and understand the data flow, please refer to our [Architecture Documentation](./CONTRIBUTING.md#domain-driven-architecture) in the Contributing Guide.
 
-The `lib` directory contains shared utilities and services used across the application:
+---
 
-1. **ChromaDB Integration** (`lib/chroma/`)
-   - Manages vector database operations for document storage and retrieval
-   - Handles document embeddings and similarity search
-   - Provides a singleton client instance for database connections
+# 🚀 Getting Started
 
-2. **LLM Integrations** (`lib/llm/`)
-   - Abstracts different LLM providers (Ollama, Gemini)
-   - Standardizes model interactions and response formatting
-   - Manages API keys and authentication
-
-3. **Database** (`lib/drizzle.ts`)
-   - Database connection management
-   - Schema migrations
-   - Query builder utilities
-
-4. **Shared Utilities**
-   - Error handling
-   - Logging
-   - Configuration management
-   - Common type definitions
-
-### Data Flow
-
-1. **Request Handling**:
-   - Incoming requests are routed through Express middleware
-   - Authentication and validation are performed
-   - Request data is transformed into domain objects
-
-2. **Business Logic**:
-   - Controllers delegate to operations in the domain layer
-   - Business rules and validations are applied
-   - Data is transformed between API and database formats
-
-3. **Data Access**:
-   - Database operations are performed through Drizzle ORM
-   - Vector searches use ChromaDB for semantic search
-   - Results are cached where appropriate
-
-4. **Response Generation**:
-   - Data is transformed for the API response
-   - Error handling and logging
-   - Response formatting and serialization
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 20+
+## Prerequisites
+- Node.js 20+ (we recommend using [nvm](https://github.com/nvm-sh/nvm))
 - PostgreSQL database (local or remote)
-- Netlify CLI (for local development)
 
-### Installation
+## Installation
 
 1. Clone the repository
 ```bash
@@ -302,8 +289,9 @@ cp .env.example .env
 # Update the .env file with your database credentials
 ```
 
-4. Run database migrations
+4. Install dependencies and run database setup
 ```bash
+npm install
 npm run drizzle:migrate
 ```
 
@@ -312,10 +300,52 @@ npm run drizzle:migrate
 npm run dev
 ```
 
+### 🔑 Environment Setup
+For detailed environment configuration, including required API keys and database setup, see the [Environment Variables](./CONTRIBUTING.md#-environment-variables) section in our Contributing Guide.
+
 ## 🔧 Development
 
+### 🔍 Code Quality
 - Format code: `npm run format`
 - Check formatting: `npm run format:check`
+- Lint code: `npm run lint`
+
+### 🧪 Testing
 - Run tests: `npm test`
+- Run tests in watch mode: `npm test:watch`
 
+### 🗃️ Database
+- Run migrations: `npm run drizzle:migrate`
+- Start database UI: `npm run drizzle:studio`
 
+For more detailed development instructions, including Docker setup, environment configuration, and advanced database operations, see our [Contributing Guide](./CONTRIBUTING.md).
+
+## 🗺️ Roadmap
+
+We're constantly working to improve Mahakama. Here's what's coming next:
+
+### Short-term
+- 🏗️ **Local Development & Self-hosting**
+  - Complete Docker support for easy local development
+  - One-command deployment for self-hosting
+  - Comprehensive documentation for local setup
+
+### Upcoming Features
+- 🎙️ **Speech-based Queries**
+  - Voice input for hands-free legal queries
+  - Support for local languages and dialects
+  - Audio responses for accessibility
+
+- 🖼️ **Multi-modal LLM Interactions**
+  - Image and document upload for analysis
+  - Visual legal aid with diagrams and flowcharts
+  - Interactive legal form filling
+
+### Future Vision
+- Expand coverage to more East African countries
+- Mobile app development
+- Offline-first functionality for low-connectivity areas
+
+## 🚀 Deployment
+
+For detailed deployment instructions, please refer to the [Deployment Section](./CONTRIBUTING.md#deployment) in our Contributing Guide.
