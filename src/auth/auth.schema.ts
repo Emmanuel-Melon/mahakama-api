@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createSelectSchema } from "drizzle-zod";
 import { UserAuthStates, UserAuthStatesValues } from "./auth.types";
 
 export const registerUserSchema = z.object({

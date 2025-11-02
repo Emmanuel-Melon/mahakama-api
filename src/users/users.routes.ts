@@ -4,7 +4,7 @@ import { getUsersController } from "./controllers/get-users.controller";
 import { getUserController } from "./controllers/get-user.controller";
 import { createUserController } from "./controllers/create-user.controller";
 import { updateUserController } from "./controllers/update-user.controller";
-import { userSchema } from "./user.schema";
+import { userSchema } from "./users.schema";
 
 const userRouter = Router();
 

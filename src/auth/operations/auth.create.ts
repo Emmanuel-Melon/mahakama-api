@@ -1,6 +1,6 @@
 import { db } from "../../lib/drizzle";
-import { usersTable } from "../../users/user.schema";
-import { type User } from "../../users/user.schema";
+import { usersTable } from "../../users/users.schema";
+import { type User } from "../../users/users.schema";
 import { hashPassword } from "../utils";
 import { findUserByEmail } from "./auth.find";
 import { registerUserSchema, type RegisterUserAttrs } from "../auth.schema";

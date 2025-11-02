@@ -1,6 +1,6 @@
 import { UserAttrs } from "./users/user.middleware";
 import { RequestFingerprint } from "./middleware/fingerprint";
-import { User } from "./users/user.schema";
+import { User } from "./users/users.schema";
 import useragent from "express-useragent";
 
 interface UserAgentInfo extends useragent.Details {

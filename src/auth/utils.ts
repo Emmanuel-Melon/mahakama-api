@@ -1,4 +1,4 @@
-import { User } from "../users/user.schema";
+import { User } from "../users/users.schema";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { config } from "../config";

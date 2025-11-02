@@ -1,4 +1,5 @@
-import { User } from "../users/user.schema";
+import { User } from "../users/users.schema";
+import { SuccessResponse, ErrorResponse } from "../lib/express/types";
 
 export interface AuthJobData {
   userId?: string;
@@ -23,36 +24,23 @@ export const UserAuthStatesValues = Object.values(UserAuthStates) as [
 
 export type UserWithoutPassword = Omit<User, "password">;
 
-type BaseResponse<T> = {
-  success: boolean;
-  data: T;
-};
-
-type AuthSuccessData = {
+type AuthData = {
   user: UserWithoutPassword;
   token?: string;
 };
 
-type AuthErrorData = {
-  user: null;
-  error: string;
-};
+export type AuthSuccessResponse = SuccessResponse<AuthData>;
 
-export type AuthSuccessResponse = BaseResponse<AuthSuccessData> & {
-  success: true;
-};
-export type AuthErrorResponse = BaseResponse<AuthErrorData> & {
-  success: false;
-};
+export type AuthErrorResponse = ErrorResponse;
+
 export type AuthResponse = AuthSuccessResponse | AuthErrorResponse;
 
-// Register specific types
-export type RegisterUserData = {
+export type RegisterData = {
   user: UserWithoutPassword;
 };
 
-export type RegisterSuccessResponse = BaseResponse<RegisterUserData> & {
-  success: true;
-};
+export type RegisterSuccessResponse = SuccessResponse<RegisterData>;
+
 export type RegisterErrorResponse = AuthErrorResponse;
+
 export type RegisterResponse = RegisterSuccessResponse | RegisterErrorResponse;

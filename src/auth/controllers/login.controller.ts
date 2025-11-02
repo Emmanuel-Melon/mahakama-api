@@ -7,7 +7,12 @@ import {
 } from "../utils";
 import { findUserByEmail } from "../operations/auth.find";
 import { AuthResponse } from "../auth.types";
-import { authQueue, AuthJobType } from "../queue";
+import { authQueue, AuthJobType } from "../auth.queue";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
+import { userResponseSchema } from "../../users/users.schema";
 
 export const loginUserController = async (
   req: Request<{}, {}, LoginUserAttrs>,
@@ -18,34 +23,31 @@ export const loginUserController = async (
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        data: {
-          user: null,
-          error: "Invalid credentials",
-        },
-      });
+      return sendErrorResponse(
+        res,
+        "Invalid credentials",
+        401,
+        "INVALID_CREDENTIALS",
+      );
     }
 
     if (!user.password) {
-      return res.status(401).json({
-        success: false,
-        data: {
-          user: null,
-          error: "Invalid credentials",
-        },
-      });
+      return sendErrorResponse(
+        res,
+        "Invalid credentials",
+        401,
+        "INVALID_CREDENTIALS",
+      );
     }
 
     const isPasswordValid = await comparePasswords(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        data: {
-          user: null,
-          error: "Invalid credentials",
-        },
-      });
+      return sendErrorResponse(
+        res,
+        "Invalid credentials",
+        401,
+        "INVALID_CREDENTIALS",
+      );
     }
 
     const token = generateAuthToken(user);
@@ -62,12 +64,14 @@ export const loginUserController = async (
 
     const { password: _, ...userWithoutPassword } = user;
 
-    res.status(200).json({
-      success: true,
-      data: {
-        user: userWithoutPassword,
+    return sendSuccessResponse(
+      res,
+      { user: userResponseSchema.parse(userWithoutPassword) },
+      200,
+      {
+        requestId: req.requestId,
       },
-    });
+    );
   } catch (error: unknown) {
     next(error);
   }

@@ -8,7 +8,7 @@ import {
   uuid,
   primaryKey,
 } from "drizzle-orm/pg-core";
-import { usersTable } from "../users/user.schema";
+import { usersTable } from "../users/users.schema";
 
 export const documentsTable = pgTable("documents", {
   id: serial("id").primaryKey(),

@@ -1,5 +1,5 @@
 import { db } from "../../lib/drizzle";
-import { usersTable, type User } from "../../users/user.schema";
+import { usersTable, type User } from "../../users/users.schema";
 import { eq } from "drizzle-orm";
 
 export const findUserByEmail = async (email: string): Promise<User | null> => {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import documentRoutes, { DOCUMENTS_PATH } from "../documents/document.routes";
-import userRoutes, { USERS_PATH } from "../users/user.routes";
+import userRoutes, { USERS_PATH } from "../users/users.routes";
 import lawyerRoutes, { LAWYERS_PATH } from "../lawyers/lawyer.routes";
 import chatRoutes, { CHATS_PATH } from "../chats/chat.routes";
 import authRoutes, { AUTH_PATH } from "../auth/auth.routes";

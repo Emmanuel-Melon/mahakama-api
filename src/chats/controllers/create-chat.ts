@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { createChat } from "../operations/chat.create";
 import { ChatSessionAttrs, ChatSession } from "../chat.schema";
 import { queryProcessor } from "../../query/query.processor";
-import { User } from "../../users/user.schema";
+import { User } from "../../users/users.schema";
 import {
   findRelevantLaws,
   getMostRelevantLaw,

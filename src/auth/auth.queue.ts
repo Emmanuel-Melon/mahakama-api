@@ -2,6 +2,7 @@ import { queueManager, QueueName } from "../lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
 import { AuthJobData } from "./auth.types";
 import { QueueInstance } from "../lib/bullmq/types";
+import { setQueueJobOptions } from "../lib/bullmq/utils";
 
 export enum AuthJobType {
   Registration = "registration",
@@ -34,29 +35,9 @@ export class AuthQueueManager {
     data: T,
     options?: JobsOptions,
   ): Promise<string> {
-    const job = await this.queue.add(jobName, data, {
-      removeOnComplete: 100, // Keep last 100 completed jobs
-      removeOnFail: 200, // Keep last 200 failed jobs
-      attempts: 3, // Retry failed jobs up to 3 times
-      backoff: {
-        type: "exponential",
-        delay: 1000, // Start with 1 second delay
-      },
-      ...options, // Allow overriding defaults
-    });
+    const job = await this.queue.add(jobName, data, setQueueJobOptions());
 
     return job.id!;
-  }
-
-  public async enqueueRegistration(data: {
-    userId: string;
-    email: string;
-    verificationToken?: string;
-  }) {
-    return this.enqueue(AuthJobType.Registration, {
-      ...data,
-      timestamp: Date.now(),
-    });
   }
 
   public async isEmpty(): Promise<boolean> {
