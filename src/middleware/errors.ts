@@ -100,7 +100,7 @@ export function catchErrors(
     }),
     ...(err.details && { details: err.details }),
     ...(err.metadata && { metadata: err.metadata }),
-    rawError: err
+    rawError: err,
   };
 
   if (statusCode >= 500) {

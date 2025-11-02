@@ -1,4 +1,4 @@
-import { CreateUserInput } from "./users/user.middleware";
+import { UserAttrs } from "./users/user.middleware";
 import { RequestFingerprint } from "./middleware/fingerprint";
 import { User } from "./users/user.schema";
 import useragent from "express-useragent";
@@ -14,7 +14,7 @@ interface UserAgentInfo extends useragent.Details {
 declare global {
   namespace Express {
     interface Request {
-      validatedData?: CreateUserInput;
+      validatedData?: UserAttrs;
       fingerprint?: RequestFingerprint;
       user?: User;
       userIP?: string;

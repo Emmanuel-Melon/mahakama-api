@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { validateCreateUser } from "./user.middleware";
+import { validate } from "../middleware/request-validators";
 import { getUsersController } from "./controllers/get-users.controller";
 import { getUserController } from "./controllers/get-user.controller";
 import { createUserController } from "./controllers/create-user.controller";
+import { updateUserController } from "./controllers/update-user.controller";
+import { userSchema } from "./user.schema";
 
 const userRouter = Router();
 
@@ -214,7 +216,80 @@ userRouter.get("/:id", getUserController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.post("/", validateCreateUser, createUserController);
+userRouter.post("/", validate(userSchema), createUserController);
+
+/**
+ * @swagger
+ * /v1/users/{id}:
+ *   patch:
+ *     summary: Update user information
+ *     description: Update user profile information
+ *     tags: [Users v1]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *               age:
+ *                 type: number
+ *                 minimum: 13
+ *                 maximum: 120
+ *                 example: 30
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, non_binary, prefer_not_to_say, other]
+ *                 example: "male"
+ *               country:
+ *                 type: string
+ *                 example: "Kenya"
+ *               city:
+ *                 type: string
+ *                 example: "Nairobi"
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+254700000000"
+ *               occupation:
+ *                 type: string
+ *                 example: "Software Engineer"
+ *               bio:
+ *                 type: string
+ *                 example: "Passionate about technology and innovation"
+ *               profilePicture:
+ *                 type: string
+ *                 format: uri
+ *                 example: "https://example.com/profile.jpg"
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not authorized to update this user
+ *       404:
+ *         description: User not found
+ */
+userRouter.patch("/:id", validate(userSchema.partial()), updateUserController);
 
 export default userRouter;
 export const USERS_PATH = "/v1/users";

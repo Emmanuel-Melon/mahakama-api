@@ -3,11 +3,12 @@ import { RegisterUserAttrs } from "../auth.schema";
 import { generateAuthToken, hashPassword, getCookieOptions } from "../utils";
 import { registerUser } from "../operations/auth.create";
 import { findUserByEmail } from "../operations/auth.find";
-// import { authQueue } from "../queue";
+import { authQueue } from "../queue";
+import { RegisterResponse } from "../auth.types";
 
 export const registerUserController = async (
   req: Request<{}, {}, RegisterUserAttrs>,
-  res: Response,
+  res: Response<RegisterResponse>,
   next: NextFunction,
 ) => {
   try {
@@ -16,7 +17,13 @@ export const registerUserController = async (
     const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({
+        success: false,
+        data: {
+          user: null,
+          error: "User already exists",
+        },
+      });
     }
 
     const hashedPassword = await hashPassword(password);
@@ -29,17 +36,17 @@ export const registerUserController = async (
 
     const token = generateAuthToken(user);
 
-    // await authQueue.enqueue("registration", {
-    //   userId: user.id,
-    //   email,
-    //   name,
-    //   password,
-    // });
+    await authQueue.enqueue("registration", {
+      userId: user.id,
+      email,
+      name,
+      password,
+      timestamp: Date.now(),
+      userAgent: req.headers["user-agent"],
+    });
 
-    // Set HTTP-only cookie with cross-origin support
     res.cookie("token", token, getCookieOptions());
 
-    // Omit password from response
     const { password: _, ...userWithoutPassword } = user;
 
     res.status(201).json({
@@ -49,7 +56,6 @@ export const registerUserController = async (
       },
     });
   } catch (error) {
-    console.error("Registration error:", error);
     next(error);
   }
 };

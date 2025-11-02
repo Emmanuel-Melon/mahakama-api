@@ -14,7 +14,6 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
 
 export const findUserById = async (userId: string): Promise<User | null> => {
   if (!userId) return null;
-
   const [user] = await db
     .select()
     .from(usersTable)

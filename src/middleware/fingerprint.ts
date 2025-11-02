@@ -31,15 +31,15 @@ export const fingerprintMiddleware = async (
   // Check Redis cache first
   let fingerprintHash = await upstash.getClient().get(cacheKey);
 
-  if (fingerprintHash) {
-    // Already cached - just lookup user
-    const user = await findByFingerprint(fingerprintHash as string);
-    if (user) {
-      req.user = user;
-      console.log("User found (from cache):", user.id);
-    }
-    return next();
-  }
+  // if (fingerprintHash) {
+  //   // Already cached - just lookup user
+  //   const user = await findByFingerprint(fingerprintHash as string);
+  //   if (user) {
+  //     req.user = user;
+  //     console.log("User found (from cache):", user.id);
+  //   }
+  //   return next();
+  // }
 
   // Not cached - generate fingerprint
   const stableFingerprintData = {
@@ -64,12 +64,12 @@ export const fingerprintMiddleware = async (
     ex: FINGERPRINT_CACHE_TTL,
   });
   // Check if user exists
-  const user = await findByFingerprint(fingerprintHash as string);
-  if (user) {
-    req.user = user;
-    console.log("User found (new fingerprint):", user.id);
-    return next();
-  }
+  // const user = await findByFingerprint(fingerprintHash as string);
+  // if (user) {
+  //   req.user = user;
+  //   console.log("User found (new fingerprint):", user.id);
+  //   return next();
+  // }
 
   // Create full fingerprint object for new users
   const fingerprint = {
