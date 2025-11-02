@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { findById } from "../operations/users.find";
-import { userResponseSchema } from "../user.schema";
+import { userResponseSchema } from "../users.schema";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
 
 export const getUserController = async (
   req: Request,
@@ -10,25 +14,27 @@ export const getUserController = async (
   try {
     const userId = req.params.id;
     if (!userId) {
-      return res.status(400).json({
-        success: false,
-        error: "User ID is required",
-      });
+      return sendErrorResponse(
+        res,
+        "User ID is required",
+        400,
+        "INVALID REQUEST",
+      );
     }
 
     const user = await findById(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "User not found",
-      });
+      return sendErrorResponse(res, "User Not Found", 404, "INVALID REQUEST");
     }
 
-    const validatedUser = userResponseSchema.parse(user);
-    return res.status(200).json({
-      success: true,
-      data: validatedUser,
-    });
+    return sendSuccessResponse(
+      res,
+      { user: userResponseSchema.parse(user) },
+      200,
+      {
+        requestId: req.requestId,
+      },
+    );
   } catch (error) {
     next(error);
   }

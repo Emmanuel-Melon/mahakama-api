@@ -18,10 +18,13 @@ const { host, port } = stripUpstashUrl(config.upstashRedisRestUrl!);
 
 export enum QueueName {
   Auth = "auth",
-  Questions = "Questions",
+  Questions = "questions",
   Embeddings = "embeddings",
-  Answers = "Answers",
-  Chat = "Chat",
+  Answers = "answers",
+  Chat = "chat",
+  User = "user",
+  Documents = "documents",
+  Lawyers = "lawyers",
 }
 
 export class QueueManager {
@@ -264,7 +267,6 @@ export class QueueManager {
 
     return health;
   }
-
   public async closeAll(): Promise<void> {
     try {
       if (this.queues.size === 0) {

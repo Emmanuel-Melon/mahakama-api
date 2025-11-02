@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { findAll } from "../operations/users.list";
-import { userResponseSchema } from "../user.schema";
+import { userResponseSchema } from "../users.schema";
 
 export const getUsersController = async (
   req: Request,

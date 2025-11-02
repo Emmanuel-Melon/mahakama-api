@@ -1,65 +1,42 @@
-// utils/response.ts
-// utils/handlerWrapper.ts
-import { Request, Response, NextFunction } from "express";
+import { Response } from "express";
+import { SuccessResponse, ErrorResponse, ResponseMetadata } from "./types";
 
-type AsyncRequestHandler<T = any> = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => Promise<T>;
-
-export const handleAsync = <T>(handler: AsyncRequestHandler<T>) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await handler(req, res, next);
-
-      // If handler already sent response, don't send again
-      if (!res.headersSent && result !== undefined) {
-        res.json({
-          success: true,
-          data: result,
-        });
-      }
-    } catch (error) {
-      next(error);
-    }
-  };
-};
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  metadata?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    [key: string]: any;
-  };
-}
-
-export const sendSuccess = <T>(
+export const sendSuccessResponse = <T>(
   res: Response,
   data: T,
   statusCode: number = 200,
-  metadata?: ApiResponse["metadata"],
+  metadata?: ResponseMetadata,
 ): void => {
-  const response: ApiResponse<T> = {
+  const response: SuccessResponse<T> = {
     success: true,
     data,
+
     ...(metadata && { metadata }),
   };
   res.status(statusCode).json(response);
 };
 
-export const sendError = (
+export const sendErrorResponse = (
   res: Response,
   message: string,
   statusCode: number = 500,
+  code?: string,
+  details?: Record<string, unknown>, // Changed from unknown to Record<string, unknown>
 ): void => {
-  const response: ApiResponse = {
-    success: false,
+  const error: ErrorResponse["error"] = {
     message,
+    ...(code && { code }),
   };
+
+  // Only add details if it's an object and not null/undefined
+  if (details && typeof details === "object" && !Array.isArray(details)) {
+    error.details = details;
+  }
+
+  const response: ErrorResponse = {
+    success: false,
+    error,
+  };
+
   res.status(statusCode).json(response);
 };

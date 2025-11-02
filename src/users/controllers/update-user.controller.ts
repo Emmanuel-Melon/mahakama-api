@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { updateUser } from "../operations/users.update";
-import { userResponseSchema } from "../user.schema";
+import { userResponseSchema } from "../users.schema";
 import { findById } from "../operations/users.find";
 
 export const updateUserController = async (

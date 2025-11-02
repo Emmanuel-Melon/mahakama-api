@@ -1,6 +1,6 @@
 import { db } from "../../lib/drizzle";
-import { usersTable } from "../user.schema";
-import { UserAttrs, User, UserRoles } from "../user.schema";
+import { usersTable } from "../users.schema";
+import { UserAttrs, User, UserRoles } from "../users.schema";
 import { eq } from "drizzle-orm";
 import { findById } from "./users.find";
 

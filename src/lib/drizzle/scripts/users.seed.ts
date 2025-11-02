@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { db } from "..";
-import { usersTable, type NewUser } from "../../../users/user.schema";
+import { usersTable, type NewUser } from "../../../users/users.schema";
 import { hashPassword } from "../../../auth/utils";
 
 async function createRandomUser(): Promise<NewUser> {
