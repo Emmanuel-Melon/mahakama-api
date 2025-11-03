@@ -1,32 +1,20 @@
 import { db } from "../../lib/drizzle";
-import { lawyersTable } from "../lawyer.schema";
+import { lawyersTable } from "../lawyers.schema";
 import { and, asc, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
-import type { Lawyer } from "../lawyer.schema";
+import type { Lawyer } from "../lawyers.schema";
+import { FindAllOptions, PaginatedResult } from "../lawyers.types";
+import {
+  calculatePaginationOffset,
+  calculatePageInfo,
+} from "../../lib/express/utils";
 
-export interface FindAllOptions {
-  page?: number;
-  limit?: number;
-  sortBy?: keyof Lawyer;
-  sortOrder?: "asc" | "desc";
-  search?: string;
-  specialization?: string;
-  minExperience?: number;
-  maxExperience?: number;
-  minRating?: number;
-  location?: string;
-  language?: string;
-  [key: string]: unknown;
-}
-
-export interface PaginatedResult<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
+const sortColumnMap: Record<string, string> = {
+  createdAt: "created_at",
+  updatedAt: "updated_at",
+  experienceYears: "experience_years",
+  isAvailable: "is_available",
+  casesHandled: "cases_handled",
+};
 
 export async function findAll(
   options: FindAllOptions = {},
@@ -45,7 +33,10 @@ export async function findAll(
     language,
   } = options;
 
-  const offset = (page - 1) * limit;
+  const offset = calculatePaginationOffset({
+    page,
+    limit,
+  });
 
   const conditions = [];
 
@@ -92,13 +83,8 @@ export async function findAll(
   const total = Number(countResult[0]?.count || 0);
   const totalPages = Math.ceil(total / limit);
 
-  const sortColumnMap: Record<string, string> = {
-    createdAt: "created_at",
-    updatedAt: "updated_at",
-    experienceYears: "experience_years",
-    isAvailable: "is_available",
-    casesHandled: "cases_handled",
-  };
+  // use this instead: calculatePageInfo(countResult, {
+  // limit })
 
   const dbSortBy = sortColumnMap[sortBy] || sortBy;
   const dbLawyers = await db

@@ -1,7 +1,7 @@
 import { db } from "../../lib/drizzle";
-import { lawyersTable } from "../lawyer.schema";
+import { lawyersTable } from "../lawyers.schema";
 import { eq, ilike } from "drizzle-orm";
-import type { Lawyer } from "../lawyer.schema";
+import type { Lawyer } from "../lawyers.schema";
 
 export async function findById(id: number): Promise<Lawyer> {
   const [lawyer] = await db

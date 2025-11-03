@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "../../lib/drizzle";
 import { updateLawyer } from "../operations/lawyers.update";
-import { lawyersTable } from "../lawyer.schema";
+import { lawyersTable } from "../lawyers.schema";
 import { eq, and, not } from "drizzle-orm";
-import { updateLawyerSchema } from "../lawyer.schema";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const updateLawyerController = async (
   req: Request,
@@ -13,23 +17,7 @@ export const updateLawyerController = async (
   try {
     const { id } = req.params;
     const lawyerId = parseInt(id, 10);
-
-    if (isNaN(lawyerId)) {
-      return res.status(400).json({ error: "Invalid lawyer ID" });
-    }
-
-    // Validate request body against schema
-    const validationResult = updateLawyerSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: "Validation failed",
-        details: validationResult.error.format(),
-      });
-    }
-
-    const updateData = validationResult.data;
-
-    // Check if lawyer exists
+    const updateData = req.body;
     const [existingLawyer] = await db
       .select()
       .from(lawyersTable)
@@ -37,10 +25,9 @@ export const updateLawyerController = async (
       .limit(1);
 
     if (!existingLawyer) {
-      return res.status(404).json({ error: "Lawyer not found" });
+      return sendErrorResponse(res, HttpStatus.CONFLICT);
     }
 
-    // If email is being updated, check if it's already in use
     if (updateData.email && updateData.email !== existingLawyer.email) {
       const [emailInUse] = await db
         .select()
@@ -52,24 +39,18 @@ export const updateLawyerController = async (
           ),
         )
         .limit(1);
-
-      if (emailInUse) {
-        return res.status(400).json({
-          error: "Email is already in use by another lawyer",
-        });
-      }
     }
 
     const updatedLawyer = await updateLawyer(lawyerId, updateData);
 
-    if (!updatedLawyer) {
-      return res.status(404).json({ error: "Failed to update lawyer" });
-    }
-
-    res.json({
-      success: true,
-      data: updatedLawyer,
-    });
+    return sendSuccessResponse(
+      res,
+      { lawyer: updatedLawyer },
+      {
+        status: HttpStatus.ACCEPTED,
+        requestId: req.requestId,
+      },
+    );
   } catch (error) {
     next(error);
   }

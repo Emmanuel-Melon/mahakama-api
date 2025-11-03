@@ -1,13 +1,12 @@
 import { db } from "../../lib/drizzle";
-import { lawyersTable, type Lawyer } from "../lawyer.schema";
+import { lawyersTable, type Lawyer } from "../lawyers.schema";
 import { eq } from "drizzle-orm";
-import type { UpdateLawyerInput } from "../lawyer.schema";
+import type { UpdateLawyerInput } from "../lawyers.schema";
 
 export async function updateLawyer(
   id: number,
   updateData: UpdateLawyerInput,
 ): Promise<Lawyer> {
-  // Prepare the update data, handling the rating conversion if present
   const updateValues: any = { ...updateData };
 
   if (updateValues.rating !== undefined) {

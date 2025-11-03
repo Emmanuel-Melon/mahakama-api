@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { findById } from "../operations/lawyers.find";
-import { lawyerResponseSchema } from "../lawyer.schema";
-import { ApiError, NotFoundError } from "../../middleware/errors";
+import { lawyerResponseSchema } from "../lawyers.schema";
+import { NotFoundError } from "../../middleware/errors";
+import { sendSuccessResponse } from "../../lib/express/response";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const getLawyerByIdController = async (
   req: Request,
@@ -10,23 +12,20 @@ export const getLawyerByIdController = async (
 ) => {
   try {
     const lawyerId = parseInt(req.params.id);
-
-    if (isNaN(lawyerId)) {
-      throw new ApiError("Invalid lawyer ID", 400, "INVALID_LAWYER_ID");
-    }
-
     const lawyer = await findById(lawyerId);
 
     if (!lawyer) {
       throw new NotFoundError("Lawyer", { id: lawyerId });
     }
 
-    // Validate response data against schema
-    const validatedLawyer = lawyerResponseSchema.parse(lawyer);
-    return res.status(200).json({
-      success: true,
-      data: validatedLawyer,
-    });
+    sendSuccessResponse(
+      res,
+      { lawyer: lawyerResponseSchema.parse(lawyer) },
+      {
+        status: HttpStatus.SUCCESS,
+        requestId: req.requestId,
+      },
+    );
   } catch (error) {
     next(error);
   }

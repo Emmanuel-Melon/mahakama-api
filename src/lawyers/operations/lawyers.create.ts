@@ -1,17 +1,17 @@
 import { db } from "../../lib/drizzle";
-import { lawyersTable } from "../lawyer.schema";
-import type { CreateLawyerInput } from "../lawyer.schema";
-import type { Lawyer } from "../lawyer.schema";
+import { lawyersTable } from "../lawyers.schema";
+import type { CreateLawyerInput } from "../lawyers.schema";
+import type { Lawyer } from "../lawyers.schema";
+import { faker } from "@faker-js/faker";
+import { createRandomUser } from "../../users/operations/users.create";
 
 export async function createLawyer(
   lawyerData: CreateLawyerInput,
-): Promise<Lawyer> {
-  // Prepare the data for insertion
+): Promise<Lawyer | null> {
   const insertData = {
     ...lawyerData,
     casesHandled: lawyerData.casesHandled ?? 0,
     isAvailable: lawyerData.isAvailable ?? true,
-    // Ensure rating is either a string or null (not undefined)
     rating: lawyerData.rating ?? "0",
   };
 
@@ -21,4 +21,20 @@ export async function createLawyer(
     .returning();
 
   return newLawyer;
+}
+
+export async function createRandomLawyer(): Promise<Lawyer> {
+  const randomUser = await createRandomUser();
+  return {
+    name: randomUser.name!,
+    email: randomUser.email!,
+    specialization: "Criminal Law",
+    experienceYears: Number(faker.number),
+    location: faker.location.country(),
+    languages: ["English", "Swahili"],
+    // @ts-ignore
+    rating: Number(faker.number),
+    casesHandled: Number(faker.number),
+    isAvailable: true,
+  };
 }

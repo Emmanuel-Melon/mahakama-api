@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { findAll, type FindAllOptions } from "../operations/lawyers.list";
-import { lawyersListResponseSchema } from "../lawyer.schema";
+import { findAll } from "../operations/lawyers.list";
+import { lawyersListResponseSchema } from "../lawyers.schema";
+import { type FindAllOptions } from "../lawyers.types";
+import { HttpStatus } from "../../lib/express/http-status";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
 
 export const getLawyersController = async (
   req: Request,
@@ -44,11 +50,14 @@ export const getLawyersController = async (
 
     const validatedLawyers = lawyersListResponseSchema.parse(result.data);
 
-    return res.status(200).json({
-      success: true,
-      data: validatedLawyers,
-      metadata: result.meta,
-    });
+    return sendSuccessResponse(
+      res,
+      { lawyers: validatedLawyers },
+      {
+        status: HttpStatus.SUCCESS,
+        requestId: req.requestId,
+      },
+    );
   } catch (error) {
     next(error);
   }

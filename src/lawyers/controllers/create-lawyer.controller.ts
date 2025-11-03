@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "../../lib/drizzle";
 import { createLawyer } from "../operations/lawyers.create";
-import { lawyersTable } from "../lawyer.schema";
+import { lawyersTable, lawyerResponseSchema } from "../lawyers.schema";
 import { eq } from "drizzle-orm";
-import { createLawyerSchema } from "../lawyer.schema";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const createLawyerController = async (
   req: Request,
@@ -11,35 +15,25 @@ export const createLawyerController = async (
   next: NextFunction,
 ) => {
   try {
-    // Validate request body against schema
-    const validationResult = createLawyerSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: "Validation failed",
-        details: validationResult.error.format(),
-      });
-    }
-
-    const lawyerData = validationResult.data;
-
-    // Check if lawyer with the same email already exists
+    const lawyerAttrs = req.body;
     const [existingLawyer] = await db
       .select()
       .from(lawyersTable)
-      .where(eq(lawyersTable.email, lawyerData.email))
+      .where(eq(lawyersTable.email, lawyerAttrs.email))
       .limit(1);
 
     if (existingLawyer) {
-      return res.status(400).json({
-        error: "A lawyer with this email already exists",
-      });
+      return sendErrorResponse(res, HttpStatus.CONFLICT);
     }
-
-    const newLawyer = await createLawyer(lawyerData);
-    res.status(201).json({
-      success: true,
-      data: newLawyer,
-    });
+    const lawyer = await createLawyer(lawyerAttrs);
+    return sendSuccessResponse(
+      res,
+      { lawyer: lawyerResponseSchema.parse(lawyer) },
+      {
+        status: HttpStatus.CREATED,
+        requestId: req.requestId,
+      },
+    );
   } catch (error) {
     next(error);
   }
