@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { updateUser } from "../operations/users.update";
 import { userResponseSchema } from "../users.schema";
 import { findById } from "../operations/users.find";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
 
 export const updateUserController = async (
   req: Request,
@@ -12,34 +16,26 @@ export const updateUserController = async (
     const userId = req.params.userId || req.user?.id;
 
     if (!userId) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: "User ID is required",
-          code: "USER_ID_REQUIRED",
-        },
-      });
+      return sendErrorResponse(
+        res,
+        "User ID is required",
+        400,
+        "USER_ID_REQUIRED",
+      );
     }
 
     const existingUser = await findById(userId);
     if (!existingUser) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: "User not found",
-          code: "USER_NOT_FOUND",
-        },
-      });
+      return sendErrorResponse(res, "User not found", 400, "USER_NOT_FOUND");
     }
 
     if (req.user?.id !== userId && req.user?.role !== "admin") {
-      return res.status(403).json({
-        success: false,
-        error: {
-          message: "You don't have permission to update this user",
-          code: "FORBIDDEN",
-        },
-      });
+      return sendErrorResponse(
+        res,
+        "You don't have permission to update this user",
+        403,
+        "FORBIDDEN",
+      );
     }
 
     const updateData = req.body;
@@ -52,10 +48,14 @@ export const updateUserController = async (
       throw new Error("Failed to update user");
     }
 
-    return res.status(200).json({
-      success: true,
-      data: userResponseSchema.parse(updatedUser),
-    });
+    return sendSuccessResponse(
+      res,
+      { user: userResponseSchema.parse(updatedUser) },
+      200,
+      {
+        requestId: req.requestId,
+      },
+    );
   } catch (error) {
     next(error);
   }

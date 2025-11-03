@@ -32,10 +32,6 @@ export const createUserController = async (
     ]);
 
     if (userById || userByFingerprint) {
-      res.status(409).json({
-        success: false,
-        data: "User already exists",
-      });
       return sendErrorResponse(res, "User already exists", 409, "USER_EXISTS");
     }
 

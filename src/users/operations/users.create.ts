@@ -28,11 +28,12 @@ export async function createUser(userData: CreateUserRequest): Promise<User> {
   return newUser;
 }
 
-export async function createRandomUser() {
+export async function createRandomUser(): Promise<
+  Pick<User, "id" | "email" | "name">
+> {
   return {
-    userId: faker.string.uuid(),
+    id: faker.string.uuid(),
     email: faker.internet.email(),
     name: faker.person.fullName(),
-    password: await hashPassword("test-password"),
   };
 }

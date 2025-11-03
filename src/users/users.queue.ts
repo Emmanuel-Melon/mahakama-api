@@ -12,8 +12,8 @@ export enum UsersJobType {
   UserVerified = "user-verified",
 }
 
-export class UserQueueManager {
-  private static instance: UserQueueManager;
+export class UsersQueueManager {
+  private static instance: UsersQueueManager;
   private queueInstance: QueueInstance;
   private queue: Queue;
 
@@ -22,11 +22,11 @@ export class UserQueueManager {
     this.queue = this.queueInstance.queue;
   }
 
-  public static getInstance(): UserQueueManager {
-    if (!UserQueueManager.instance) {
-      UserQueueManager.instance = new UserQueueManager();
+  public static getInstance(): UsersQueueManager {
+    if (!UsersQueueManager.instance) {
+      UsersQueueManager.instance = new UsersQueueManager();
     }
-    return UserQueueManager.instance;
+    return UsersQueueManager.instance;
   }
 
   public async enqueue<T extends UserWithoutPassword>(
@@ -39,4 +39,4 @@ export class UserQueueManager {
   }
 }
 
-export const usersQueue = UserQueueManager.getInstance();
+export const usersQueue = UsersQueueManager.getInstance();
