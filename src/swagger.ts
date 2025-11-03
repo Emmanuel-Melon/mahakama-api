@@ -1,5 +1,6 @@
 import swaggerJsdoc from "swagger-jsdoc";
-import { config } from "./config";
+import { mahakamaServers } from "./config";
+import { swaggerApiRoutes } from "./routes";
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -14,16 +15,7 @@ const options: swaggerJsdoc.Options = {
       },
     },
     // These URLs are used as the base for all API endpoints in the documentation.
-    servers: [
-      {
-        url: `http://localhost:${config.port}/api`,
-        description: "Local development server",
-      },
-      {
-        url: "https://mahakama-api-production.up.railway.app/api",
-        description: "Production server",
-      },
-    ],
+    servers: mahakamaServers,
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -40,17 +32,9 @@ const options: swaggerJsdoc.Options = {
     ],
   },
   // Paths to files containing OpenAPI definitions (JSDoc comments)
-  apis: [
-    "./src/routes/*.ts", // Main API routes
-    "./src/auth/*.ts", // Authentication routes
-    "./src/chats/*.ts", // Chat-related routes
-    "./src/users/*.ts", // User-related routes
-    "./src/questions/*.ts", // Question-related routes
-    "./src/lawyers/*.ts", // Lawyer-related routes
-    "./src/health/*.ts", // Health check route
-  ],
+  apis: swaggerApiRoutes,
 };
 
-const specs = swaggerJsdoc(options);
+const apiSpecs = swaggerJsdoc(options);
 
-export { specs };
+export { apiSpecs };

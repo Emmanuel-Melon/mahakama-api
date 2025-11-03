@@ -49,3 +49,19 @@ const config: IConfig = {
 export { config, IConfig };
 
 export default config;
+
+export const corsOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+export const mahakamaServers = [
+  {
+    url: `http://localhost:${config.port}/api`,
+    description: "Local development server",
+  },
+  {
+    url: "https://mahakama-api-production.up.railway.app/api",
+    description: "Production server",
+  },
+] as const;
+
+// let's create a function that will return info about the current env, its urls, etc
+export const isDev = process.env.NODE_ENV !== "production";

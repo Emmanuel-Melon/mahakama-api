@@ -8,7 +8,6 @@ const port = config.port;
 if (require.main === module) {
   const server = app.listen(port, () => {
     const env = process.env.NODE_ENV || "development";
-    const envColor = env === "production" ? "red" : "blue";
 
     // Server Information
     const serverInfo = {
