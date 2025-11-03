@@ -1,6 +1,21 @@
+import { z, ZodTypeAny } from "zod";
+import { ParsedQs } from "qs";
+import { ParamsDictionary } from "express-serve-static-core";
+import { NextFunction, Response, Request } from "express";
+
 export type ResponseMetadata = {
   timestamp?: string;
   requestId?: string;
+  resourceId?: string | number;
+};
+
+export type ControllerMetadata = {
+  name: string;
+  route: string;
+  operation?: string;
+  resourceType?: string;
+  requestId: string;
+  resourceId?: string | number;
 };
 
 export type SuccessResponse<T> = {
@@ -36,4 +51,15 @@ export type BaseSortParams = {
 
 export type BaseFilterParams = {
   search?: string;
+};
+
+export type TypedRequestQuery<T extends ZodTypeAny> = Omit<Request, "query"> & {
+  query: z.infer<T> & ParsedQs;
+};
+
+export type TypedRequestParams<T extends ZodTypeAny> = Omit<
+  Request,
+  "params"
+> & {
+  params: z.infer<T> & ParamsDictionary;
 };

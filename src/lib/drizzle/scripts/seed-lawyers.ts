@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { db } from "..";
-import { lawyersTable, type NewLawyer } from "../../../lawyers/lawyer.schema";
+import { lawyersTable, type NewLawyer } from "../../../lawyers/lawyers.schema";
 
 const lawyerData: Array<Omit<NewLawyer, "id" | "createdAt" | "updatedAt">> = [
   {

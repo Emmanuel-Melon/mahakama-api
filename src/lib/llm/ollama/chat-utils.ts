@@ -1,6 +1,6 @@
 import { Message as OllamaMessage, MessageRole } from "../types";
-import { SenderType } from "../../../chats/chat.types";
-import { ChatSession } from "../../../chats/chat.schema";
+import { SenderType } from "../../../chats/chats.types";
+import { ChatSession } from "../../../chats/chats.schema";
 
 /**
  * Converts a chat message from your schema to Ollama's message format
