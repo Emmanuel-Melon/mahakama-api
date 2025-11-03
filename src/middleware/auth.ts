@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { config } from "../config";
 import { findById } from "../users/operations/users.find";
 import { logger } from "../lib/logger";
+import { sendErrorResponse } from "../lib/express/response";
 
 export const authenticateToken = async (
   req: Request,
@@ -17,35 +18,41 @@ export const authenticateToken = async (
       { path: req.path },
       "Authentication required - No token provided",
     );
-    return res.status(401).json({
-      success: false,
-      message: "Authentication required",
-    });
+    return sendErrorResponse(
+      res,
+      "Authentication required",
+      401,
+      "MISSING_AUTH",
+    );
   }
 
   try {
     if (!config.jwtSecret) {
       logger.error("JWT secret not configured");
-      return res.status(500).json({ error: "Server configuration error" });
+      return sendErrorResponse(
+        res,
+        "Server configuration error",
+        500,
+        "SERVER ERROR",
+      );
     }
 
     const verified = jwt.verify(token, config.jwtSecret) as JwtPayload;
 
     if (typeof verified === "string" || !("id" in verified)) {
       logger.warn({ path: req.path }, "Invalid token format");
-      return res.status(401).json({
-        success: false,
-        error: "Invalid token format",
-      });
+      return sendErrorResponse(
+        res,
+        "Authentication required",
+        401,
+        "MISSING_AUTH",
+      );
     }
 
     const user = await findById(verified.id);
     if (!user) {
       logger.warn({ userId: verified.id }, "User not found for valid token");
-      return res.status(401).json({
-        success: false,
-        error: "User not found",
-      });
+      return sendErrorResponse(res, "User Not Found", 404, "MISSING_USER");
     }
 
     req.user = user;
@@ -60,22 +67,28 @@ export const authenticateToken = async (
     );
 
     if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid token",
-      });
+      return sendErrorResponse(
+        res,
+        "Authentication required",
+        401,
+        "MISSING_AUTH",
+      );
     }
 
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
-        success: false,
-        error: "Token expired",
-      });
+      return sendErrorResponse(
+        res,
+        "Authentication required",
+        401,
+        "MISSING_AUTH",
+      );
     }
 
-    res.status(500).json({
-      success: false,
-      error: "Authentication failed",
-    });
+    return sendErrorResponse(
+      res,
+      "Server configuration error",
+      500,
+      "SERVER ERROR",
+    );
   }
 };

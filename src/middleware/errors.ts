@@ -1,5 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import { logger } from "../lib/logger";
+import { availableRoutes } from "../routes";
 
 export interface ErrorMetadata {
   route?: string;
@@ -43,13 +44,7 @@ export function notFoundHandler(req: Request, res: Response) {
       code: "NOT_FOUND",
       message: errorMessage,
       path: req.path,
-      availableRoutes: [
-        "/api/users",
-        "/api/lawyers",
-        "/api/documents",
-        "/api/questions",
-        "/health",
-      ],
+      availableRoutes,
       timestamp: new Date().toISOString(),
     },
   });

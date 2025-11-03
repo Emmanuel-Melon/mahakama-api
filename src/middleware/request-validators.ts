@@ -1,7 +1,11 @@
 import { NextFunction, Response, Request } from "express";
 import { z, ZodTypeAny } from "zod";
-import { ParsedQs } from "qs";
-import { ParamsDictionary } from "express-serve-static-core";
+import { sendErrorResponse } from "../lib/express/response";
+import { TypedRequestParams, TypedRequestQuery } from "../lib/express/types";
+import {
+  internalServerError,
+  requestValidationError,
+} from "../lib/express/http-codes";
 
 export function validate<T extends z.ZodTypeAny>(schema: T) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -12,7 +16,7 @@ export function validate<T extends z.ZodTypeAny>(schema: T) {
         const formattedErrors = result.error.format();
         const requestId = (req as any).id || "unknown";
 
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: {
             code: "VALIDATION_ERROR",
@@ -21,24 +25,26 @@ export function validate<T extends z.ZodTypeAny>(schema: T) {
             requestId,
           },
         });
+
+        // return sendErrorResponse(
+        //   res,
+        //   "Invalid request data",
+        //   400,
+        //   "VALIDATION_ERROR",
+        // );
       }
       req.body = result.data;
       next();
     } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred during validation",
-        },
-      });
+      return sendErrorResponse(
+        res,
+        "An unexpected error occurred during validation",
+        500,
+        "INTERNAL_SERVER_ERROR",
+      );
     }
   };
 }
-
-type TypedRequestParams<T extends ZodTypeAny> = Omit<Request, "params"> & {
-  params: z.infer<T> & ParamsDictionary;
-};
 
 export function validateParams<T extends z.ZodTypeAny>(schema: T) {
   return (req: TypedRequestParams<T>, res: Response, next: NextFunction) => {
@@ -58,10 +64,6 @@ export function validateParams<T extends z.ZodTypeAny>(schema: T) {
     }
   };
 }
-
-type TypedRequestQuery<T extends ZodTypeAny> = Omit<Request, "query"> & {
-  query: z.infer<T> & ParsedQs;
-};
 
 export function validateQuery<T extends z.ZodTypeAny>(schema: T) {
   return (req: TypedRequestQuery<T>, res: Response, next: NextFunction) => {
