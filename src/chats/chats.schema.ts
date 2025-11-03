@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { pgTable, uuid, text, jsonb, timestamp } from "drizzle-orm/pg-core";
-import { SenderType, SenderTypeValues } from "./chat.types";
+import { SenderType, SenderTypeValues } from "./chats.types";
 import { createSelectSchema } from "drizzle-zod";
 
 // Schema for creating a new chat

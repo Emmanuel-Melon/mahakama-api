@@ -4,7 +4,7 @@ import {
   sendMessageSchema,
   type ChatSessionAttrs,
   type SendMessageAttrs,
-} from "./chat.schema";
+} from "./chats.schema";
 
 export const validateCreateChatSession = (
   req: Request<{}, {}, ChatSessionAttrs>,
@@ -42,3 +42,12 @@ export const validateSendMessage = (
   req.validatedData = result.data;
   next();
 };
+
+// turn into route level middleware
+// const metadata: ControllerMetadata = {
+//   name: "createChatController",
+//   resourceType: "chat",
+//   route: req.path,
+//   operation: "create",
+//   requestId: req.requestId,
+// };

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { findDocumentById } from "../operations/document.find";
+import { getChatMessages } from "../operations/chats.list";
 import {
   sendErrorResponse,
   sendSuccessResponse,
@@ -7,27 +7,23 @@ import {
 import { type ControllerMetadata } from "../../lib/express/types";
 import { HttpStatus } from "../../lib/express/http-status";
 
-export const getDocumentByIdControlle = async (
+export const getChatMessagesController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const metadata: ControllerMetadata = {
-      name: "createDocumentController",
-      resourceType: "document",
+      name: "getChatMessagesController",
+      resourceType: "chats",
       route: req.path,
       operation: "fetch",
       requestId: req.requestId,
     };
-    const { id } = req.params;
-    const document = await findDocumentById(Number(id));
+    const { chatId } = req.params;
+    const messages = await getChatMessages(chatId);
 
-    if (!document) {
-      return sendErrorResponse(res, HttpStatus.NOT_FOUND);
-    }
-
-    sendSuccessResponse(res, { ...document }, {
+    sendSuccessResponse(res, { messages }, {
       ...metadata,
       timestamp: new Date().toISOString(),
       status: HttpStatus.SUCCESS,

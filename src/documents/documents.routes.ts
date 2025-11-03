@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { getDocumentById } from "./controllers/get-document-by-id.controller";
-import { getDocuments } from "./controllers/get-documents.controller";
+import { getDocumentByIdControlle } from "./controllers/get-document-by-id.controller";
+import { getDocumentsController } from "./controllers/get-documents.controller";
 import { createDocumentHandler } from "./controllers/create-document.controller";
-import { bookmarkDocumentHandler } from "./controllers/bookmark-document.controller";
-import { downloadDocumentHandler } from "./controllers/downoad-document.controller";
-import { registerRouteErrorMessages } from "../middleware/errors";
+import { bookmarkDocumentController } from "./controllers/bookmark-document.controller";
+import { downloadDocumentController } from "./controllers/downoad-document.controller";
 
 export const DOCUMENTS_PATH = "/v1/documents";
 
@@ -97,7 +96,7 @@ const documentRoutes = Router();
  *                     limit:
  *                       type: integer
  */
-documentRoutes.get("/", getDocuments);
+documentRoutes.get("/", getDocumentsController);
 
 /**
  * @swagger
@@ -129,7 +128,7 @@ documentRoutes.get("/", getDocuments);
  *       404:
  *         description: Document not found
  */
-documentRoutes.get("/:id", getDocumentById);
+documentRoutes.get("/:id", getDocumentByIdControlle);
 
 /**
  * @swagger
@@ -223,7 +222,7 @@ documentRoutes.post("/", createDocumentHandler);
  *                     bookmarked:
  *                       type: boolean
  */
-documentRoutes.post("/:id/bookmark", bookmarkDocumentHandler);
+documentRoutes.post("/:id/bookmark", bookmarkDocumentController);
 
 /**
  * @swagger
@@ -260,6 +259,6 @@ documentRoutes.post("/:id/bookmark", bookmarkDocumentHandler);
  *                     downloadCount:
  *                       type: integer
  */
-documentRoutes.get("/:id/download", downloadDocumentHandler);
+documentRoutes.get("/:id/download", downloadDocumentController);
 
 export default documentRoutes;

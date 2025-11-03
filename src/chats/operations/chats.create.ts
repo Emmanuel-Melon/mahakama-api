@@ -4,9 +4,9 @@ import {
   chatMessages,
   type ChatSessionAttrs,
   type ChatSession,
-} from "../chat.schema";
-import { sendMessage } from "./message.send";
-import { SenderType } from "../chat.types";
+} from "../chats.schema";
+import { sendMessage } from "./messages.send";
+import { SenderType } from "../chats.types";
 import { User } from "../../users/users.schema";
 
 export const createChat = async (

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
-import { documentsTable } from "./document.schema";
+import { documentsTable } from "./documents.schema";
 
 export const createDocumentSchema = z.object({
   title: z.string().min(1, "Title is required"),

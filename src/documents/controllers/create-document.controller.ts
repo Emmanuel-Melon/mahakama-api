@@ -1,95 +1,57 @@
 import { Request, Response, NextFunction } from "express";
-import { createDocument } from "../operations/document.create";
-import { CreateDocumentInput } from "../document.types";
-import { ValidationError, ApiError } from "../../middleware/errors";
-
-const HANDLER_NAME = "createDocumentHandler";
-const RESOURCE_TYPE = "document";
+import { createDocument } from "../operations/documents.create";
+import { CreateDocumentInput } from "../documents.types";
+import { HttpStatus } from "../../lib/express/http-status";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
+import { type ControllerMetadata } from "../../lib/express/types";
+import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
 
 export const createDocumentHandler = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const metadata = {
+  const metadata: ControllerMetadata = {
+    name: "createDocumentController",
+    resourceType: "document",
     route: req.path,
-    handler: HANDLER_NAME,
     operation: "create",
-    resourceType: RESOURCE_TYPE,
+    requestId: req.requestId,
   };
 
   try {
     const documentData: CreateDocumentInput = req.body;
-
-    // Input validation
-    if (!documentData.storageUrl) {
-      throw new ValidationError("Storage URL is required", undefined, {
-        ...metadata,
-        validation: { field: "storageUrl", issue: "missing" },
-      });
-    }
-
     // Format and validate URL
     let storageUrl = documentData.storageUrl;
     if (!storageUrl.startsWith("http")) {
       storageUrl = `https://${storageUrl}`;
     }
 
-    try {
-      const newDocument = await createDocument({
-        ...documentData,
-        storageUrl,
-      });
+    const document = await createDocument({
+      ...documentData,
+      storageUrl,
+    });
 
-      return res.status(201).json({
-        success: true,
-        data: newDocument,
-        metadata: {
-          ...metadata,
-          resourceId: newDocument.id,
-          timestamp: new Date().toISOString(),
-        },
+    // we're gonna have to investigate this! Pushing into queues during or after the request has been processed
+    res.on("finish", async () => {
+      await documentsQueue.enqueue(DocumentsJobType.DocumentCreated, {
+        ...document,
       });
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error.withMetadata(metadata);
-      }
-      throw new ApiError(
-        "Failed to create document",
-        500,
-        "DOCUMENT_CREATION_FAILED",
-        undefined,
-        metadata,
-      );
-    }
-  } catch (error) {
-    // If it's already an ApiError, it will have metadata
-    if (error instanceof ApiError) {
-      return next(error);
-    }
+    });
 
-    // For any other errors, wrap them in an ApiError with metadata
-    const apiError = new ApiError(
-      error instanceof Error ? error.message : "An unknown error occurred",
-      500,
-      "INTERNAL_SERVER_ERROR",
-      undefined,
+    sendSuccessResponse(
+      res,
+      { ...document },
       {
         ...metadata,
-        originalError:
-          error instanceof Error
-            ? {
-                name: error.name,
-                message: error.message,
-                stack:
-                  process.env.NODE_ENV === "development"
-                    ? error.stack
-                    : undefined,
-              }
-            : error,
+        timestamp: new Date().toISOString(),
+        status: HttpStatus.CREATED,
       },
     );
-
-    next(apiError);
+  } catch (error) {
+    next(error);
   }
 };

@@ -1,42 +1,52 @@
 import { Request, Response, NextFunction } from "express";
-import { bookmarkDocument } from "../operations/document.update";
+import { bookmarkDocument } from "../operations/documents.update";
+import { type ControllerMetadata } from "../../lib/express/types";
+import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
+import { HttpStatus } from "../../lib/express/http-status";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../lib/express/response";
 
-const HANDLER_NAME = "bookmarkDocumentHandler";
-const RESOURCE_TYPE = "documentBookmark";
-
-export const bookmarkDocumentHandler = async (
+export const bookmarkDocumentController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const metadata = {
+  const metadata: ControllerMetadata = {
     route: req.path,
-    handler: HANDLER_NAME,
+    name: "bookmarkDocumentController",
     operation: req.method === "POST" ? "create" : "delete",
-    resourceType: RESOURCE_TYPE,
+    resourceType: "document",
+    requestId: req.requestId,
   };
-
   try {
     const documentId = Number(req.params.id);
     const userId = req.user?.id;
 
-    const result = await bookmarkDocument({
+    const document = await bookmarkDocument({
       documentId,
       userId: userId!,
     });
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        documentId: result.documentId,
-        bookmarked: result.bookmarked,
-      },
-      metadata: {
-        ...metadata,
-        resourceId: result.documentId,
-        timestamp: new Date().toISOString(),
-      },
+    res.on("finish", async () => {
+      await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
+        ...document,
+      });
     });
+
+    sendSuccessResponse(
+      res,
+      {
+        ...document,
+      },
+      {
+        ...metadata,
+        timestamp: new Date().toISOString(),
+        resourceId: document.id,
+        status: HttpStatus.CREATED,
+      },
+    );
   } catch (error) {
     next(error);
   }

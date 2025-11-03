@@ -4,7 +4,8 @@ import {
   bookmarksTable,
   downloadsTable,
   type Bookmark,
-} from "../document.schema";
+  Document,
+} from "../documents.schema";
 import { eq, and } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { findDocumentById } from "./document.find";
@@ -38,12 +39,7 @@ export interface DocumentShareInfo {
 export async function bookmarkDocument({
   documentId,
   userId,
-}: BookmarkDocumentParams): Promise<{
-  success: boolean;
-  message: string;
-  documentId: number;
-  bookmarked: boolean;
-}> {
+}: BookmarkDocumentParams): Promise<Document> {
   const document = await findDocumentById(documentId);
 
   if (!document) {
@@ -84,27 +80,13 @@ export async function bookmarkDocument({
     bookmarked = true;
   }
 
-  return {
-    success: true,
-    message: bookmarked
-      ? "Document bookmarked successfully"
-      : "Document unbookmarked successfully",
-    documentId,
-    bookmarked,
-  };
+  return document;
 }
 
 export async function downloadDocument({
   documentId,
   userId,
-}: DownloadDocumentParams): Promise<{
-  success: boolean;
-  message: string;
-  documentId: number;
-  downloadUrl: string;
-  timestamp: string;
-  downloadCount: number;
-}> {
+}: DownloadDocumentParams) {
   return db.transaction(async (tx) => {
     const [document] = await tx
       .select({
@@ -134,14 +116,7 @@ export async function downloadDocument({
       .where(eq(documentsTable.id, documentId))
       .returning({ downloadCount: documentsTable.downloadCount });
 
-    return {
-      success: true,
-      message: "Download recorded successfully",
-      documentId,
-      downloadUrl: document.storageUrl,
-      timestamp: new Date().toISOString(),
-      downloadCount: updatedDocument.downloadCount,
-    };
+    return updatedDocument;
   });
 }
 

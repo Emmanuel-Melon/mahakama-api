@@ -1,5 +1,5 @@
 import { db } from "../../lib/drizzle";
-import { chatSessions, chatMessages } from "../chat.schema";
+import { chatSessions, chatMessages } from "../chats.schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 

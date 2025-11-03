@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { createChat } from "../operations/chat.create";
-import { ChatSessionAttrs, ChatSession } from "../chat.schema";
+import { createChat } from "../operations/chats.create";
+import { ChatSessionAttrs, ChatSession } from "../chats.schema";
 import { queryProcessor } from "../../query/query.processor";
 import { User } from "../../users/users.schema";
 import {
@@ -17,9 +17,10 @@ import {
   createSystemPrompt,
   createChatSessionPayload,
 } from "../../lib/llm/ollama/chat-utils";
-import { SenderType } from "../chat.types";
-
-const DEFAULT_MODEL = "gemma3:1b";
+import { SenderType } from "../chats.types";
+import { sendSuccessResponse } from "../../lib/express/response";
+import { type ControllerMetadata } from "../../lib/express/types";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const createChatController = async (
   req: Request<{}, {}, ChatSessionAttrs>,
@@ -27,6 +28,13 @@ export const createChatController = async (
   next: NextFunction,
 ) => {
   try {
+    const metadata: ControllerMetadata = {
+      name: "createChatController",
+      resourceType: "chat",
+      route: req.path,
+      operation: "create",
+      requestId: req.requestId,
+    };
     const initialMessage = req.body.message!;
     const userId = (req.user as User).id;
 
@@ -86,9 +94,10 @@ export const createChatController = async (
     //   }
     // ]);
 
-    res.status(201).json({
-      success: true,
-      data: createdChat,
+    sendSuccessResponse(res, { createdChat }, {
+      ...metadata,
+      timestamp: new Date().toISOString(),
+      status: HttpStatus.SUCCESS,
     });
   } catch (error) {
     next(error);

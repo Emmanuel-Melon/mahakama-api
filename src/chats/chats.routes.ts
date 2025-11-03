@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { chatIdSchema, sendMessageSchema } from "./chat.schema";
-import { createChatController } from "./controllers/create-chat";
-import { getUserChatsController } from "./controllers/get-user-chats";
-import { getChatController } from "./controllers/get-chat";
-import { sendMessageController } from "./controllers/send-message";
-import { getChatMessagesController } from "./controllers/get-chat-messages";
+import { chatIdSchema, sendMessageSchema } from "./chats.schema";
+import { createChatController } from "./controllers/create-chat.controller";
+import { getUserChatsController } from "./controllers/get-user-chats.controller";
+import { getChatController } from "./controllers/get-chat.controller";
+import { sendMessageController } from "./controllers/send-message.controller";
+import { getChatMessagesController } from "./controllers/get-chat-messages.controller";
 import { streamChatController } from "./controllers/stream-chat.controller";
-import { validateCreateChatSession } from "./chat.middleware";
+import { validateCreateChatSession } from "./chats.middleware";
 
 export const CHATS_PATH = "/v1/chats";
 

@@ -1,5 +1,5 @@
 import { db } from "../../lib/drizzle";
-import { documentsTable } from "../document.schema";
+import { documentsTable } from "../documents.schema";
 import { desc, eq, sql } from "drizzle-orm";
 
 type ListDocumentsOptions = {

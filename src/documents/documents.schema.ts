@@ -8,7 +8,9 @@ import {
   uuid,
   primaryKey,
 } from "drizzle-orm/pg-core";
+import { z } from "zod";
 import { usersTable } from "../users/users.schema";
+import { createSelectSchema } from "drizzle-zod";
 
 export const documentsTable = pgTable("documents", {
   id: serial("id").primaryKey(),
@@ -57,3 +59,7 @@ export type NewBookmark = typeof bookmarksTable.$inferInsert;
 
 export type Download = typeof downloadsTable.$inferSelect;
 export type NewDownload = typeof downloadsTable.$inferInsert;
+
+// Schema for document responses
+export const documentResponseSchema = createSelectSchema(documentsTable);
+export type Document = z.infer<typeof documentResponseSchema>;

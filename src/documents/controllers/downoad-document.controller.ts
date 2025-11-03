@@ -1,42 +1,43 @@
 import { Request, Response, NextFunction } from "express";
-import { downloadDocument } from "../operations/document.update";
+import { downloadDocument } from "../operations/documents.update";
+import { sendSuccessResponse } from "../../lib/express/response";
+import { type ControllerMetadata } from "../../lib/express/types";
+import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
+import { findDocumentById } from "../operations/document.find";
+import { HttpStatus } from "../../lib/express/http-status";
 
-const HANDLER_NAME = "downloadDocumentHandler";
-const RESOURCE_TYPE = "documentDownload";
-
-export const downloadDocumentHandler = async (
+export const downloadDocumentController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const metadata = {
+  const metadata: ControllerMetadata = {
+    name: "downloadDocumentController",
+    resourceType: "document",
     route: req.path,
-    handler: HANDLER_NAME,
     operation: "download",
-    resourceType: RESOURCE_TYPE,
+    requestId: req.requestId,
   };
-
   try {
     const documentId = Number(req.params.id);
     const userId = req.user?.id;
 
-    const result = await downloadDocument({
+    await downloadDocument({
       documentId,
       userId: userId!,
     });
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        documentId: result.documentId,
-        downloadUrl: result.downloadUrl,
-        downloadCount: result.downloadCount,
-      },
-      metadata: {
-        ...metadata,
-        resourceId: result.documentId,
-        timestamp: result.timestamp,
-      },
+    res.on("finish", async () => {
+      // const document = await findDocumentById(documentId);
+      // await documentsQueue.enqueue(DocumentsJobType.DocumentDownloaded, {
+      //   ...document,
+      // });
+    });
+
+    sendSuccessResponse(res, { ...document }, {
+      ...metadata,
+      timestamp: new Date().toISOString(),
+      status: HttpStatus.SUCCESS,
     });
   } catch (error) {
     next(error);

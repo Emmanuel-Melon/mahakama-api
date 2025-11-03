@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { sendMessage } from "../operations/message.send";
+import { sendMessage } from "../operations/messages.send";
 import { findById } from "../../users/operations/users.find";
 import { queryProcessor } from "../../query/query.processor";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const sendMessageController = async (
   req: Request,
