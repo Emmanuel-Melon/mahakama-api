@@ -1,47 +1,46 @@
 import { Request, Response, NextFunction } from "express";
 import { updateUser } from "../operations/users.update";
-import { userResponseSchema } from "../users.schema";
+import {
+  userResponseSchema,
+  User,
+  UserAttrs,
+  UserRoles,
+} from "../users.schema";
 import { findById } from "../operations/users.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "../../lib/express/response";
+import { type SuccessResponse } from "../../lib/express/types";
+import { GetUsersParams } from "../users.types";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const updateUserController = async (
-  req: Request,
-  res: Response,
+  req: Request<GetUsersParams, {}, Omit<UserAttrs, "password">, {}>,
+  res: Response<SuccessResponse<User>>,
   next: NextFunction,
 ) => {
   try {
-    const userId = req.params.userId || req.user?.id;
+    const userId = req.params.id;
 
     if (!userId) {
-      return sendErrorResponse(
-        res,
-        "User ID is required",
-        400,
-        "USER_ID_REQUIRED",
-      );
+      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
     }
 
     const existingUser = await findById(userId);
     if (!existingUser) {
-      return sendErrorResponse(res, "User not found", 400, "USER_NOT_FOUND");
+      return sendErrorResponse(res, HttpStatus.NOT_FOUND);
     }
 
     if (req.user?.id !== userId && req.user?.role !== "admin") {
-      return sendErrorResponse(
-        res,
-        "You don't have permission to update this user",
-        403,
-        "FORBIDDEN",
-      );
+      return sendErrorResponse(res, HttpStatus.FORBIDDEN);
     }
 
     const updateData = req.body;
 
     const updatedUser = await updateUser(userId, {
       ...updateData,
+      role: updateData.role as UserRoles,
     });
 
     if (!updatedUser) {
@@ -51,8 +50,8 @@ export const updateUserController = async (
     return sendSuccessResponse(
       res,
       { user: userResponseSchema.parse(updatedUser) },
-      200,
       {
+        status: HttpStatus.SUCCESS,
         requestId: req.requestId,
       },
     );

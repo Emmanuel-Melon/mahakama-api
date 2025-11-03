@@ -5,33 +5,30 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "../../lib/express/response";
+import { GetUsersParams } from "../users.types";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const getUserController = async (
-  req: Request,
+  req: Request<GetUsersParams, {}, {}, {}>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const userId = req.params.id;
     if (!userId) {
-      return sendErrorResponse(
-        res,
-        "User ID is required",
-        400,
-        "INVALID REQUEST",
-      );
+      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
     }
 
     const user = await findById(userId);
     if (!user) {
-      return sendErrorResponse(res, "User Not Found", 404, "INVALID REQUEST");
+      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
     }
 
     return sendSuccessResponse(
       res,
       { user: userResponseSchema.parse(user) },
-      200,
       {
+        status: HttpStatus.SUCCESS,
         requestId: req.requestId,
       },
     );

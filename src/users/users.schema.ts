@@ -60,7 +60,7 @@ export const usersTable = pgTable("users", {
 });
 
 // Schema for creating/updating a user
-export const userSchema = z.object({
+export const createUserSchema = z.object({
   id: z.string().uuid("v4").optional(),
   name: z
     .string()
@@ -92,11 +92,14 @@ export const userSchema = z.object({
   profilePicture: z.string().url("Invalid profile picture URL").optional(),
 });
 
-export type CreateUserRequest = z.infer<typeof userSchema>;
+// Schema for user responses (exclude sensitive fields like password)
+const baseSchema = createSelectSchema(usersTable);
 
-// Schema for user responses
-export const userResponseSchema = createSelectSchema(usersTable);
+export const userResponseSchema = baseSchema.omit({
+  password: true,
+});
 
-export type UserAttrs = z.infer<typeof userSchema>;
+export type CreateUserRequest = z.infer<typeof createUserSchema>;
+export type UserAttrs = z.infer<typeof createUserSchema>;
 export type User = z.infer<typeof userResponseSchema>;
 export type NewUser = typeof usersTable.$inferInsert;

@@ -26,7 +26,7 @@ export type SuccessResponse<T> = {
 };
 
 export type ErrorResponse = {
-  success: false;
+  success: boolean;
   error: {
     message: string;
     code?: string;
@@ -53,6 +53,10 @@ export type BaseFilterParams = {
   search?: string;
 };
 
+export type GetRequestQuery = PaginationParams &
+  BaseSortParams &
+  BaseFilterParams;
+
 export type TypedRequestQuery<T extends ZodTypeAny> = Omit<Request, "query"> & {
   query: z.infer<T> & ParsedQs;
 };
@@ -62,4 +66,24 @@ export type TypedRequestParams<T extends ZodTypeAny> = Omit<
   "params"
 > & {
   params: z.infer<T> & ParamsDictionary;
+};
+
+export type GetByIdRequest = {
+  id: string;
+};
+
+// POST Request types
+export type CreateRequest<T> = {
+  body: T;
+};
+
+// PATCH/PUT Request types
+export type UpdateRequest<T> = {
+  id: string;
+  body: Partial<T>; // Partial for PATCH, T for PUT
+};
+
+// DELETE Request types
+export type DeleteRequest = {
+  id: string;
 };

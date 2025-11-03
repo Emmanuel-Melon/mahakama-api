@@ -6,15 +6,15 @@ import { findById } from "./users.find";
 
 export async function updateUser(
   userId: string,
-  userData: Omit<UserAttrs, "password">,
+  userAttrs: Omit<UserAttrs, "password">,
 ): Promise<User | null> {
   const userExists = await findById(userId);
   const [updatedUser] = await db
     .update(usersTable)
     .set({
-      ...userData,
+      ...userAttrs,
       updatedAt: new Date(),
-      role: userData.role as UserRoles,
+      role: userAttrs.role as UserRoles,
     })
     .where(eq(usersTable.id, userId))
     .returning();

@@ -2,7 +2,13 @@ import { db } from "../../lib/drizzle";
 import { usersTable, type User } from "../../users/users.schema";
 import { eq } from "drizzle-orm";
 
-export const findUserByEmail = async (email: string): Promise<User | null> => {
+export type UserWithPassword = User & {
+  password: string | null;
+};
+
+export const findUserByEmail = async (
+  email: string,
+): Promise<UserWithPassword | null> => {
   const [user] = await db
     .select()
     .from(usersTable)

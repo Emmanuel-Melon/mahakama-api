@@ -1,10 +1,9 @@
 import { db } from "../../lib/drizzle";
-import { usersTable, UserRoles } from "../users.schema";
+import { usersTable } from "../users.schema";
 import { CreateUserRequest, User } from "../users.schema";
 import { findByFingerprint } from "../operations/users.find";
 import { faker } from "@faker-js/faker";
 import { v4 as uuid } from "uuid";
-import { hashPassword } from "../../auth/utils";
 
 export async function createUser(userData: CreateUserRequest): Promise<User> {
   const user = await findByFingerprint(userData.fingerprint!);
@@ -14,7 +13,7 @@ export async function createUser(userData: CreateUserRequest): Promise<User> {
   const [newUser] = await db
     .insert(usersTable)
     .values({
-      id: userData.id, // why are we not using uuid?
+      id: uuid(),
       name: userData.name || null,
       email: userData.email || null,
       password: userData.password || null,

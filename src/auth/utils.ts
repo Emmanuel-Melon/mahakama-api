@@ -39,7 +39,6 @@ export const verifyAuthToken = (token: string): User | null => {
 
 export const getCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
-  console.log("isProduction", isProduction);
   return {
     httpOnly: true,
     secure: isProduction, // true in production, false in dev

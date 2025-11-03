@@ -3,13 +3,14 @@ import { RegisterUserAttrs } from "../auth.schema";
 import { generateAuthToken, hashPassword, getCookieOptions } from "../utils";
 import { registerUser } from "../operations/auth.create";
 import { findUserByEmail } from "../operations/auth.find";
-import { authQueue, AuthJobType } from "../auth.queue";
+import { authQueue, AuthJobType } from "../workers/auth.queue";
 import { RegisterResponse } from "../auth.types";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "../../lib/express/response";
 import { userResponseSchema } from "../../users/users.schema";
+import { HttpStatus } from "../../lib/express/http-status";
 
 export const registerUserController = async (
   req: Request<{}, {}, RegisterUserAttrs>,
@@ -17,19 +18,18 @@ export const registerUserController = async (
   next: NextFunction,
 ) => {
   try {
-    const { email, password, name } = req.validatedData;
-
+    const { email, password, name } = req.body ?? {};
     const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
-      return sendErrorResponse(res, "User already exists", 400, "USER_EXISTS");
+      return sendErrorResponse(res, HttpStatus.CONFLICT, {
+        message: "User with this email already exists",
+      });
     }
-
-    const hashedPassword = await hashPassword(password);
 
     const user = await registerUser({
       email,
-      password: hashedPassword,
+      password,
       name,
     });
 
@@ -46,14 +46,14 @@ export const registerUserController = async (
 
     res.cookie("token", token, getCookieOptions());
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { ...userWithoutPassword } = user;
 
-    sendSuccessResponse(
+    return sendSuccessResponse(
       res,
       { user: userResponseSchema.parse(userWithoutPassword) },
-      201,
       {
         requestId: req.requestId,
+        status: HttpStatus.CREATED,
       },
     );
   } catch (error) {

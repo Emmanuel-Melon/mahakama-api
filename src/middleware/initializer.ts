@@ -5,7 +5,7 @@ import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { catchErrors, notFoundHandler } from "./errors";
 import { healthMiddleware } from "./health";
-import routes, { authRouter } from "../routes";
+import routes, { authRoutes } from "../routes";
 import { apiSpecs } from "../swagger";
 import { getIpAddress } from "./ip-address";
 import { authenticateToken } from "./auth";
@@ -38,9 +38,6 @@ export function initializeMiddlewares(app: Application): void {
 
   app.set("trust proxy", trustProxySetting); // for detecting ips
 
-  // Request logging
-  app.use(requestLogger);
-
   // Swagger UI
   app.use(
     "/api-docs",
@@ -67,9 +64,13 @@ export function initializeMiddlewares(app: Application): void {
   // Get IP address
   app.use(getIpAddress);
 
-  // Mount routes with /api prefix for consistency
-  app.use("/api", authenticateToken, routes);
-  app.use("/auth", authRouter);
+  // Request logging
+  app.use(requestLogger);
+  app.use("/api/v1/auth", authRoutes); // Auth routes at /api/v1/auth
+
+  // Mount routes with appropriate prefixes
+  app.use("/api", authenticateToken, routes); // API routes with authentication
+
   // In development, also mount at root for convenience
   if (process.env.NODE_ENV === "development") {
     app.use("/", routes);

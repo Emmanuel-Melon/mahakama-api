@@ -7,7 +7,10 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "../../lib/express/response";
-import { usersQueue, UsersJobType } from "../users.queue";
+import { usersQueue, UsersJobType } from "../workers/users.queue";
+import { HttpStatus } from "../../lib/express/http-status";
+import { logger } from "../../lib/logger";
+import { BaseJobPayload } from "../../lib/bullmq/types";
 
 export const createUserController = async (
   req: Request<{}, {}, UserAttrs>,
@@ -16,14 +19,9 @@ export const createUserController = async (
 ) => {
   try {
     if (!req.fingerprint?.hash) {
-      return sendErrorResponse(
-        res,
-        "Could not identify user session. Please ensure cookies are enabled.",
-        400,
-        "MISSING_FINGERPRINT",
-      );
+      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
     }
-    const { name, email } = req.validatedData;
+    const { name, email } = req.body ?? {};
     const userId = req.user?.id || req.fingerprint?.hash;
 
     const [userById, userByFingerprint] = await Promise.all([
@@ -32,7 +30,7 @@ export const createUserController = async (
     ]);
 
     if (userById || userByFingerprint) {
-      return sendErrorResponse(res, "User already exists", 409, "USER_EXISTS");
+      return sendErrorResponse(res, HttpStatus.CONFLICT);
     }
 
     const user = await createUserOperation({
@@ -43,18 +41,45 @@ export const createUserController = async (
       userAgent: req.headers["user-agent"],
     });
 
-    await usersQueue.enqueue(UsersJobType.UserCreatd, {
-      ...user,
-    });
-
-    return sendSuccessResponse(
+    sendSuccessResponse(
       res,
       { user: userResponseSchema.parse(user) },
-      201,
       {
+        status: HttpStatus.CREATED,
         requestId: req.requestId,
       },
     );
+
+    // After response is sent — async fire
+    res.on("finish", async () => {
+      const jobPayload: BaseJobPayload<{ user: User }> = {
+        eventId: uuid(),
+        timestamp: new Date().toISOString(),
+        actor: req.user?.id || "system",
+        payload: { user },
+        metadata: {
+          source: "api",
+          requestId: req.requestId,
+          userAgent: req.headers["user-agent"],
+          ip: req.ip,
+        },
+      };
+
+      try {
+        await usersQueue.enqueue(UsersJobType.UserCreated, jobPayload);
+      } catch (err) {
+        logger.error(
+          {
+            err,
+            jobType: UsersJobType.UserCreated,
+            userId: user.id,
+            requestId: req.requestId,
+            jobPayload,
+          },
+          "Failed to enqueue UserCreated job",
+        );
+      }
+    });
   } catch (error) {
     next(error);
   }

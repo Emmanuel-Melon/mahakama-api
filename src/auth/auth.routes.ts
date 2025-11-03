@@ -19,10 +19,12 @@ const authRouter = Router();
  *           description: The user's unique ID
  *         name:
  *           type: string
+ *           nullable: true
  *           description: The user's full name
  *         email:
  *           type: string
  *           format: email
+ *           nullable: true
  *           description: The user's email address
  *         role:
  *           type: string
@@ -31,12 +33,59 @@ const authRouter = Router();
  *         isActive:
  *           type: boolean
  *           default: true
+ *         isAnonymous:
+ *           type: boolean
+ *           default: false
+ *         lastLogin:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
  *         createdAt:
  *           type: string
  *           format: date-time
  *         updatedAt:
  *           type: string
  *           format: date-time
+ *
+ *     RegisterRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *           example: "user@example.com"
+ *         password:
+ *           type: string
+ *           format: password
+ *           minLength: 8
+ *           description: Must contain at least one uppercase, one lowercase, one number
+ *           example: "SecurePass123"
+ *         name:
+ *           type: string
+ *           minLength: 2
+ *           description: User's full name
+ *           example: "John Doe"
+ *
+ *     LoginRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *           example: "user@example.com"
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: User's password
+ *           example: "SecurePass123"
  *
  *     AuthSuccessResponse:
  *       type: object
@@ -51,7 +100,7 @@ const authRouter = Router();
  *               $ref: '#/components/schemas/User'
  *             token:
  *               type: string
- *               description: JWT access token (only for login/register)
+ *               description: JWT access token
  *
  *     ErrorResponse:
  *       type: object
@@ -59,37 +108,67 @@ const authRouter = Router();
  *         success:
  *           type: boolean
  *           example: false
- *         data:
+ *         error:
  *           type: object
  *           properties:
- *             user:
- *               type: "null"
- *             error:
+ *             message:
  *               type: string
- *               description: Error message
+ *               description: Human-readable error message
+ *             code:
+ *               type: string
+ *               description: Error code for programmatic handling
+ *               example: "USER_EXISTS"
  */
 
 /**
  * @swagger
- * /v1/auth/login:
+ * /v1/auth/register:
  *   post:
- *     summary: Authenticate a user
+ *     summary: Register a new user
+ *     description: Creates a new user account with the provided credentials
  *     tags: [Authentication v1]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
+ *             $ref: '#/components/schemas/RegisterRequest'
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthSuccessResponse'
+ *         headers:
+ *           Set-Cookie:
+ *             schema:
+ *               type: string
+ *               description: JWT token in HTTP-only cookie
+ *       400:
+ *         description: Bad request (e.g., invalid email format, weak password)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *         description: User with this email already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *
+ * /v1/auth/login:
+ *   post:
+ *     summary: Authenticate a user
+ *     description: Authenticates a user with email and password
+ *     tags: [Authentication v1]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
  *     responses:
  *       200:
  *         description: Authentication successful
@@ -97,6 +176,17 @@ const authRouter = Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AuthSuccessResponse'
+ *         headers:
+ *           Set-Cookie:
+ *             schema:
+ *               type: string
+ *               description: JWT token in HTTP-only cookie
+ *       400:
+ *         description: Invalid request (missing fields, wrong format)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Invalid credentials
  *         content:
@@ -104,6 +194,12 @@ const authRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+
+authRouter.post(
+  "/register",
+  validate(registerUserSchema),
+  registerUserController,
+);
 authRouter.post("/login", validate(loginUserSchema), loginUserController);
 
 export default authRouter;

@@ -57,3 +57,18 @@ export const DEFAULT_JOB_OPTIONS: JobOptions = {
   removeOnComplete: true,
   removeOnFail: false,
 };
+
+export interface JobMetadata {
+  source: string;
+  requestId?: string;
+  userAgent?: string | string[] | undefined;
+  ip?: string;
+}
+
+export interface BaseJobPayload<T> {
+  eventId: string;
+  timestamp: string;
+  actor: string;
+  payload: T;
+  metadata: JobMetadata;
+}

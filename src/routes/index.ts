@@ -3,13 +3,12 @@ import documentRoutes, { DOCUMENTS_PATH } from "../documents/documents.routes";
 import userRoutes, { USERS_PATH } from "../users/users.routes";
 import lawyerRoutes, { LAWYERS_PATH } from "../lawyers/lawyer.routes";
 import chatRoutes, { CHATS_PATH } from "../chats/chats.routes";
-import authRoutes, { AUTH_PATH } from "../auth/auth.routes";
+import authRoutes from "../auth/auth.routes";
+
+export const AUTH_PATH = "/v1";
+const BASE_PATH = "/api/v1";
 
 const router = Router();
-export const authRouter = Router();
-
-// Auth routes (no fingerprint required)
-authRouter.use(AUTH_PATH, authRoutes);
 
 // Mount routes with their base paths
 router.use(DOCUMENTS_PATH, documentRoutes);
@@ -17,14 +16,17 @@ router.use(USERS_PATH, userRoutes);
 router.use(LAWYERS_PATH, lawyerRoutes);
 router.use(CHATS_PATH, chatRoutes);
 
+// Export the auth routes
+export { authRoutes };
+
 export default router;
 
 export const availableRoutes = [
-  `/auth${AUTH_PATH}`,
-  `/api${DOCUMENTS_PATH}`,
-  `/api${USERS_PATH}`,
-  `/api${LAWYERS_PATH}`,
-  `/api${CHATS_PATH}`,
+  `${BASE_PATH}/auth`,
+  `${BASE_PATH}${DOCUMENTS_PATH}`,
+  `${BASE_PATH}${USERS_PATH}`,
+  `${BASE_PATH}${LAWYERS_PATH}`,
+  `${BASE_PATH}${CHATS_PATH}`,
 ] as const;
 
 export const swaggerApiRoutes = [

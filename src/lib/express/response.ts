@@ -1,46 +1,48 @@
 import { Response } from "express";
 import { SuccessResponse, ErrorResponse, ResponseMetadata } from "./types";
-import { internalServerError, requestSuccessResponse } from "./http-codes";
+import { HttpStatus, StatusConfig } from "./http-status";
 
 export const sendSuccessResponse = <T>(
   res: Response,
   data: T,
-  statusCode: number = requestSuccessResponse.statusCode,
-  metadata?: ResponseMetadata,
+  metadata?: ResponseMetadata & { status: StatusConfig },
 ): void => {
   const response: SuccessResponse<T> = {
+    message: metadata?.status.defaultMessage,
     success: true,
     data,
-
     ...(metadata && { metadata }),
   };
-  res.status(statusCode).json(response);
+  res.status(metadata?.status.statusCode!).json(response);
 };
 
-// think of refatoring this so i could pass a string identifier such as NOT_FOUND, DUPLICATE, etc and then the function will handle mapping the statusCode, message, code, etc instead of passing it each time!
-// maybe something like this:
-// if (!lawyer) {
-//   throw new NotFoundError("Lawyer", { id: lawyerId });
-// }
 export const sendErrorResponse = (
   res: Response,
-  message: string = internalServerError.message,
-  statusCode: number = internalServerError.statusCode,
-  code: string = internalServerError.code,
-  details?: Record<string, unknown>, // Changed from unknown to Record<string, unknown>
+  status: StatusConfig,
+  options: {
+    message?: string;
+    details?: Record<string, unknown>;
+    overrideStatus?: number;
+  } = {},
 ): void => {
+  const statusCode = options.overrideStatus ?? status.statusCode;
+  const message = options.message ?? status.defaultMessage;
+
   const error: ErrorResponse["error"] = {
     message,
-    ...(code && { code }),
+    code: status.code,
   };
 
-  // Only add details if it's an object and not null/undefined
-  if (details && typeof details === "object" && !Array.isArray(details)) {
-    error.details = details;
+  if (
+    options.details &&
+    typeof options.details === "object" &&
+    !Array.isArray(options.details)
+  ) {
+    error.details = options.details;
   }
 
   const response: ErrorResponse = {
-    success: false,
+    success: statusCode >= 200 && statusCode < 300,
     error,
   };
 

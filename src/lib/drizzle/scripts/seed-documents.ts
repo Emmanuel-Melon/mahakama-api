@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { db } from "..";
-import { documentsTable } from "../../../documents/document.schema";
+import { documentsTable } from "../../../documents/documents.schema";
 
 const documentData = [
   {
