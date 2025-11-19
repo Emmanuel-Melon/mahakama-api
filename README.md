@@ -74,6 +74,26 @@ Mahakama makes legal information accessible through an intuitive, four-step proc
 - **Context-Aware Responses** - Our AI understands local legal contexts, cultural nuances, and regional legal frameworks
 - **Real-World Examples** - Get answers that reflect common local legal scenarios and situations
 
+### 🎙️ Speech-based Queries
+- **Voice Input**
+  - Browser-based speech-to-text
+  - Mobile-optimized voice interface
+  - Support for background processing
+- **Multilingual Support**
+  - Initial support for Swahili and Arabic
+  - Dialect recognition for regional variations
+  - Context-aware language switching
+- **Accessibility Features**
+  - Screen reader compatibility
+  - Audio responses
+  - Adjustable playback speed
+
+### 🖼️ Multi-modal LLM Interactions
+- **Document Analysis**
+  - Upload and analyze legal documents
+  - Highlight relevant legal provisions
+  - Generate summaries and explanations
+
 ### 📚 Comprehensive Legal Database
 - **East African Legal Coverage** - Focused on South Sudan and Uganda, with plans to expand regionally
 - **Local Legal Context** - Includes regional by-laws and customary laws relevant to local communities

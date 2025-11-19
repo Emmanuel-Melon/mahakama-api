@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { config } from "../config";
-import { findById } from "../users/operations/users.find";
-import { logger } from "../lib/logger";
-import { sendErrorResponse } from "../lib/express/response";
+import { config } from "@/config/dev.config";
+import { findById } from "@/feature/users/operations/users.find";
+import { logger } from "@/lib/logger";
+import {
+  sendErrorResponse,
+} from "@/lib/express/express.response";
+import { HttpStatus } from "@/lib/express/http-status";
 
 export const authenticateToken = async (
   req: Request,
@@ -18,41 +21,26 @@ export const authenticateToken = async (
       { path: req.path },
       "Authentication required - No token provided",
     );
-    return sendErrorResponse(
-      res,
-      "Authentication required",
-      401,
-      "MISSING_AUTH",
-    );
+    return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
   }
 
   try {
     if (!config.jwtSecret) {
       logger.error("JWT secret not configured");
-      return sendErrorResponse(
-        res,
-        "Server configuration error",
-        500,
-        "SERVER ERROR",
-      );
+      return sendErrorResponse(res, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     const verified = jwt.verify(token, config.jwtSecret) as JwtPayload;
 
     if (typeof verified === "string" || !("id" in verified)) {
       logger.warn({ path: req.path }, "Invalid token format");
-      return sendErrorResponse(
-        res,
-        "Authentication required",
-        401,
-        "MISSING_AUTH",
-      );
+      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
     }
 
     const user = await findById(verified.id);
     if (!user) {
       logger.warn({ userId: verified.id }, "User not found for valid token");
-      return sendErrorResponse(res, "User Not Found", 404, "MISSING_USER");
+      return sendErrorResponse(res, HttpStatus.NOT_FOUND);
     }
 
     req.user = user;
@@ -67,28 +55,13 @@ export const authenticateToken = async (
     );
 
     if (error instanceof jwt.JsonWebTokenError) {
-      return sendErrorResponse(
-        res,
-        "Authentication required",
-        401,
-        "MISSING_AUTH",
-      );
+      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
     }
 
     if (error instanceof jwt.TokenExpiredError) {
-      return sendErrorResponse(
-        res,
-        "Authentication required",
-        401,
-        "MISSING_AUTH",
-      );
+      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
     }
 
-    return sendErrorResponse(
-      res,
-      "Server configuration error",
-      500,
-      "SERVER ERROR",
-    );
+    return sendErrorResponse(res, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 };

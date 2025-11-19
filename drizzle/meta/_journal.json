@@ -85,6 +85,48 @@
       "when": 1762114083926,
       "tag": "0011_lethal_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1762359932620,
+      "tag": "0012_strange_stingray",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1762360478633,
+      "tag": "0013_silky_payback",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1762361004245,
+      "tag": "0014_lethal_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1762362528123,
+      "tag": "0015_petite_may_parker",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1762362556617,
+      "tag": "0016_brave_scarecrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1762366643532,
+      "tag": "0017_lowly_sleepwalker",
+      "breakpoints": true
     }
   ]
 }

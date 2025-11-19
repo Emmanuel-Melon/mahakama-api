@@ -1,54 +1,35 @@
-import { config } from "./config";
-import app from "./app";
-import { logger } from "./lib/logger";
+import { config, isDev } from "@/config/dev.config";
+import app from "@/app";
+import { logger } from "@/lib/logger";
+import { shutdownExpressServer } from "@/lib/express";
 
-const port = config.port;
-
-// Only start the server if this file is run directly
 if (require.main === module) {
-  const server = app.listen(port, () => {
-    const env = process.env.NODE_ENV || "development";
-
-    // Server Information
+  const server = app.listen(config.port, config.hostname, () => {
     const serverInfo = {
-      "🚀 Environment": `[${env.toUpperCase()}]`,
-      "🚪 Port": port,
+      "🚀 Environment": `[${config.env.toUpperCase()}]`,
+      "🌍 Host": config.hostname,
+      "🚪 Port": config.port,
+      "🔒 Protocol": config.protocol,
       "⏱️  Started": new Date().toISOString(),
     };
 
-    // Log server info
     logger.info(serverInfo, "🚀 Mahakama Server");
 
-    // Log endpoints with emojis and colors
-    const endpoints = {
-      "🌐 API": `http://localhost:${port}/api`,
-      "📚 Documentation": `http://localhost:${port}/api-docs`,
-      "📄 OpenAPI Spec": `http://localhost:${port}/api-docs.json`,
-    };
+    if (isDev) {
+      const { endpoints } = config;
+      const formattedEndpoints = {
+        "🌐 API": endpoints.api,
+        "📚 Documentation": endpoints.docs,
+        "📄 OpenAPI Spec": endpoints.openApiSpec,
+        "💓 Health Check": `${endpoints.api}${endpoints.health}`,
+      };
+      logger.info({ endpoints: formattedEndpoints }, "🔗 Available Endpoints");
+    }
 
-    logger.info({ endpoints }, "🔗 Available Endpoints");
     logger.info({}, "✅ Server is ready to handle requests");
   });
-
-  // Handle shutdown gracefully
-  const shutdown = async () => {
-    logger.warn("SIGTERM received. Shutting down gracefully...");
-
-    server.close(() => {
-      logger.fatal("Process terminated");
-      process.exit(0);
-    });
-
-    // Force close server after 5 seconds
-    setTimeout(() => {
-      logger.error("Forcing shutdown after timeout");
-      process.exit(1);
-    }, 5000);
-  };
-
-  // Handle different shutdown signals
-  process.on("SIGTERM", shutdown);
-  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", () => shutdownExpressServer(server));
+  process.on("SIGINT", () => shutdownExpressServer(server));
 }
 
 export default app;

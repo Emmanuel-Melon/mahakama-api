@@ -65,11 +65,11 @@ Operations are **framework-agnostic**, they contain no Express-specific code, ma
 **Example** (`users/operations/users.create.ts`):
 ```typescript
 import { db } from "../../lib/drizzle";
-import { usersTable, CreateUserRequest, User } from "../user.schema";
+import { usersSchema, CreateUserRequest, User } from "../user.schema";
 
 export async function createUser(userData: CreateUserRequest): Promise<User> {
   const [newUser] = await db
-    .insert(usersTable)
+    .insert(usersSchema)
     .values(userData)
     .returning();
   return newUser;

@@ -1,7 +1,8 @@
-import { UserAttrs } from "./users/user.middleware";
-import { RequestFingerprint } from "./middleware/fingerprint";
-import { User } from "./users/users.schema";
+import { UserAttrs } from "@/feature/users/user.middleware";
+import { RequestFingerprint } from "@/lib/middleware/fingerprint";
+import { User } from "@/feature/users/users.schema";
 import useragent from "express-useragent";
+import { PaginationParams } from "@/lib/express/express.types";
 
 interface UserAgentInfo extends useragent.Details {
   ip: string;
@@ -21,6 +22,13 @@ declare global {
       token?: string;
       requestId: string;
       userAgent?: UserAgentInfo;
+      pagination: PaginationParams;
+      file?: {
+        originalname: string;
+        size: number;
+        buffer: Buffer;
+        // Add other file properties as needed
+      };
     }
   }
 }

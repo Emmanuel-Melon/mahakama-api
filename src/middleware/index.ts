@@ -4,15 +4,14 @@ import cors from "cors";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { catchErrors, notFoundHandler } from "./errors";
-import { healthMiddleware } from "./health";
-import routes, { authRoutes } from "../routes";
-import { apiSpecs } from "../swagger";
+import routes, { authRoutes } from "@/routes";
+import { apiSpecs } from "@/lib/swagger";
 import { getIpAddress } from "./ip-address";
 import { authenticateToken } from "./auth";
 import { requestLogger } from "./log-request";
 import { userAgentMiddleware } from "./user-agent";
 import { fingerprintMiddleware } from "./fingerprint";
-import { corsOrigins } from "../config";
+import { corsOrigins } from "@/config/dev.config";
 
 const trustProxySetting =
   process.env.NODE_ENV === "production"
@@ -55,7 +54,7 @@ export function initializeMiddlewares(app: Application): void {
   });
 
   // Health check
-  app.get(["/health", "/api/health"], healthMiddleware);
+  // app.get(["/health", "/api/health"], healthMiddleware);
 
   // Apply middlewares to all routes
   app.use(userAgentMiddleware);

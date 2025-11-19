@@ -1,17 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { randomUUID } from "crypto";
-import { logger } from "../lib/logger";
+import { logger } from "@/lib/logger";
 
 export const requestLogger = (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  // Generate or use existing request ID
   const requestId = req.get("X-Request-ID") || randomUUID();
   const startTime = Date.now();
 
-  // Log request start
   logger.info(
     {
       reqId: requestId,

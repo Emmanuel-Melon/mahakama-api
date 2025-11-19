@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { createHash } from "crypto";
 import useragent from "express-useragent";
 // import { AuthJobType, authQueue } from "../auth/queue";
-import { findByFingerprint } from "../users/operations/users.find";
-import { upstash } from "../lib/redis/upstash";
+import { findByFingerprint } from "@/feature/users/operations/users.find";
+import { upstash } from "@/lib/redis/upstash";
 
 // Cache fingerprints by a composite key (IP + basic UA info)
 const fingerprintCache = new Map<string, string>(); // cacheKey -> fingerprintHash

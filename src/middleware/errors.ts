@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
-import { logger } from "../lib/logger";
-import { availableRoutes } from "../routes";
+import { logger } from "@/lib/logger";
+import { availableRoutes } from "@/routes";
 
 export interface ErrorMetadata {
   route?: string;
