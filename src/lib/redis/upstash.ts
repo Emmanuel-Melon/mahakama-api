@@ -1,19 +1,14 @@
 import { Redis } from "@upstash/redis";
-import { IRedisClient } from "./types";
-import { config } from "../../config";
+import { servicesConfig } from "@/config";
 
 export class UpstashClient {
   private client: Redis;
   private static instance: UpstashClient;
 
-  private constructor() {
-    if (!config.upstashRedisRestUrl || !config.upstashRedisRestToken) {
-      throw new Error("Upstash Redis configuration is missing");
-    }
-
+  constructor() {
     this.client = new Redis({
-      url: config.upstashRedisRestUrl,
-      token: config.upstashRedisRestToken,
+      url: servicesConfig.upstash?.restUrl,
+      token: servicesConfig.upstash?.restToken,
     });
   }
 

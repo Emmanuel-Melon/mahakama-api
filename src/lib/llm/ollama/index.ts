@@ -1,15 +1,30 @@
 import { Ollama } from "ollama";
-import { Message, LLMResponse, ILLMClient } from "../types";
-import { config } from "../../../config";
+import {
+  LLMMessage,
+  LLMResponse,
+  ILLMProvider,
+  ChatCompletionOptions,
+} from "../llms.types";
+import { llmConfig } from "@/config";
+import {
+    getMessagesForLLM,
+} from "@/feature/chats/operations/messages.list";
+import { logger } from "@/lib/logger";
+import { formatMessagesForProvider } from "../llm.utils";
 
-export class OllamaClient implements ILLMClient {
+export class OllamaClient implements ILLMProvider {
   private static instance: OllamaClient;
   private client: Ollama;
-  private defaultModel = "llama2"; // Default model, can be made configurable
-
+  private defaultModel = "gemma3:1b";
+  private defaultOptions: Partial<ChatCompletionOptions> = {
+    temperature: 0.7,
+    maxTokens: 2048,
+    topP: 0.9,
+    responseFormat: "json",
+  };
   private constructor() {
     const ollamaConfig = {
-      host: config.ollamaUrl,
+      host: llmConfig.ollama.url,
     };
     this.client = new Ollama(ollamaConfig);
   }
@@ -26,34 +41,67 @@ export class OllamaClient implements ILLMClient {
   }
 
   public async createChatCompletion(
-    messages: Message[],
+    chatId: string,
     systemPrompt?: string,
+    options: ChatCompletionOptions = {},
   ): Promise<LLMResponse> {
-    try {
-      // Format messages for Ollama API
-      const chatMessages = systemPrompt
-        ? [{ role: "system" as const, content: systemPrompt }, ...messages]
-        : messages;
+    const modelToUse = options.model || this.defaultModel;
+    const mergedOptions = { ...this.defaultOptions, ...options };
 
-      const response = await this.client.chat({
-        model: this.defaultModel,
-        messages: chatMessages,
-      });
+    let enhancedSystemPrompt = systemPrompt || "";
+    let responseFormat = mergedOptions.responseFormat;
 
-      return {
-        content: response.message.content,
-        provider: "ollama",
-        usage: {
-          promptTokens: 0, // Ollama doesn't provide token counts by default
-          completionTokens: 0,
-          totalTokens: 0,
-        },
-      };
-    } catch (error) {
-      console.error("Error in Ollama chat completion:", error);
-      throw error;
-    }
+    const messages = await getMessagesForLLM(chatId);
+    logger.info({ messages }, "chat I got fr");
+
+    const formattedRequest = formatMessagesForProvider(
+      "ollama",
+      messages,
+      mergedOptions,
+    );
+    const chatMessages = enhancedSystemPrompt
+      ? [
+          { role: "system" as const, content: enhancedSystemPrompt },
+          ...messages,
+        ]
+      : messages;
+
+    console.log("requestOptions", mergedOptions);
+
+    const requestOptions: any = {
+      model: modelToUse,
+      messages: formattedRequest.messages,
+      options: mergedOptions,
+    };
+
+    const response = await this.client.chat(requestOptions);
+
+    return {
+      content: response?.message?.content,
+      provider: "ollama",
+      usage: {
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+      },
+    };
   }
 }
 
+export const generateEmbedding = async (query: string) => {
+  const response = await ollamaClient.getClient().embed({
+    model: "nomic-embed-text",
+    input: query,
+  });
+
+  return {
+    model: "nomic-embed-text",
+    embeddings: response.embeddings,
+    query,
+    metadata: {},
+  };
+};
+
+
 export const ollamaClient = OllamaClient.getInstance();
+

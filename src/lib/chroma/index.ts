@@ -1,7 +1,8 @@
-import { CloudClient, Collection } from "chromadb";
-import { config } from "../../config";
+import { CloudClient } from "chromadb";
+import { llmConfig, dbConfig } from "@/config";
 import { OllamaEmbeddingFunction } from "@chroma-core/ollama";
-import { AddDocumentsParams, QueryParams } from "./types";
+import { AddDocumentsParams, QueryParams } from "./chroma.types.";
+import { logger } from "@/lib/logger";
 
 export class ChromaClient {
   private static instance: ChromaClient;
@@ -9,24 +10,14 @@ export class ChromaClient {
   private _embedder: OllamaEmbeddingFunction;
 
   constructor() {
-    if (
-      !config.chromaApiKey ||
-      !config.chromaTenant ||
-      !config.chromaDatabase
-    ) {
-      throw new Error(
-        "ChromaDB configuration is missing. Please check your environment variables.",
-      );
-    }
-
     this._client = new CloudClient({
-      apiKey: config.chromaApiKey,
-      tenant: config.chromaTenant,
-      database: config.chromaDatabase,
+      apiKey: dbConfig.chroma?.chromaApiKey,
+      tenant: dbConfig.chroma?.chromaTenant,
+      database: dbConfig.chroma?.chromaDatabase,
     });
 
     this._embedder = new OllamaEmbeddingFunction({
-      url: config.ollamaUrl,
+      url: llmConfig.ollama.url,
       model: "nomic-embed-text",
     });
   }
@@ -36,7 +27,7 @@ export class ChromaClient {
       try {
         ChromaClient.instance = new ChromaClient();
       } catch (error) {
-        console.error("Failed to initialize ChromaDB client:", error);
+        logger.error(error, "Failed to initialize ChromaDB client:");
         throw error;
       }
     }
@@ -57,10 +48,10 @@ export class ChromaClient {
         name,
         embeddingFunction: this._embedder,
       });
-      console.log(`Connected to existing collection: ${name}`);
+      logger.info(`Connected to existing collection: ${name}`);
       return collection;
     } catch (error) {
-      console.log(`Creating new collection: ${name}`);
+      logger.info(`Creating new collection: ${name}`);
     }
   }
 
@@ -68,7 +59,7 @@ export class ChromaClient {
     const { collectionName, documents, ids, metadatas } = params;
 
     if (documents.length === 0) {
-      console.warn("No documents provided to add");
+      logger.warn("No documents provided to add");
       return [];
     }
 
@@ -87,7 +78,7 @@ export class ChromaClient {
       metadatas,
     });
 
-    console.log(
+    logger.info(
       `Added ${documents.length} documents to collection: ${collectionName}`,
     );
     return documentIds;

@@ -9,10 +9,9 @@ export interface IRedisClient {
   ): Promise<void>;
   del(key: string): Promise<number>;
   exists(key: string): Promise<number>;
-  // Add other methods you need
 }
 
-export type LocalRedisConfig = {
+export type IORedisConfig = {
   mode: "standalone" | "cluster";
   standalone?: {
     host?: string;

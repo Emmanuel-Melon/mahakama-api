@@ -11,31 +11,16 @@ import { authenticateToken } from "./auth";
 import { requestLogger } from "./log-request";
 import { userAgentMiddleware } from "./user-agent";
 import { fingerprintMiddleware } from "./fingerprint";
-import { corsOrigins } from "@/config/dev.config";
+import { corsMiddleware } from "./cors";
+import { config } from "@/config/dev.config";
 
-const trustProxySetting =
-  process.env.NODE_ENV === "production"
-    ? 1 // Production: trust first proxy (railyway)
-    : "loopback"; // Development: trust localhost only
 
 export function initializeMiddlewares(app: Application): void {
   app.use(helmet());
-  const corsOptions = {
-    origin: corsOrigins,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: ["set-cookie"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  };
-
-  app.use(cors(corsOptions));
-
+  app.use(corsMiddleware);
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true }));
-
-  app.set("trust proxy", trustProxySetting); // for detecting ips
+  app.set("trust proxy", config.trustProxy);
 
   // Swagger UI
   app.use(
@@ -53,6 +38,9 @@ export function initializeMiddlewares(app: Application): void {
     res.send(apiSpecs);
   });
 
+  // Request logging
+  app.use(requestLogger);
+
   // Health check
   // app.get(["/health", "/api/health"], healthMiddleware);
 
@@ -63,8 +51,7 @@ export function initializeMiddlewares(app: Application): void {
   // Get IP address
   app.use(getIpAddress);
 
-  // Request logging
-  app.use(requestLogger);
+
   app.use("/api/v1/auth", authRoutes); // Auth routes at /api/v1/auth
 
   // Mount routes with appropriate prefixes

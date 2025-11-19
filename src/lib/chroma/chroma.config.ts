@@ -1,5 +1,3 @@
-import { join } from "path";
-
 export const COLLECTION_NAME = "legal_questions";
 
 // Map category names between questions and laws

@@ -11,14 +11,22 @@ export type QueueInstance = {
   isHealthy: () => Promise<boolean>;
 };
 
+export type ConnectionOptions = {
+  host: string;
+  port: number;
+  password: string;
+  tls: object;
+}
+
 export type QueueConfig = {
-  connection: {
-    host: string;
-    port: number;
-    password: string;
-    tls: object;
-  };
+  connection: ConnectionOptions;
 };
+
+export type BullWorkerOptions = QueueConfig & {
+  concurrency: number;
+  removeOnComplete: { count: number };
+  removeOnFail: { count: number };
+}
 
 export interface QueueHealth {
   waiting: number;
@@ -48,16 +56,6 @@ export interface JobOptions extends Omit<Partial<JobsOptions>, "backoff"> {
   removeOnFail?: boolean | number;
 }
 
-export const DEFAULT_JOB_OPTIONS: JobOptions = {
-  attempts: 3,
-  backoff: {
-    type: "exponential",
-    delay: 2000,
-  },
-  removeOnComplete: true,
-  removeOnFail: false,
-};
-
 export interface JobMetadata {
   source: string;
   requestId?: string;
@@ -72,3 +70,4 @@ export interface BaseJobPayload<T> {
   payload: T;
   metadata: JobMetadata;
 }
+

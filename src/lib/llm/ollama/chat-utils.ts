@@ -1,6 +1,5 @@
-import { Message as OllamaMessage, MessageRole } from "../types";
-import { SenderType } from "../../../chats/chats.types";
-import { ChatSession } from "../../../chats/chats.schema";
+import { LLMMessage, MessageRole } from "../llms.types";
+import { SenderType } from "@/feature/chats/chats.types";
 
 /**
  * Converts a chat message from your schema to Ollama's message format
@@ -8,7 +7,7 @@ import { ChatSession } from "../../../chats/chats.schema";
 export function toOllamaMessage(
   content: string,
   senderType: SenderType,
-): OllamaMessage {
+): LLMMessage {
   return {
     role: (senderType === SenderType.USER
       ? "user"
@@ -21,7 +20,7 @@ export function toOllamaMessage(
  * Converts Ollama's response to your chat message format
  */
 export function fromOllamaMessage(
-  message: OllamaMessage,
+  message: LLMMessage,
   senderId: string,
   chatId: string,
 ) {
@@ -43,7 +42,7 @@ export function fromOllamaMessage(
 export function createSystemPrompt(
   initialMessage: string,
   mostRelevantLaw: any,
-): OllamaMessage {
+): LLMMessage {
   return {
     role: "system",
     content: `You are a legal assistant. Use the following legal context to answer the user's question.

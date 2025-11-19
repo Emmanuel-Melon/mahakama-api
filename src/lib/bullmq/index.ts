@@ -1,31 +1,14 @@
 import { Queue, QueueOptions } from "bullmq";
-import { config } from "../../config";
 import {
   QueueInstance,
   QueueConfig,
   JobOptions,
-  DEFAULT_JOB_OPTIONS,
   QueueHealth,
   QueueStatus,
-} from "./types";
-import { stripUpstashUrl } from "./utils";
-
-if (!config.upstashRedisRestUrl) {
-  throw new Error("Redis URL is not configured");
-}
-
-const { host, port } = stripUpstashUrl(config.upstashRedisRestUrl!);
-
-export enum QueueName {
-  Auth = "auth",
-  Questions = "questions",
-  Embeddings = "embeddings",
-  Answers = "answers",
-  Chat = "chat",
-  User = "user",
-  Documents = "documents",
-  Lawyers = "lawyers",
-}
+} from "./bullmq.types";
+import { setQueueOptions } from "./bullmq.utils";
+import { QueueName, defaultBullJobOptions } from "./bullmq.config";
+import { logger } from "@/lib/logger";
 
 export class QueueManager {
   private static instance: QueueManager;
@@ -34,12 +17,7 @@ export class QueueManager {
 
   private constructor() {
     this.defaultConfig = {
-      connection: {
-        host,
-        port,
-        password: config.upstashRedisRestToken || "",
-        tls: {},
-      },
+      ...setQueueOptions(),
     };
   }
 
@@ -76,7 +54,7 @@ export class QueueManager {
 
       // Add error handler for the queue
       queue.on("error", (error) => {
-        console.error(`Queue ${name} error:`, error);
+        logger.error(error, `Queue ${name} error:`);
       });
 
       const instance: QueueInstance = {
@@ -93,14 +71,14 @@ export class QueueManager {
 
             // Create a new object with default values
             const jobOptions: JobOptions = {
-              ...DEFAULT_JOB_OPTIONS,
+              ...defaultBullJobOptions,
               ...options,
             };
 
             // Handle backoff separately to ensure type safety
             if (options.backoff) {
               jobOptions.backoff = {
-                ...DEFAULT_JOB_OPTIONS.backoff!,
+                ...defaultBullJobOptions.backoff!,
                 ...options.backoff,
               };
             }
@@ -114,7 +92,7 @@ export class QueueManager {
           } catch (error) {
             const errorMessage =
               error instanceof Error ? error.message : "Unknown error";
-            console.error(`Failed to enqueue job to ${name}:`, errorMessage);
+            logger.error(error, `Failed to enqueue job to ${name}:`);
             throw new Error(`Failed to enqueue job: ${errorMessage}`);
           }
         },
@@ -196,7 +174,7 @@ export class QueueManager {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      console.error(`Failed to get queue ${name}:`, errorMessage);
+      logger.error(error, `Failed to get queue ${name}:`);
       throw new Error(`Queue initialization failed: ${errorMessage}`);
     }
   }
@@ -211,7 +189,7 @@ export class QueueManager {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      console.error(`Failed to get health for queue ${name}:`, errorMessage);
+      logger.error(error, `Failed to get health for queue ${name}:`);
       throw new Error(`Failed to get queue health: ${errorMessage}`);
     }
   }
@@ -224,10 +202,8 @@ export class QueueManager {
       }
       return queue.getStatus();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      console.error(`Failed to get status for queue ${name}:`, errorMessage);
-      throw new Error(`Failed to get queue status: ${errorMessage}`);
+      logger.error(error, `Failed to get status for queue ${name}:`);
+      throw new Error(`Failed to get queue status: ${error}`);
     }
   }
 
@@ -239,7 +215,7 @@ export class QueueManager {
       }
       return queue.isHealthy();
     } catch (error) {
-      console.error(`Health check failed for queue ${name}:`, error);
+      logger.error(error, `Health check failed for queue ${name}:`);
       return false;
     }
   }
@@ -270,7 +246,7 @@ export class QueueManager {
   public async closeAll(): Promise<void> {
     try {
       if (this.queues.size === 0) {
-        console.warn("No queues to close");
+        logger.warn("No queues to close");
         return;
       }
 
@@ -278,13 +254,11 @@ export class QueueManager {
         async ({ queue }) => {
           try {
             await queue.close();
-            console.log(`Successfully closed queue: ${queue.name}`);
+            logger.info(`Successfully closed queue: ${queue.name}`);
             return { success: true, name: queue.name };
           } catch (error) {
-            const errorMessage =
-              error instanceof Error ? error.message : "Unknown error";
-            console.error(`Error closing queue ${queue.name}:`, errorMessage);
-            return { success: false, name: queue.name, error: errorMessage };
+            logger.error(error, `Error closing queue ${queue.name}:`);
+            return { success: false, name: queue.name, error };
           }
         },
       );
@@ -298,19 +272,17 @@ export class QueueManager {
       const failed = results.length - closed;
 
       if (failed > 0) {
-        console.warn(
+        logger.warn(
           `Closed ${closed} queues, failed to close ${failed} queues`,
         );
       } else {
-        console.log(`Successfully closed all ${closed} queues`);
+        logger.info(`Successfully closed all ${closed} queues`);
       }
 
       this.queues.clear();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      console.error("Error during queue cleanup:", errorMessage);
-      throw new Error(`Failed to close all queues: ${errorMessage}`);
+      logger.error(error, "Error during queue cleanup:");
+      throw new Error(`Failed to close all queues: ${error}`);
     }
   }
 }

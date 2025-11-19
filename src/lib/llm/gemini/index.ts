@@ -1,34 +1,46 @@
-import { Message, LLMResponse } from "../types";
-import { ILLMClient } from "../client";
+import {
+  LLMMessage,
+  LLMResponse,
+  ILLMProvider,
+  ChatCompletionOptions,
+} from "../llms.types";
 import { GoogleGenAI } from "@google/genai";
-import { config } from "../../../config";
+import { llmConfig } from "@/config";
+import {
+    getMessagesForLLM,
+} from "@/feature/chats/operations/messages.list";
 
-export class GeminiClient implements ILLMClient {
+export class GeminiClient implements ILLMProvider {
   protected readonly client: GoogleGenAI;
   protected readonly GENERATIVE_MODEL_NAME = "gemini-2.0-flash";
   protected readonly EMBEDDING_MODEL_NAME = "models/embedding-001";
+  private defaultOptions: Partial<ChatCompletionOptions> = {
+    temperature: 0.9,
+    maxTokens: 2048,
+    topP: 0.8,
+    topK: 40,
+  };
 
   constructor() {
-    const apiKey = config.geminiApiKey;
-    if (!apiKey) {
-      throw new Error(
-        "GEMINI_API_KEY environment variable is not set. Please add it to your .env file.",
-      );
-    }
-
-    this.client = new GoogleGenAI({ apiKey });
+    this.client = new GoogleGenAI({ apiKey: llmConfig.gemini.apiKey });
   }
 
-  public async createChatCompletion(messages: Message[]): Promise<LLMResponse> {
+  public async createChatCompletion(
+    chatId: string,
+    systemPrompt?: string,
+    options?: ChatCompletionOptions,
+  ): Promise<LLMResponse> {
     try {
-      const { systemMessage, userMessage } = this.extractMessages(messages);
-      const fullPrompt = systemMessage
-        ? `${systemMessage}\n\n${userMessage}`
-        : userMessage;
+      const messages = await getMessagesForLLM(chatId);
+      const fullPrompt = systemPrompt
+        ? `${systemPrompt}\n\n${messages}`
+        : messages;
 
       const response = await this.client.models.generateContent({
         model: this.GENERATIVE_MODEL_NAME,
         contents: fullPrompt,
+        ...this.defaultOptions,
+        ...options,
       });
 
       if (!response?.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -45,7 +57,7 @@ export class GeminiClient implements ILLMClient {
     }
   }
 
-  protected extractMessages(messages: Message[]): {
+  protected extractMessages(messages: LLMMessage[]): {
     systemMessage?: string;
     userMessage: string;
   } {

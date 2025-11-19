@@ -1,8 +1,8 @@
 import { ollamaClient } from ".";
-import { Message } from "../types";
+import { LLMMessage } from "../llms.types";
 
 export const chat = async (
-  messages: Message[],
+  messages: LLMMessage[],
   model: string = "gemma3:1b",
 ) => {
   const response = await ollamaClient.getClient().chat({

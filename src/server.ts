@@ -1,22 +1,21 @@
-import { config, isDev } from "@/config/dev.config";
+import { serverConfig, isDev } from "@/config";
 import app from "@/app";
 import { logger } from "@/lib/logger";
 import { shutdownExpressServer } from "@/lib/express";
 
 if (require.main === module) {
-  const server = app.listen(config.port, config.hostname, () => {
+  const server = app.listen(serverConfig.port, serverConfig.hostname, () => {
     const serverInfo = {
-      "🚀 Environment": `[${config.env.toUpperCase()}]`,
-      "🌍 Host": config.hostname,
-      "🚪 Port": config.port,
-      "🔒 Protocol": config.protocol,
+      "🚀 Environment": `[${serverConfig.env.toUpperCase()}]`,
+      "🌍 Host": serverConfig.hostname,
+      "🚪 Port": serverConfig.port,
+      "🔒 Protocol": serverConfig.protocol,
       "⏱️  Started": new Date().toISOString(),
     };
-
     logger.info(serverInfo, "🚀 Mahakama Server");
 
     if (isDev) {
-      const { endpoints } = config;
+      const { endpoints } = serverConfig;
       const formattedEndpoints = {
         "🌐 API": endpoints.api,
         "📚 Documentation": endpoints.docs,
@@ -25,8 +24,6 @@ if (require.main === module) {
       };
       logger.info({ endpoints: formattedEndpoints }, "🔗 Available Endpoints");
     }
-
-    logger.info({}, "✅ Server is ready to handle requests");
   });
   process.on("SIGTERM", () => shutdownExpressServer(server));
   process.on("SIGINT", () => shutdownExpressServer(server));

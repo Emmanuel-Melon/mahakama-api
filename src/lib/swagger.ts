@@ -1,6 +1,6 @@
 import swaggerJsdoc from "swagger-jsdoc";
-import { mahakamaServers } from "../config/dev.config";
-import path from "path";
+import { mahakamaServers } from "@/config";
+import { resolveAbsolutePaths } from "@/utils/fs";
 
 const apiDocPaths = [
   "src/feature/auth/auth.docs.ts",
@@ -13,7 +13,7 @@ const apiDocPaths = [
   "src/feature/users/users.docs.ts",
 ] as const;
 
-export const swaggerApiRoutes = apiDocPaths.map(p => path.join(process.cwd(), p));
+export const swaggerApiRoutes = resolveAbsolutePaths(apiDocPaths);
 
 const options: swaggerJsdoc.Options = {
   definition: {
