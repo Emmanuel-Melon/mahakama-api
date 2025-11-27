@@ -2,6 +2,7 @@ import { z, ZodTypeAny } from "zod";
 import { ParsedQs } from "qs";
 import { ParamsDictionary } from "express-serve-static-core";
 import { NextFunction, Response, Request } from "express";
+import { StatusConfig } from "./http-status";
 
 export type ResponseMetadata = {
   timestamp?: string;
@@ -163,3 +164,81 @@ export type UpdateRequest<T> = {
 export type DeleteRequest = {
   id: string;
 };
+
+
+// server types
+export type ServerStatus = "healthy" | "maintenance" | "unhealthy";
+
+export interface HealthCheckResponse {
+  status: ServerStatus;
+  message: string;
+  environment: string;
+  timestamp: string;
+  services: {
+    database: string;
+    [key: string]: string | undefined;
+  };
+  error?: string;
+}
+
+export interface WelcomeResponse {
+  message: string;
+  documentation: string;
+  environment: string;
+  timestamp: string;
+  endpoints: {
+    health: string;
+    apiDocs: string;
+    auth?: string;
+    apiBase: string;
+  };
+  status: ServerStatus;
+  version?: string;
+}
+
+export interface ResourceResponseOptions {
+  requestId?: string;
+  successStatus?: StatusConfig;
+}
+
+export interface JsonApiResourceConfig<T> {
+  type: string;
+  attributes: (resource: T) => Record<string, any>;
+  resourceMeta?: (resource: T) => Record<string, any>;
+}
+
+export type JsonApiResponseConfig<T> = {
+  type: "single" | "collection";
+  data: (T & { id: string }) | (T & { id: string })[];
+  serializerConfig: JsonApiResourceConfig<T>;
+};
+
+export interface JsonApiResponse<T> {
+  data: T;
+  meta: {
+    requestId: string;
+    timestamp: string;
+    [key: string]: any;
+  };
+}
+
+export interface JsonApiError {
+  id: string;
+  status: string;
+  code: string;
+  title: string;
+  detail: string;
+  meta: {
+    requestId: string;
+    timestamp: string;
+    [key: string]: any;
+  };
+  source?: {
+    pointer?: string;
+    method?: string;
+  };
+}
+
+export interface JsonApiErrorResponse {
+  errors: JsonApiError[];
+}

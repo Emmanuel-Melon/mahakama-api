@@ -1,8 +1,7 @@
+import { Request, Response } from 'express';
 import pino from "pino";
 
-// Create a basic logger that can be enhanced later
 const isDevelopment = process.env.NODE_ENV !== "production";
-
 export const envColor = isDevelopment ? "red" : "blue";
 
 export const logger = pino({
@@ -23,7 +22,7 @@ export const logger = pino({
     level: (label) => ({ level: label.toUpperCase() }),
   },
   serializers: {
-    req: (req) => ({
+    req: (req: Request) => ({
       method: req.method,
       url: req.url,
       path: req.path,

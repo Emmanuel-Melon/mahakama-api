@@ -15,34 +15,13 @@ export const authenticateToken = async (
 ) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader?.split(" ")[1]; // Format: "Bearer TOKEN"
-
-  if (!token) {
-    logger.warn(
-      { path: req.path },
-      "Authentication required - No token provided",
-    );
-    return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
-  }
-
   try {
-    if (!config.jwtSecret) {
-      logger.error("JWT secret not configured");
-      return sendErrorResponse(res, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     const verified = jwt.verify(token, config.jwtSecret) as JwtPayload;
-
-    if (typeof verified === "string" || !("id" in verified)) {
-      logger.warn({ path: req.path }, "Invalid token format");
-      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
-    }
-
     const user = await findById(verified.id);
     if (!user) {
       logger.warn({ userId: verified.id }, "User not found for valid token");
       return sendErrorResponse(res, HttpStatus.NOT_FOUND);
     }
-
     req.user = user;
     logger.debug({ userId: user.id, path: req.path }, "User authenticated");
     next();

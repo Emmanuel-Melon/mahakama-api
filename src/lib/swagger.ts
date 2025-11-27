@@ -1,7 +1,8 @@
+import { Request, Response } from "express";
 import swaggerJsdoc from "swagger-jsdoc";
 import { mahakamaServers } from "@/config";
 import { resolveAbsolutePaths } from "@/utils/fs";
-
+import swaggerUi from "swagger-ui-express";
 const apiDocPaths = [
   "src/feature/auth/auth.docs.ts",
   "src/feature/chats/chats.docs.ts",
@@ -51,3 +52,16 @@ const options: swaggerJsdoc.Options = {
 const apiSpecs = swaggerJsdoc(options);
 
 export { apiSpecs };
+
+
+export const rawJSONDocs = (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json");
+  res.json(apiSpecs);
+};
+
+export const swaggerSetup = () => {
+  return swaggerUi.setup(apiSpecs, {
+    explorer: true,
+    customCss: ".swagger-ui \n.swagger-ui .info { margin: 20px 0 }\n",  
+  });
+};

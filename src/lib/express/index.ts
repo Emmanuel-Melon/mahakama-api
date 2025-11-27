@@ -1,5 +1,9 @@
-import { logger } from "../logger";
+import { Request, Response } from "express";
+import { logger } from "@/lib/logger";
 import { serverConfig } from "@/config";
+import { sendErrorResponse, sendSuccessResponse } from "./express.response";
+import { HttpStatus } from "./http-status";
+import { HealthCheckResponse, WelcomeResponse } from "./express.types";
 
 export const shutdownExpressServer = async (server: any) => {
   logger.warn("SIGTERM received. Shutting down gracefully...");
@@ -14,4 +18,61 @@ export const shutdownExpressServer = async (server: any) => {
     logger.error("Forcing shutdown after timeout");
     process.exit(1);
   }, serverConfig.shutdownTimeout);
+};
+
+export const testServerHealth = (): Promise<HealthCheckResponse> => {
+  return Promise.resolve({
+    status: "healthy",
+    message: "StorySense API is up and running! ✨",
+    environment: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString(),
+    services: {
+      database: "connected",
+    },
+  });
+};
+
+export const checkServerHealthController = async (
+  _req: Request,
+  res: Response,
+) => {
+  const healthCheck = await testServerHealth();
+  try {
+    sendSuccessResponse(res, healthCheck, {
+      status: HttpStatus.SUCCESS,
+      requestId: res.locals.requestId,
+    });
+  } catch (error) {
+    healthCheck.status = "unhealthy";
+    healthCheck.message = "Service Unavailable";
+    healthCheck.error =
+      error instanceof Error ? error.message : "Unknown error";
+    sendErrorResponse(res, HttpStatus.SERVICE_UNAVAILABLE, {
+      message: "Service Unavailable",
+      details: {
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+    });
+  }
+};
+
+
+export const welcomeController = (_req: Request, res: Response) => {
+  const baseUrl = `${serverConfig.protocol}://${serverConfig.hostname}${serverConfig.port ? `:${serverConfig.port}` : ''
+    }`;
+
+  const response: WelcomeResponse = {
+    message: "Welcome to Mahakama API - Legal Knowledge Platform",
+    documentation: `${baseUrl}${serverConfig.endpoints.docs}`,
+    environment: serverConfig.env,
+    timestamp: new Date().toISOString(),
+    status: "healthy",
+    endpoints: {
+      health: `${baseUrl}${serverConfig.endpoints.health}`,
+      apiDocs: `${baseUrl}${serverConfig.endpoints.docs}`,
+      apiBase: `${baseUrl}${serverConfig.endpoints.api}`,
+    },
+  };
+
+  res.json(response);
 };
