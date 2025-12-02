@@ -1,8 +1,9 @@
-import { queueManager, QueueName, QueueManager } from "../../lib/bullmq";
+import { queueManager, QueueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
 import { ChatSessionResponse } from "../chats.schema";
-import { QueueInstance } from "../../lib/bullmq/types";
-import { setQueueJobOptions } from "../../lib/bullmq/utils";
+import { QueueInstance } from "@/lib/bullmq/bullmq.types";
+import { setQueueJobOptions } from "@/lib/bullmq/bullmq.utils";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
 
 export enum ChatsJobType {
   ChatCreatd = "chat-created",

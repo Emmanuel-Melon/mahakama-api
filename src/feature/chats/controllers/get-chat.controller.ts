@@ -3,9 +3,9 @@ import { getChat } from "../operations/chat.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
-import { type ControllerMetadata } from "../../lib/express/types";
-import { HttpStatus } from "../../lib/express/http-status";
+} from "@/lib/express/express.response";
+import { type ControllerMetadata } from "@/lib/express/express.types";
+import { HttpStatus } from "@/lib/express/http-status";
 
 export const getChatController = async (
   req: Request,
@@ -21,19 +21,20 @@ export const getChatController = async (
       requestId: req.requestId,
     };
     const { chatId } = req.params;
-    const userId = req.user?.id || req.fingerprint?.hash;
-
+    const userId = req.user?.id!;
     const chat = await getChat(chatId, userId);
-
     if (!chat) {
       return sendErrorResponse(res, HttpStatus.NOT_FOUND);
     }
-
-    sendSuccessResponse(res, { chat }, {
-      ...metadata,
-      timestamp: new Date().toISOString(),
-      status: HttpStatus.SUCCESS,
-    });
+    sendSuccessResponse(
+      res,
+      { ...chat },
+      {
+        ...metadata,
+        timestamp: new Date().toISOString(),
+        status: HttpStatus.SUCCESS,
+      },
+    );
   } catch (error) {
     next(error);
   }

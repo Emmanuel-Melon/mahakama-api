@@ -1,9 +1,9 @@
 import { Worker } from "bullmq";
-import { QueueName } from "../../lib/bullmq";
-import { config } from "../../config";
-import { setWorkerOptions } from "../../lib/bullmq/utils";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
+import { config } from "@/config";
+import { setWorkerOptions } from "@/lib/bullmq/bullmq.utils";
 import { ChatsJobType } from "./chats.queue";
-import { logger } from "../../lib/logger";
+import { logger } from "@/lib/logger";
 
 const chatsWorker = new Worker(
   QueueName.Auth,

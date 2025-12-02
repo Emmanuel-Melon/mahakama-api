@@ -1,17 +1,3 @@
-import { Router } from "express";
-import { chatIdSchema, sendMessageSchema } from "./chats.schema";
-import { createChatController } from "./controllers/create-chat.controller";
-import { getUserChatsController } from "./controllers/get-user-chats.controller";
-import { getChatController } from "./controllers/get-chat.controller";
-import { sendMessageController } from "./controllers/send-message.controller";
-import { getChatMessagesController } from "./controllers/get-chat-messages.controller";
-import { streamChatController } from "./controllers/stream-chat.controller";
-import { validateCreateChatSession } from "./chats.middleware";
-
-export const CHATS_PATH = "/v1/chats";
-
-const chatRouter = Router();
-
 /**
  * @swagger
  * tags:
@@ -130,7 +116,6 @@ const chatRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.post("/", validateCreateChatSession, createChatController);
 
 /**
  * @swagger
@@ -157,7 +142,6 @@ chatRouter.post("/", validateCreateChatSession, createChatController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.get("/", getUserChatsController);
 
 /**
  * @swagger
@@ -190,46 +174,6 @@ chatRouter.get("/", getUserChatsController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.get("/:chatId", getChatController);
-
-/**
- * @swagger
- * /v1/chats/{chatId}/messages:
- *   post:
- *     summary: Send a message
- *     description: Send a new message to a chat
- *     tags: [Chats v1]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: chatId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *         description: ID of the chat to send message to
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/SendMessageRequest'
- *     responses:
- *       201:
- *         description: Message sent successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Message'
- *       400:
- *         description: Invalid input or chat not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-chatRouter.post("/:chatId/messages", sendMessageController);
 
 /**
  * @swagger
@@ -264,40 +208,3 @@ chatRouter.post("/:chatId/messages", sendMessageController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-chatRouter.get("/:chatId/messages", getChatMessagesController);
-
-/**
- * @swagger
- * /v1/chats/stream:
- *   post:
- *     summary: Stream chat messages (SSE)
- *     tags: [Chats v1]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - messages
- *             properties:
- *               messages:
- *                 type: array
- *                 items:
- *                   $ref: '#/components/schemas/Message'
- *               model:
- *                 type: string
- *                 description: Optional model to use for the chat
- *                 example: "gemma3:1b"
- *     responses:
- *       200:
- *         description: Chat stream started
- *         content:
- *           text/event-stream:
- *             schema:
- *               type: string
- *               format: binary
- */
-chatRouter.post("/stream", streamChatController);
-
-export default chatRouter;

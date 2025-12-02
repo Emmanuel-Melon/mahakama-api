@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { getUserChats } from "../operations/chats.find";
-import { sendSuccessResponse } from "../../lib/express/response";
-import { type ControllerMetadata } from "../../lib/express/types";
-import { HttpStatus } from "../../lib/express/http-status";
+import { sendSuccessResponse } from "@/lib/express/express.response";
+import { type ControllerMetadata } from "@/lib/express/express.types";
+import { HttpStatus } from "@/lib/express/http-status";
 
 export const getUserChatsController = async (
   req: Request,
@@ -18,11 +18,15 @@ export const getUserChatsController = async (
       requestId: req.requestId,
     };
     const chats = await getUserChats(req.user?.id!);
-    sendSuccessResponse(res, { chats }, {
-      ...metadata,
-      timestamp: new Date().toISOString(),
-      status: HttpStatus.SUCCESS,
-    });
+    sendSuccessResponse(
+      res,
+      { chats },
+      {
+        ...metadata,
+        timestamp: new Date().toISOString(),
+        status: HttpStatus.SUCCESS,
+      },
+    );
   } catch (error: any) {
     next(error);
   }
