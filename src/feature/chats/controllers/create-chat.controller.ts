@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { createChat } from "../operations/chats.create";
-import { queryProcessor } from "@/feature/query/query.processor";
+import { queryProcessor } from "@/feature/rag-pipeline/query/query.processor";
 import { User } from "@/feature/users/users.schema";
 import {
   findRelevantLaws,

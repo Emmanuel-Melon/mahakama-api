@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateEmbedding } from "../lib/llm/ollama/ollama.embeddings";
+import { generateEmbedding } from "@/lib/llm/ollama";
 
 export interface QueryEmbedding {
   model: string;

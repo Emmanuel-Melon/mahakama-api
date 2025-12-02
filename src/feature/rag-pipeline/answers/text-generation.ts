@@ -1,9 +1,9 @@
 import { chat } from "../../lib/llm/ollama/ollama.chat";
-import type { Message } from "../../lib/llm/types";
+import type { LLMMessage } from "../../lib/llm/llms.types";
 import { findRelevantLaws, getMostRelevantLaw } from "../knowledge/vectorizer";
 import { generateResponsePrompt } from "../response-prompts";
 import { laws as lawsDataset } from "../dataset/laws.dataset";
-import { QueryEmbedding } from "../../query/query.processor";
+import { QueryEmbedding } from "../query/query.processor";
 
 const DEFAULT_MODEL = "gemma3:1b";
 
@@ -27,7 +27,7 @@ export const answerLegalQuestion = async (
     const mostRelevantLaw = getMostRelevantLaw(relevantLaws);
 
     // Generate the response using the LLM
-    const messages: Message[] = [
+    const messages: LLMMessage[] = [
       {
         role: "system",
         content: generateResponsePrompt(query.query, mostRelevantLaw),
