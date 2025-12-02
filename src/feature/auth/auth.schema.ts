@@ -16,5 +16,9 @@ export const loginUserSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const authHeadersSchema = z.object({
+  authorization: z.string().min(1, { message: "Authorization header is required" })
+});
+
 export type RegisterUserAttrs = z.infer<typeof registerUserSchema>;
 export type LoginUserAttrs = z.infer<typeof loginUserSchema>;

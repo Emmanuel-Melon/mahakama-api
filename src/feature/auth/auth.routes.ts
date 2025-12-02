@@ -1,18 +1,16 @@
 import { Router } from "express";
 import { registerUserController } from "./controllers/register.controller";
 import { loginUserController } from "./controllers/login.controller";
-import { validate } from "@/middleware/request-validators";
+import { validateRequestBody } from "@/middleware/request-validators";
 import { loginUserSchema, registerUserSchema } from "./auth.schema";
 
-const authRouter = Router();
+export const authRouter = Router();
 
 authRouter.post(
   "/register",
-  validate(registerUserSchema),
+  validateRequestBody(registerUserSchema),
   registerUserController,
 );
-authRouter.post("/login", validate(loginUserSchema), loginUserController);
-
-export default authRouter;
+authRouter.post("/login", validateRequestBody(loginUserSchema), loginUserController);
 
 export const AUTH_PATH = "/v1";
