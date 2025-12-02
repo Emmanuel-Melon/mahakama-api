@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { documentsTable, Document } from "../documents.schema";
 import { NewDocument } from "../documents.types";
 

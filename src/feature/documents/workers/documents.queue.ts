@@ -1,8 +1,9 @@
-import { queueManager, QueueName, QueueManager } from "../../lib/bullmq";
+import { queueManager, QueueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
 import { Document } from "../documents.schema";
-import { QueueInstance } from "../../lib/bullmq/types";
-import { setQueueJobOptions } from "../../lib/bullmq/utils";
+import { QueueInstance } from "@/lib/bullmq/types";
+import { setQueueJobOptions } from "@/lib/bullmq/utils";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
 
 export enum DocumentsJobType {
   DocumentCreated = "document-created",

@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { documentsTable } from "../documents.schema";
 import { desc, eq, sql } from "drizzle-orm";
 

@@ -9,7 +9,7 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { usersTable } from "../users/users.schema";
+import { usersSchema } from "@/users/users.schema";
 import { createSelectSchema } from "drizzle-zod";
 
 export const documentsTable = pgTable("documents", {
@@ -28,9 +28,9 @@ export const documentsTable = pgTable("documents", {
 export const bookmarksTable = pgTable(
   "document_bookmarks",
   {
-    userId: uuid("user_id")
+    user_id: uuid("user_id")
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => usersSchema.id, { onDelete: "cascade" }),
     documentId: integer("document_id")
       .notNull()
       .references(() => documentsTable.id, { onDelete: "cascade" }),
@@ -38,17 +38,17 @@ export const bookmarksTable = pgTable(
   },
   (table) => {
     return {
-      pk: primaryKey({ columns: [table.userId, table.documentId] }),
+      pk: primaryKey({ columns: [table.user_id, table.documentId] }),
     };
   },
 );
 
 export const downloadsTable = pgTable("document_downloads", {
   id: serial("id").primaryKey(),
-  userId: uuid("user_id")
+  user_id: uuid("user_id")
     .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
-  documentId: integer("document_id")
+    .references(() => usersSchema.id, { onDelete: "cascade" }),
+  document_id: integer("document_id")
     .notNull()
     .references(() => documentsTable.id, { onDelete: "cascade" }),
   downloadedAt: timestamp("downloaded_at").defaultNow().notNull(),

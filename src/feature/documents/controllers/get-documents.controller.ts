@@ -3,9 +3,9 @@ import { listDocuments } from "../operations/documents.list";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
-import { type ControllerMetadata } from "../../lib/express/types";
-import { HttpStatus } from "../../lib/express/http-status";
+} from "@/lib/express/express.response";
+import { type ControllerMetadata } from "@/lib/express/express.types";
+import { HttpStatus } from "@/lib/express/http-status";
 
 export const getDocumentsController = async (
   req: Request,
@@ -28,11 +28,15 @@ export const getDocumentsController = async (
       offset: offset ? Number(offset) : undefined,
     });
 
-    sendSuccessResponse(res, { documents: documents.data }, {
-      ...metadata,
-      timestamp: new Date().toISOString(),
-      status: HttpStatus.SUCCESS,
-    });
+    sendSuccessResponse(
+      res,
+      { documents: documents.data },
+      {
+        ...metadata,
+        timestamp: new Date().toISOString(),
+        status: HttpStatus.SUCCESS,
+      },
+    );
   } catch (error) {
     next(error);
   }

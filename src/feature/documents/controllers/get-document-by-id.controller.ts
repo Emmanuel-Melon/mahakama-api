@@ -3,9 +3,9 @@ import { findDocumentById } from "../operations/document.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
-import { type ControllerMetadata } from "../../lib/express/types";
-import { HttpStatus } from "../../lib/express/http-status";
+} from "@/lib/express/express.response";
+import { type ControllerMetadata } from "@/lib/express/express.types";
+import { HttpStatus } from "@/lib/express/http-status";
 
 export const getDocumentByIdControlle = async (
   req: Request,
@@ -27,11 +27,15 @@ export const getDocumentByIdControlle = async (
       return sendErrorResponse(res, HttpStatus.NOT_FOUND);
     }
 
-    sendSuccessResponse(res, { ...document }, {
-      ...metadata,
-      timestamp: new Date().toISOString(),
-      status: HttpStatus.SUCCESS,
-    });
+    sendSuccessResponse(
+      res,
+      { ...document },
+      {
+        ...metadata,
+        timestamp: new Date().toISOString(),
+        status: HttpStatus.SUCCESS,
+      },
+    );
   } catch (error) {
     next(error);
   }

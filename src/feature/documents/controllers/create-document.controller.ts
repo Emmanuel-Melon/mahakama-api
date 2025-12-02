@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { createDocument } from "../operations/documents.create";
 import { CreateDocumentInput } from "../documents.types";
-import { HttpStatus } from "../../lib/express/http-status";
+import { HttpStatus } from "@/lib/express/http-status";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
-import { type ControllerMetadata } from "../../lib/express/types";
+} from "@/lib/express/express.response";
+import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
 
 export const createDocumentHandler = async (

@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { downloadDocument } from "../operations/documents.update";
-import { sendSuccessResponse } from "../../lib/express/response";
-import { type ControllerMetadata } from "../../lib/express/types";
+import { sendSuccessResponse } from "@/lib/express/express.response";
+import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
 import { findDocumentById } from "../operations/document.find";
-import { HttpStatus } from "../../lib/express/http-status";
+import { HttpStatus } from "@/lib/express/http-status";
 
 export const downloadDocumentController = async (
   req: Request,
@@ -24,7 +24,7 @@ export const downloadDocumentController = async (
 
     await downloadDocument({
       documentId,
-      userId: userId!,
+      user_id: userId!,
     });
 
     res.on("finish", async () => {
@@ -34,11 +34,15 @@ export const downloadDocumentController = async (
       // });
     });
 
-    sendSuccessResponse(res, { ...document }, {
-      ...metadata,
-      timestamp: new Date().toISOString(),
-      status: HttpStatus.SUCCESS,
-    });
+    sendSuccessResponse(
+      res,
+      { ...document },
+      {
+        ...metadata,
+        timestamp: new Date().toISOString(),
+        status: HttpStatus.SUCCESS,
+      },
+    );
   } catch (error) {
     next(error);
   }

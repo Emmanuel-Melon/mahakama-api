@@ -1,14 +1,3 @@
-import { Router } from "express";
-import { getDocumentByIdControlle } from "./controllers/get-document-by-id.controller";
-import { getDocumentsController } from "./controllers/get-documents.controller";
-import { createDocumentHandler } from "./controllers/create-document.controller";
-import { bookmarkDocumentController } from "./controllers/bookmark-document.controller";
-import { downloadDocumentController } from "./controllers/downoad-document.controller";
-
-export const DOCUMENTS_PATH = "/v1/documents";
-
-const documentRoutes = Router();
-
 /**
  * @swagger
  * tags:
@@ -49,9 +38,6 @@ const documentRoutes = Router();
  *         updatedAt:
  *           type: string
  *           format: date-time
- */
-
-/**
  * @swagger
  * /api/documents:
  *   get:
@@ -95,10 +81,6 @@ const documentRoutes = Router();
  *                       type: integer
  *                     limit:
  *                       type: integer
- */
-documentRoutes.get("/", getDocumentsController);
-
-/**
  * @swagger
  * /api/documents/{id}:
  *   get:
@@ -127,10 +109,6 @@ documentRoutes.get("/", getDocumentsController);
  *                   $ref: '#/components/schemas/Document'
  *       404:
  *         description: Document not found
- */
-documentRoutes.get("/:id", getDocumentByIdControlle);
-
-/**
  * @swagger
  * /api/documents:
  *   post:
@@ -186,10 +164,6 @@ documentRoutes.get("/:id", getDocumentByIdControlle);
  *                   $ref: '#/components/schemas/Document'
  *       400:
  *         description: Invalid input
- */
-documentRoutes.post("/", createDocumentHandler);
-
-/**
  * @swagger
  * /api/documents/{id}/bookmark:
  *   post:
@@ -221,10 +195,6 @@ documentRoutes.post("/", createDocumentHandler);
  *                       type: integer
  *                     bookmarked:
  *                       type: boolean
- */
-documentRoutes.post("/:id/bookmark", bookmarkDocumentController);
-
-/**
  * @swagger
  * /api/documents/{id}/download:
  *   get:
@@ -258,7 +228,38 @@ documentRoutes.post("/:id/bookmark", bookmarkDocumentController);
  *                       type: string
  *                     downloadCount:
  *                       type: integer
+ * @swagger
+ * /api/documents/ingest:
+ *   post:
+ *     summary: Ingest a new document with SSE progress updates
+ *     tags: [Documents v1]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: The document file to upload
+ *     responses:
+ *       200:
+ *         description: Document ingestion started
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: No file uploaded or invalid file
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
-documentRoutes.get("/:id/download", downloadDocumentController);
-
-export default documentRoutes;

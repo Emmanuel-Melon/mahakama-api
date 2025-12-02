@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import {
   documentsTable,
   bookmarksTable,
@@ -12,12 +12,12 @@ import { findDocumentById } from "./document.find";
 
 export interface BookmarkDocumentParams {
   documentId: number;
-  userId: string;
+  user_id: string;
 }
 
 export interface DownloadDocumentParams {
   documentId: number;
-  userId: string;
+  user_id: string;
 }
 
 export interface ShareDocumentParams {
@@ -38,7 +38,7 @@ export interface DocumentShareInfo {
 
 export async function bookmarkDocument({
   documentId,
-  userId,
+  user_id,
 }: BookmarkDocumentParams): Promise<Document> {
   const document = await findDocumentById(documentId);
 
@@ -51,7 +51,7 @@ export async function bookmarkDocument({
     .from(bookmarksTable)
     .where(
       and(
-        eq(bookmarksTable.userId, userId),
+        eq(bookmarksTable.user_id, user_id),
         eq(bookmarksTable.documentId, documentId),
       ),
     )
@@ -64,7 +64,7 @@ export async function bookmarkDocument({
       .delete(bookmarksTable)
       .where(
         and(
-          eq(bookmarksTable.userId, userId),
+          eq(bookmarksTable.user_id, user_id),
           eq(bookmarksTable.documentId, documentId),
         ),
       );
@@ -73,7 +73,7 @@ export async function bookmarkDocument({
     await db
       .insert(bookmarksTable)
       .values({
-        userId,
+        user_id,
         documentId,
       })
       .onConflictDoNothing();
@@ -85,7 +85,7 @@ export async function bookmarkDocument({
 
 export async function downloadDocument({
   documentId,
-  userId,
+  user_id,
 }: DownloadDocumentParams) {
   return db.transaction(async (tx) => {
     const [document] = await tx
@@ -103,7 +103,7 @@ export async function downloadDocument({
     }
 
     await tx.insert(downloadsTable).values({
-      userId,
+      user_id,
       documentId,
     });
 

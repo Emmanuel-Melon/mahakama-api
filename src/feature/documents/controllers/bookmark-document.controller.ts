@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { bookmarkDocument } from "../operations/documents.update";
-import { type ControllerMetadata } from "../../lib/express/types";
+import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
-import { HttpStatus } from "../../lib/express/http-status";
+import { HttpStatus } from "@/lib/express/http-status";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
+} from "@/lib/express/express.response";
 
 export const bookmarkDocumentController = async (
   req: Request,
@@ -26,7 +26,7 @@ export const bookmarkDocumentController = async (
 
     const document = await bookmarkDocument({
       documentId,
-      userId: userId!,
+      user_id: userId!,
     });
 
     res.on("finish", async () => {
