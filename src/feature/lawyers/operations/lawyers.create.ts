@@ -1,9 +1,9 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { lawyersTable } from "../lawyers.schema";
 import type { CreateLawyerInput } from "../lawyers.schema";
 import type { Lawyer } from "../lawyers.schema";
 import { faker } from "@faker-js/faker";
-import { createRandomUser } from "../../users/operations/users.create";
+import { createRandomUser } from "@/feature/users/operations/users.create";
 
 export async function createLawyer(
   lawyerData: CreateLawyerInput,
@@ -14,12 +14,10 @@ export async function createLawyer(
     isAvailable: lawyerData.isAvailable ?? true,
     rating: lawyerData.rating ?? "0",
   };
-
   const [newLawyer] = await db
     .insert(lawyersTable)
     .values(insertData)
     .returning();
-
   return newLawyer;
 }
 

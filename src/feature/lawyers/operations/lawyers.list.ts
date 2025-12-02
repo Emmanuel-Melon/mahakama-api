@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { lawyersTable } from "../lawyers.schema";
 import { and, asc, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 import type { Lawyer } from "../lawyers.schema";
@@ -6,7 +6,7 @@ import { FindAllOptions, PaginatedResult } from "../lawyers.types";
 import {
   calculatePaginationOffset,
   calculatePageInfo,
-} from "../../lib/express/utils";
+} from "@/lib/express/pagination";
 
 const sortColumnMap: Record<string, string> = {
   createdAt: "created_at",

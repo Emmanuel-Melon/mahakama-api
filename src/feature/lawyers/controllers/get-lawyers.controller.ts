@@ -2,11 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { findAll } from "../operations/lawyers.list";
 import { lawyersListResponseSchema } from "../lawyers.schema";
 import { type FindAllOptions } from "../lawyers.types";
-import { HttpStatus } from "../../lib/express/http-status";
+import { HttpStatus } from "@/lib/express/http-status";
 import {
-  sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
+} from "@/lib/express/express.response";
 
 export const getLawyersController = async (
   req: Request,

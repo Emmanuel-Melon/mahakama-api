@@ -8,14 +8,12 @@ export async function updateLawyer(
   updateData: UpdateLawyerInput,
 ): Promise<Lawyer> {
   const updateValues: any = { ...updateData };
-
   if (updateValues.rating !== undefined) {
     updateValues.rating =
       typeof updateValues.rating === "number"
         ? updateValues.rating.toString()
         : updateValues.rating;
-  }
-
+  
   const [updatedLawyer] = await db
     .update(lawyersTable)
     .set({

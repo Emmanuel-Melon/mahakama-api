@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { updateLawyer } from "../operations/lawyers.update";
 import { lawyersTable } from "../lawyers.schema";
 import { eq, and, not } from "drizzle-orm";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
-import { HttpStatus } from "../../lib/express/http-status";
+} from "@/lib/express/express.response";
+import { HttpStatus } from "@/lib/express/http-status";
 
 export const updateLawyerController = async (
   req: Request,

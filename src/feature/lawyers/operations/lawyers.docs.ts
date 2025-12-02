@@ -1,13 +1,3 @@
-import { Router } from "express";
-import { getLawyersController } from "./controllers/get-lawyers.controller";
-import { getLawyerByIdController } from "./controllers/get-lawyer-by-id.controller";
-import { createLawyerController } from "./controllers/create-lawyer.controller";
-import { updateLawyerController } from "./controllers/update-lawyer.controller";
-import { validate } from "../middleware/request-validators";
-import { createLawyerSchema } from "./lawyers.schema";
-
-const lawyersRoutes = Router();
-
 /**
  * @swagger
  * tags:
@@ -220,7 +210,6 @@ const lawyersRoutes = Router();
  *               items:
  *                 $ref: '#/components/schemas/Lawyer'
  */
-lawyersRoutes.get("/", getLawyersController);
 
 /**
  * @swagger
@@ -251,7 +240,6 @@ lawyersRoutes.get("/", getLawyersController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-lawyersRoutes.get("/:id", getLawyerByIdController);
 
 /**
  * @swagger
@@ -288,7 +276,6 @@ lawyersRoutes.get("/:id", getLawyerByIdController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-lawyersRoutes.post("/", validate(createLawyerSchema), createLawyerController);
 
 /**
  * @swagger
@@ -333,8 +320,3 @@ lawyersRoutes.post("/", validate(createLawyerSchema), createLawyerController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-lawyersRoutes.put("/:id", validate(createLawyerSchema), updateLawyerController);
-
-export default lawyersRoutes;
-
-export const LAWYERS_PATH = "/v1/lawyers";
