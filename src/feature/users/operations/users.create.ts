@@ -1,5 +1,5 @@
 import { db } from "../../lib/drizzle";
-import { usersTable } from "../users.schema";
+import { usersSchema } from "../users.schema";
 import { CreateUserRequest, User } from "../users.schema";
 import { findByFingerprint } from "../operations/users.find";
 import { faker } from "@faker-js/faker";
@@ -11,7 +11,7 @@ export async function createUser(userData: CreateUserRequest): Promise<User> {
     return user;
   }
   const [newUser] = await db
-    .insert(usersTable)
+    .insert(usersSchema)
     .values({
       id: uuid(),
       name: userData.name || null,

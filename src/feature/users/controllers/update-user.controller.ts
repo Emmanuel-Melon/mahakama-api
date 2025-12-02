@@ -3,16 +3,16 @@ import { updateUser } from "../operations/users.update";
 import {
   userResponseSchema,
   User,
-  UserAttrs,
-  UserRoles,
+
 } from "../users.schema";
 import { findById } from "../operations/users.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
-import { type SuccessResponse } from "../../lib/express/types";
-import { GetUsersParams } from "../users.types";
+} from "../../lib/express/express.response";
+import { type SuccessResponse } from "../../lib/express/express.types";
+import { GetUsersParams,   UserAttrs,
+  UserRoles, } from "../users.types";
 import { HttpStatus } from "../../lib/express/http-status";
 
 export const updateUserController = async (
@@ -59,3 +59,5 @@ export const updateUserController = async (
     next(error);
   }
 };
+
+

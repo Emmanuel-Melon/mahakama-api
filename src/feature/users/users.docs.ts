@@ -1,12 +1,23 @@
-import { Router } from "express";
-import { validate } from "../middleware/request-validators";
-import { getUsersController } from "./controllers/get-users.controller";
-import { getUserController } from "./controllers/get-user.controller";
-import { createUserController } from "./controllers/create-user.controller";
-import { updateUserController } from "./controllers/update-user.controller";
-import { createUserSchema } from "./users.schema";
-
-const userRouter = Router();
+/**
+ * @swagger
+ * /v1/users/me:
+ *   get:
+ *     summary: Get current authenticated user's information
+ *     tags: [Users v1]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved current user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 
 /**
  * @swagger
@@ -201,7 +212,6 @@ const userRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/", getUsersController);
 
 /**
  * @swagger
@@ -246,7 +256,6 @@ userRouter.get("/", getUsersController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.get("/:id", getUserController);
 
 /**
  * @swagger
@@ -281,7 +290,6 @@ userRouter.get("/:id", getUserController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.post("/", validate(createUserSchema), createUserController);
 
 /**
  * @swagger
@@ -375,12 +383,6 @@ userRouter.post("/", validate(createUserSchema), createUserController);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
- *       200:
- *         description: User updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid input or user not found
  *         content:
@@ -400,11 +402,3 @@ userRouter.post("/", validate(createUserSchema), createUserController);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-userRouter.patch(
-  "/:id",
-  validate(createUserSchema.partial()),
-  updateUserController,
-);
-
-export default userRouter;
-export const USERS_PATH = "/v1/users";

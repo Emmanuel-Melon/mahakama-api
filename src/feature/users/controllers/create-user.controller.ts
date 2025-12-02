@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
+} from "../../lib/express/express.response";
 import { usersQueue, UsersJobType } from "../workers/users.queue";
 import { HttpStatus } from "../../lib/express/http-status";
 import { logger } from "../../lib/logger";

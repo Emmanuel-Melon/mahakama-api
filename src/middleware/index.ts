@@ -3,8 +3,9 @@ import express from "express";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { catchErrors, notFoundHandler } from "./errors";
-import routes, { authRoutes } from "@/routes";
+import routesfrom "@/routes";
 import { apiSpecs } from "@/lib/swagger";
+import { authRouter } from "@/feature/auth/auth.routes";
 import { getIpAddress } from "./ip-address";
 import { authenticateToken } from "./auth";
 import { requestLogger } from "./http-request-logger";
@@ -43,7 +44,7 @@ export function initializeMiddlewares(app: Application): void {
   // API routes
   app.get("/", welcomeController);
   app.get(["/health", "/api/health"], checkServerHealthController);
-  app.use("/api/v1/auth", authRoutes);
+  app.use("/api/v1/auth", authRouter);
   app.use("/api", validateRequestHeaders(authHeadersSchema), authenticateToken, routes);
 
   // ERROR HANDLERS

@@ -1,13 +1,13 @@
 import { db } from "../../lib/drizzle";
-import { usersTable } from "../users.schema";
+import { usersSchema } from "../users.schema";
 import { eq, ilike } from "drizzle-orm";
 import type { User } from "../users.schema";
 
 export async function findById(id: string): Promise<User> {
   const [user] = await db
     .select()
-    .from(usersTable)
-    .where(eq(usersTable.id, id))
+    .from(usersSchema)
+    .where(eq(usersSchema.id, id))
     .limit(1);
   return user;
 }
@@ -15,8 +15,8 @@ export async function findById(id: string): Promise<User> {
 export async function findByEmail(email: string): Promise<User> {
   const [user] = await db
     .select()
-    .from(usersTable)
-    .where(ilike(usersTable.email, email))
+    .from(usersSchema)
+    .where(ilike(usersSchema.email, email))
     .limit(1);
 
   return user;
@@ -25,8 +25,8 @@ export async function findByEmail(email: string): Promise<User> {
 export async function findByFingerprint(fingerprint: string): Promise<User> {
   const user = await db
     .select()
-    .from(usersTable)
-    .where(eq(usersTable.fingerprint, fingerprint));
+    .from(usersSchema)
+    .where(eq(usersSchema.fingerprint, fingerprint));
 
   console.log("user", user);
 
@@ -46,8 +46,8 @@ export const findOrCreateUser = async ({
 }: FindOrCreateUserParams) => {
   const [existingUser] = await db
     .select()
-    .from(usersTable)
-    .where(eq(usersTable.fingerprint, fingerprint))
+    .from(usersSchema)
+    .where(eq(usersSchema.fingerprint, fingerprint))
     .limit(1);
 
   if (existingUser) {
@@ -56,7 +56,7 @@ export const findOrCreateUser = async ({
 
   // Create new user if not found
   const [newUser] = await db
-    .insert(usersTable)
+    .insert(usersSchema)
     .values({
       fingerprint,
       userAgent,

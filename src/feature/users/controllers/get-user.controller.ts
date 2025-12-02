@@ -4,13 +4,15 @@ import { userResponseSchema } from "../users.schema";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/response";
+} from "../../lib/express/express.response";
 import { GetUsersParams } from "../users.types";
 import { HttpStatus } from "../../lib/express/http-status";
+import { SuccessResponse } from "../../lib/express/express.types";
+import { UserResponse } from "../users.types";
 
 export const getUserController = async (
   req: Request<GetUsersParams, {}, {}, {}>,
-  res: Response,
+  res: Response<SuccessResponse<UserResponse>>,
   next: NextFunction,
 ) => {
   try {
@@ -18,12 +20,10 @@ export const getUserController = async (
     if (!userId) {
       return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
     }
-
     const user = await findById(userId);
     if (!user) {
       return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
     }
-
     return sendSuccessResponse(
       res,
       { user: userResponseSchema.parse(user) },

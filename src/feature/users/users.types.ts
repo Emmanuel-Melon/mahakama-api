@@ -1,14 +1,28 @@
-import {
-  pgTable,
-  uuid,
-  timestamp,
-  varchar,
-  text,
-  boolean,
-  integer,
-} from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { createSelectSchema } from "drizzle-zod";
+import { User } from "./users.schema";
+import { BaseExpressResponse } from "@/lib/express/express.types";
+import { GetRequestQuery } from "@/lib/express/express.types";
+
+export type UserWithoutPassword = Omit<User, "password">;
+
+export type UserSuccessResponse = BaseExpressResponse<UserWithoutPassword> & {
+  success: true;
+};
+export type UserErrorResponse = BaseExpressResponse<UserWithoutPassword> & {
+  success: false;
+};
+
+export type UserResponse = UserSuccessResponse | UserErrorResponse;
+
+export type GetUsersQuery = Omit<GetRequestQuery, 'page' | 'limit'> & {
+  role?: "admin" | "user" | "lawyer";
+  page?: number | string;
+  limit?: number | string;
+};
+
+export type GetUsersParams = {
+  id?: string;
+};
 
 export const Genders = {
   MALE: "male",
@@ -30,36 +44,6 @@ export const UserRoles = {
 export type UserRoles = (typeof UserRoles)[keyof typeof UserRoles];
 export const UserRoleValues = Object.values(UserRoles) as [string, ...string[]];
 
-export const usersTable = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).unique(),
-  password: varchar("password", { length: 255 }),
-  role: text("role", {
-    enum: UserRoleValues,
-  })
-    .$type<UserRoles>()
-    .notNull()
-    .default("user"),
-  fingerprint: varchar("fingerprint", { length: 255 }).unique(),
-  userAgent: text("user_agent"),
-  lastIp: varchar("last_ip", { length: 45 }),
-  isAnonymous: boolean("is_anonymous").default(false).notNull(),
-  age: integer("age"),
-  gender: text("gender", { enum: GenderValues }),
-  country: varchar("country", { length: 100 }),
-  city: varchar("city", { length: 100 }),
-  phoneNumber: varchar("phone_number", { length: 20 }),
-  occupation: varchar("occupation", { length: 100 }),
-  bio: text("bio"),
-  profilePicture: text("profile_picture"),
-  isOnboarded: boolean("is_onboarded").default(false).notNull(),
-  // Timestamps
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// Schema for creating/updating a user
 export const createUserSchema = z.object({
   id: z.string().uuid("v4").optional(),
   name: z
@@ -92,14 +76,5 @@ export const createUserSchema = z.object({
   profilePicture: z.string().url("Invalid profile picture URL").optional(),
 });
 
-// Schema for user responses (exclude sensitive fields like password)
-const baseSchema = createSelectSchema(usersTable);
-
-export const userResponseSchema = baseSchema.omit({
-  password: true,
-});
-
 export type CreateUserRequest = z.infer<typeof createUserSchema>;
 export type UserAttrs = z.infer<typeof createUserSchema>;
-export type User = z.infer<typeof userResponseSchema>;
-export type NewUser = typeof usersTable.$inferInsert;

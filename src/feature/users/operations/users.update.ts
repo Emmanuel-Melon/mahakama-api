@@ -1,5 +1,5 @@
 import { db } from "../../lib/drizzle";
-import { usersTable } from "../users.schema";
+import { usersSchema } from "../users.schema";
 import { UserAttrs, User, UserRoles } from "../users.schema";
 import { eq } from "drizzle-orm";
 import { findById } from "./users.find";
@@ -10,13 +10,13 @@ export async function updateUser(
 ): Promise<User | null> {
   const userExists = await findById(userId);
   const [updatedUser] = await db
-    .update(usersTable)
+    .update(usersSchema)
     .set({
       ...userAttrs,
       updatedAt: new Date(),
       role: userAttrs.role as UserRoles,
     })
-    .where(eq(usersTable.id, userId))
+    .where(eq(usersSchema.id, userId))
     .returning();
   return updatedUser;
 }
