@@ -9,10 +9,13 @@ permalink: /roadmap/
 
 This document outlines our development roadmap, highlighting upcoming features, improvements, and long-term goals for the Mahakama platform.
 
+**Mission:** Bridge the gap between legal knowledge and taking action
+
 ## Table of Contents
 - [🎯 Current Focus (Q4 2025 - Q1 2026)](#-current-focus-q4-2025---q1-2026)
   - [Local Development & Self-hosting](#local-development--self-hosting)
 - [🚀 Upcoming Features](#-upcoming-features)
+  - [📋 Legal Services Directory (Q1 2026)](#-legal-services-directory-q1-2026)
   - [🎙️ Speech-based Queries (Q2 2026)](#️-speech-based-queries-q2-2026)
   - [🖼️ Multi-modal LLM Interactions (Q3 2026)](#️-multi-modal-llm-interactions-q3-2026)
 - [🌍 Long-term Vision](#-long-term-vision)
@@ -40,6 +43,32 @@ This document outlines our development roadmap, highlighting upcoming features, 
   - Security best practices
 
 ## 🚀 Upcoming Features
+
+### 📋 Legal Services Directory (Q1 2026)
+- **Directory Features**
+  - Government institutions (courts, ministries, police)
+  - Legal aid organizations and NGOs
+  - Mediation and arbitration centers
+  - Specialized services (DV support, consumer protection, etc.)
+
+- **Smart Recommendations**
+  - AI-powered suggestions after answering legal questions
+  - Context-aware institution matching
+  - Location-based recommendations
+
+- **Directory Information**
+  - Contact details (phone, email, address)
+  - Services offered and hours of operation
+  - Required documents for common processes
+  - Cost information (free/paid services)
+  - Languages spoken
+  - User reviews and ratings
+
+- **Search & Browse**
+  - Filter by legal issue type
+  - Filter by location (region/district)
+  - Filter by service type
+  - Advanced search capabilities
 
 ### 🎙️ Speech-based Queries (Q2 2026)
 - **Voice Input**

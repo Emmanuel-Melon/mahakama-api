@@ -31,7 +31,7 @@ Mahakama uses LLMs to provide natural language understanding and generation capa
 #### Configuration
 ```typescript
 // Example configuration in config.ts
-const geminiConfig = {
+const geminIBaseConfig = {
   model: 'gemini-pro',
   temperature: 0.7,
   maxOutputTokens: 2048,
