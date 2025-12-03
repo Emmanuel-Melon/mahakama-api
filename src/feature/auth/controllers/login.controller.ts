@@ -7,13 +7,14 @@ import {
 } from "../auth.utils";
 import { findUserByEmail } from "../operations/auth.find";
 import { AuthResponse } from "../auth.types";
-import { authQueue, AuthJobType } from "../workers/auth.queue";
+import { authQueue } from "../workers/auth.queue";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/express.response";
-import { userResponseSchema } from "../../users/users.schema";
-import { HttpStatus } from "../../lib/express/http-status";
+} from "@/lib/express/express.response";
+import { userResponseSchema } from "@/feature/users/users.schema";
+import { HttpStatus } from "@/lib/express/http-status";
+import { type AuthJobType, AuthEvents } from "../auth.config";
 
 export const loginUserController = async (
   req: Request<{}, {}, LoginUserAttrs>,
@@ -24,27 +25,30 @@ export const loginUserController = async (
     const { email, password } = req.body ?? {};
     const user = await findUserByEmail(email);
     if (!user) {
-      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED, {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.UNAUTHORIZED,
         message: "Invalid email or password",
       });
     }
 
     if (!user.password) {
-      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED, {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.UNAUTHORIZED,
         message: "Account not properly set up. Please reset your password.",
       });
     }
 
     const isPasswordValid = await comparePasswords(password, user.password);
     if (!isPasswordValid) {
-      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED, {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.UNAUTHORIZED,
         message: "Invalid email or password",
       });
     }
 
     const token = generateAuthToken(user);
 
-    await authQueue.enqueue(AuthJobType.Login, {
+    await authQueue.enqueue(AuthEvents.Login.jobName, {
       userId: user.id,
       email: user.email!,
       timestamp: Date.now(),

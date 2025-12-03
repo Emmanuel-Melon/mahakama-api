@@ -3,21 +3,38 @@ import { type User } from "./users.schema";
 
 export const UserSerializer: JsonApiResourceConfig<User> =
 {
-  type: "welcome",
-  attributes: (t) => ({
-    message: t.message,
-    documentation: t.documentation,
-    environment: t.environment,
-    timestamp: t.timestamp,
-    status: t.status,
-    endpoints: t.endpoints,
+  type: "user",
+  attributes: (field) => ({
+    message: field.message,
+    documentation: field.documentation,
+    environment: field.environment,
+    timestamp: field.timestamp,
+    status: field.status,
+    endpoints: field.endpoints,
   }),
 };
 
-export enum UsersJobType {
-  UserCreated = "user-created",
-  UserUpdated = "user-updated",
-  UserDeleted = "user-deleted",
-  UserOnboarded = "user-onboarded",
-  UserVerified = "user-verified",
-}
+export const UserEvents = {
+  UserCreated: {
+    label: "user-created",
+    jobName: "user-created",
+  },
+  UserUpdated: {
+    label: "updated",
+    jobName: "user-updated",
+  },
+  UserDeleted: {
+    label: "deleted",
+    jobName: "user-deleted",
+  },
+  UserOnboarded: {
+    label: "onboarded",
+    jobName: "user-onboarded",
+  },
+  UserVerified: {
+    label: "verified",
+    jobName: "user-verified",
+  },
+} as const;
+
+export type UsersJobType = typeof UserEvents[keyof typeof UserEvents]['jobName'];

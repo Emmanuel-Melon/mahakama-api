@@ -4,14 +4,14 @@ import { User } from "../users.schema";
 import { QueueInstance, BaseJobPayload } from "@/lib/bullmq/bullmq.types";
 import { setQueueJobOptions } from "@/lib/bullmq/bullmq.utils";
 import { QueueName } from "@/lib/bullmq/bullmq.config";
-import { UsersJobType } from "../users.config";
+import { UserEvents, UsersJobType } from "../users.config";
 
 export type UsersJobPayloadMap = {
-  [UsersJobType.UserCreated]: BaseJobPayload<{ user: User }>;
-  [UsersJobType.UserUpdated]: BaseJobPayload<{ user: Partial<User> }>;
-  [UsersJobType.UserDeleted]: BaseJobPayload<{ id: string }>;
-  [UsersJobType.UserOnboarded]: BaseJobPayload<{ id: string }>;
-  [UsersJobType.UserVerified]: BaseJobPayload<{
+  [UserEvents.UserCreated.jobName]: BaseJobPayload<{ user: User }>;
+  [UserEvents.UserUpdated.jobName]: BaseJobPayload<{ user: Partial<User> }>;
+  [UserEvents.UserDeleted.jobName]: BaseJobPayload<{ id: string }>;
+  [UserEvents.UserOnboarded.jobName]: BaseJobPayload<{ id: string }>;
+  [UserEvents.UserVerified.jobName]: BaseJobPayload<{
     id: string;
     verifiedAt: string;
   }>;
@@ -34,9 +34,9 @@ export class UsersQueueManager {
     return UsersQueueManager.instance;
   }
 
-  public async enqueue<T extends UsersJobType>(
+  public async enqueue<T extends UsersJobPayloadMap>(
     jobName: UsersJobType | string,
-    data: UsersJobPayloadMap[T],
+    data: T,
     options?: JobsOptions,
   ): Promise<string> {
     const job = await this.queue.add(jobName, data, setQueueJobOptions());

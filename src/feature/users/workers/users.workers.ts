@@ -1,7 +1,7 @@
 import { Job, Worker } from "bullmq";
 import { QueueName } from "@/lib/bullmq/bullmq.config";
 import { setWorkerOptions } from "@/lib/bullmq/bullmq.utils";
-import { UsersJobType } from "./users.queue";
+import { UsersJobType, UserEvents } from "../users.config";
 import { logger } from "@/lib/logger";
 import { userCreatedWorker } from "./user-created.worker";
 import { userUpdatedWorker } from "./user-updated.worker";
@@ -10,7 +10,7 @@ import { User } from "../users.schema";
 
 const usersWorker = new Worker<BaseJobPayload<any>>(
   QueueName.User,
-  async (job) => {
+  async (job: Job) => {
     const { name, data } = job;
     const { payload, metadata } = data;
     logger.info(
@@ -21,13 +21,12 @@ const usersWorker = new Worker<BaseJobPayload<any>>(
       },
       `Processing job ${job.id} of type ${name}`,
     );
-
     try {
       switch (name) {
-        case UsersJobType.UserCreated:
+        case UserEvents.UserCreated:
           await userCreatedWorker(job as Job<BaseJobPayload<{ user: User }>>);
           break;
-        case UsersJobType.UserUpdated:
+        case UserEvents.UserUpdated:
           await userUpdatedWorker(
             job as Job<BaseJobPayload<{ user: Partial<User> }>>,
           );
@@ -52,11 +51,11 @@ const usersWorker = new Worker<BaseJobPayload<any>>(
   setWorkerOptions(),
 );
 
-usersWorker.on("completed", (job) => {
+usersWorker.on("completed", (job: Job) => {
   logger.info(`Job ${job.id} completed`);
 });
 
-usersWorker.on("failed", (job, error) => {
+usersWorker.on("failed", (job: Job, error) => {
   logger.error({ error }, `Job ${job?.id} failed with error:`);
 });
 

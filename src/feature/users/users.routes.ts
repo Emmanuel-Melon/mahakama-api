@@ -5,7 +5,7 @@ import { getUserController } from "./controllers/get-user.controller";
 import { createUserController } from "./controllers/create-user.controller";
 import { updateUserController } from "./controllers/update-user.controller";
 import { getCurrentUserController } from "./controllers/get-current-user.controller";
-import { createUserSchema } from "./users.types";
+import { createUserSchema } from "./users.schema";
 import { withPagination } from "@/middleware/with-pagination";
 
 const userRouter = Router();

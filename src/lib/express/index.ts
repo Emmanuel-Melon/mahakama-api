@@ -5,17 +5,20 @@ import { sendErrorResponse, sendSuccessResponse } from "./express.response";
 import { HttpStatus } from "./http-status";
 import { HealthCheckResponse, WelcomeResponse } from "./express.types";
 import { HealthCheckSerializerConfig, WelcomeResponseSerializerConfig } from "./express.config";
+import { queueManager } from "@/lib/bullmq";
 
 export const shutdownExpressServer = async (server: any) => {
   logger.warn("SIGTERM received. Shutting down gracefully...");
   server.close(() => {
     logger.fatal("Process terminated");
+    queueManager.closeAll();
     process.exit(0);
   });
 
   // Force close server after timeout
   setTimeout(() => {
     logger.error("Forcing shutdown after timeout");
+    queueManager.closeAll();
     process.exit(1);
   }, serverConfig.shutdownTimeout);
 };
@@ -24,7 +27,7 @@ export const testServerHealth = (): Promise<HealthCheckResponse> => {
   return Promise.resolve({
     status: "healthy",
     message: "StorySense API is up and running! ✨",
-    environment: process.env.NODE_ENV || "development",
+    environment: serverConfig.environment,
     timestamp: new Date().toISOString(),
     services: {
       database: "connected",
@@ -71,7 +74,7 @@ export const welcomeController = (req: Request, res: Response) => {
   const response: WelcomeResponse = {
     message: "Welcome to Mahakama API - Legal Knowledge Platform",
     documentation: `${baseUrl}${serverConfig.endpoints.docs}`,
-    environment: serverConfig.env,
+    environment: serverConfig.environment,
     timestamp: new Date().toISOString(),
     status: "healthy",
     endpoints: {

@@ -3,6 +3,7 @@ import swaggerJsdoc from "swagger-jsdoc";
 import { mahakamaServers } from "@/config";
 import { resolveAbsolutePaths } from "@/utils/fs";
 import swaggerUi from "swagger-ui-express";
+
 const apiDocPaths = [
   "src/feature/auth/auth.docs.ts",
   "src/feature/chats/chats.docs.ts",
