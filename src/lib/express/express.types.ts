@@ -4,12 +4,6 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { NextFunction, Response, Request } from "express";
 import { StatusConfig } from "./http-status";
 
-export type ResponseMetadata = {
-  timestamp?: string;
-  requestId?: string;
-  resourceId?: string | number;
-};
-
 export type ControllerMetadata = {
   name: string;
   route: string;
@@ -19,19 +13,46 @@ export type ControllerMetadata = {
   resourceId?: string | number;
 };
 
+export type ResponseMetadata = {
+  timestamp?: string;
+  requestId?: string;
+  resourceId?: string | number;
+};
+
 export type SuccessResponse<T> = {
   success: true;
   data: T;
-  metadata?: ResponseMetadata;
+  metadata?: ResponseMetadata & {
+    status?: StatusConfig;
+    [key: string]: any;
+  };
+  message?: string;
+};
+
+export type ErrorResponseConfig = {
+  status: StatusConfig;
+  message?: string;
+  title?: string;
+  source?: { pointer?: string; method?: string };
+  config?: any;
+};
+
+export type ErrorResponseOptions = {
   message?: string;
 };
 
 export type ErrorResponse = {
-  success: boolean;
   error: {
-    message: string;
+    id: string;
+    status: string;
     code?: string;
-    details?: unknown;
+    title: string;
+    detail?: string;
+    source?: {
+      pointer?: string;
+      method?: string;
+    };
+    meta?: unknown;
   };
 };
 
@@ -194,6 +215,11 @@ export interface WelcomeResponse {
   };
   status: ServerStatus;
   version?: string;
+}
+
+export interface ResourceResponseOptions {
+  requestId?: string;
+  successStatus?: StatusConfig;
 }
 
 export interface ResourceResponseOptions {

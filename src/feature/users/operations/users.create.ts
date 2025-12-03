@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { usersSchema } from "../users.schema";
 import { CreateUserRequest, User } from "../users.schema";
 import { findByFingerprint } from "../operations/users.find";

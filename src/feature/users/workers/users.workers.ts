@@ -1,12 +1,11 @@
-import { Worker } from "bullmq";
-import { QueueName } from "../../lib/bullmq";
-import { setWorkerOptions } from "../../lib/bullmq/utils";
+import { Job, Worker } from "bullmq";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
+import { setWorkerOptions } from "@/lib/bullmq/bullmq.utils";
 import { UsersJobType } from "./users.queue";
-import { logger } from "../../lib/logger";
+import { logger } from "@/lib/logger";
 import { userCreatedWorker } from "./user-created.worker";
 import { userUpdatedWorker } from "./user-updated.worker";
-import { BaseJobPayload } from "../../lib/bullmq/types";
-import { Job } from "bullmq";
+import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
 import { User } from "../users.schema";
 
 const usersWorker = new Worker<BaseJobPayload<any>>(
@@ -14,7 +13,6 @@ const usersWorker = new Worker<BaseJobPayload<any>>(
   async (job) => {
     const { name, data } = job;
     const { payload, metadata } = data;
-
     logger.info(
       {
         eventId: data.eventId,

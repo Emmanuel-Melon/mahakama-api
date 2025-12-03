@@ -6,11 +6,12 @@ import { v4 as uuid } from "uuid";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/express.response";
+} from "@/lib/express/express.response";
 import { usersQueue, UsersJobType } from "../workers/users.queue";
-import { HttpStatus } from "../../lib/express/http-status";
-import { logger } from "../../lib/logger";
-import { BaseJobPayload } from "../../lib/bullmq/types";
+import { HttpStatus } from "@/lib/express/http-status";
+import { logger } from "@/lib/logger";
+import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
+import { UserSerializer } from "../users.config";
 
 export const createUserController = async (
   req: Request<{}, {}, UserAttrs>,
@@ -18,19 +19,18 @@ export const createUserController = async (
   next: NextFunction,
 ) => {
   try {
-    if (!req.fingerprint?.hash) {
-      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
-    }
     const { name, email } = req.body ?? {};
-    const userId = req.user?.id || req.fingerprint?.hash;
+    const userId = req.user?.id;
 
     const [userById, userByFingerprint] = await Promise.all([
       findById(userId),
       findByFingerprint(req.fingerprint.hash),
     ]);
 
-    if (userById || userByFingerprint) {
-      return sendErrorResponse(res, HttpStatus.CONFLICT);
+    if (userById) {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.CONFLICT,
+      });
     }
 
     const user = await createUserOperation({
@@ -42,15 +42,20 @@ export const createUserController = async (
     });
 
     sendSuccessResponse(
+      req,
       res,
-      { user: userResponseSchema.parse(user) },
       {
-        status: HttpStatus.CREATED,
-        requestId: req.requestId,
+        data: {
+          ...user,
+        },
+        serializerConfig: UserSerializer,
+        type: "single",
+      },
+      {
+        status: HttpStatus.SUCCESS,
       },
     );
 
-    // After response is sent — async fire
     res.on("finish", async () => {
       const jobPayload: BaseJobPayload<{ user: User }> = {
         eventId: uuid(),

@@ -1,53 +1,64 @@
-import { Response } from "express";
-import { SuccessResponse, ErrorResponse, ResponseMetadata, ControllerMetadata, SSEEvent, SSEOptions } from "./express.types";
-import { HttpStatus, StatusConfig } from "./http-status";
-
-export const sendSuccessResponse = <T>(
-  res: Response,
-  data: T,
-  metadata?: ResponseMetadata & { status: StatusConfig },
-): void => {
-  const response: SuccessResponse<T> = {
-    message: metadata?.status.defaultMessage,
-    success: true,
-    data,
-    ...(metadata && { metadata }),
-  };
-
-  res.status(metadata?.status.statusCode!).json(response);
-};
+import { Request, Response } from "express";
+import { StatusConfig } from "./http-status";
+import { serializeJsonApi } from "./express.serializer";
+import { v4 as uuidv4 } from "uuid";
+import {
+  JsonApiResponseConfig,
+  ErrorResponseConfig,
+  JsonApiResponse,
+  JsonApiError,
+  JsonApiErrorResponse,
+  SSEEvent, SSEOptions
+} from "./express.types";
 
 export const sendErrorResponse = (
+  req: Request,
   res: Response,
-  status: StatusConfig,
-  options: {
-    message?: string;
-    details?: Record<string, unknown>;
-    overrideStatus?: number;
-  } = {},
-): void => {
-  const statusCode = options.overrideStatus ?? status.statusCode;
-  const message = options.message ?? status.defaultMessage;
-
-  const error: ErrorResponse["error"] = {
-    message,
+  errorConfig: ErrorResponseConfig,
+): Response<JsonApiErrorResponse> => {
+  const { status, message, title, source, config } = errorConfig;
+  const errorObject: JsonApiError = {
+    id: uuidv4(),
+    status: status.statusCode.toString(),
     code: status.code,
+    title: title ?? status.title,
+    detail: message ?? status.description,
+    meta: {
+      requestId: req.requestId,
+      timestamp: new Date().toISOString(),
+      ...config,
+    },
+    source: {
+      pointer: source?.pointer ?? req.originalUrl,
+      method: source?.method ?? req.method,
+    },
+  };
+  return res.status(status.statusCode).json({ errors: [errorObject] });
+};
+
+export const sendSuccessResponse = <T>(
+  req: Request,
+  res: Response,
+  responseConfig: JsonApiResponseConfig<T>,
+  opts?: {
+    status?: StatusConfig;
+    additionalMeta?: Record<string, any>;
+  },
+): Response<JsonApiResponse<any>> => {
+  const serializedData = serializeJsonApi(responseConfig);
+
+  const metadata = {
+    requestId: req.requestId,
+    timestamp: new Date().toISOString(),
+    ...opts?.additionalMeta,
   };
 
-  if (
-    options.details &&
-    typeof options.details === "object" &&
-    !Array.isArray(options.details)
-  ) {
-    error.details = options.details;
-  }
-
-  const response: ErrorResponse = {
-    success: statusCode >= 200 && statusCode < 300,
-    error,
+  const response: JsonApiResponse<typeof serializedData> = {
+    data: serializedData,
+    meta: metadata,
   };
 
-  res.status(statusCode).json(response);
+  return res.status(opts?.status?.statusCode || 200).json(response);
 };
 
 export const initSSE = (res: Response, options?: SSEOptions) => {

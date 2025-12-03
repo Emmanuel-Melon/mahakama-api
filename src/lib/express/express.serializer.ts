@@ -19,6 +19,5 @@ export function serializeJsonApi<T>(responseConfig: JsonApiResponseConfig<T>) {
           serializeResource(resource, serializerConfig),
         )
       : serializeResource(data as T & { id: string }, serializerConfig);
-
   return serializedData;
 }

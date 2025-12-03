@@ -3,17 +3,17 @@ import { updateUser } from "../operations/users.update";
 import {
   userResponseSchema,
   User,
-
 } from "../users.schema";
 import { findById } from "../operations/users.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/express.response";
-import { type SuccessResponse } from "../../lib/express/express.types";
+} from "@/lib/express/express.response";
+import { type SuccessResponse } from "@/lib/express/express.types";
 import { GetUsersParams,   UserAttrs,
   UserRoles, } from "../users.types";
-import { HttpStatus } from "../../lib/express/http-status";
+import { HttpStatus } from "@/lib/express/http-status";
+import { UserSerializer } from "../users.config";
 
 export const updateUserController = async (
   req: Request<GetUsersParams, {}, Omit<UserAttrs, "password">, {}>,
@@ -22,37 +22,35 @@ export const updateUserController = async (
 ) => {
   try {
     const userId = req.params.id;
-
-    if (!userId) {
-      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
-    }
-
     const existingUser = await findById(userId);
     if (!existingUser) {
-      return sendErrorResponse(res, HttpStatus.NOT_FOUND);
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.NOT_FOUND,
+        message: "The requested user profile doesn't exist on this serve.",
+      });
     }
-
     if (req.user?.id !== userId && req.user?.role !== "admin") {
-      return sendErrorResponse(res, HttpStatus.FORBIDDEN);
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.FORBIDDEN
+      });
     }
-
-    const updateData = req.body;
-
-    const updatedUser = await updateUser(userId, {
-      ...updateData,
-      role: updateData.role as UserRoles,
+    const data = await updateUser(userId, {
+      ...req.body,
+      role: req.body.role as UserRoles,
     });
-
-    if (!updatedUser) {
+    if (!data) {
       throw new Error("Failed to update user");
     }
-
     return sendSuccessResponse(
+      req,
       res,
-      { user: userResponseSchema.parse(updatedUser) },
+      {
+        data: data,
+        serializerConfig: UserSerializer,
+        type: "single",
+      },
       {
         status: HttpStatus.SUCCESS,
-        requestId: req.requestId,
       },
     );
   } catch (error) {

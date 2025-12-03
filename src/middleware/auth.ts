@@ -20,7 +20,10 @@ export const authenticateToken = async (
     const user = await findById(verified.id);
     if (!user) {
       logger.warn({ userId: verified.id }, "User not found for valid token");
-      return sendErrorResponse(res, HttpStatus.NOT_FOUND);
+      sendErrorResponse(req, res, {
+        status: HttpStatus.NOT_FOUND,
+        message: "Authentication Error",
+      });
     }
     req.user = user;
     logger.debug({ userId: user.id, path: req.path }, "User authenticated");
@@ -34,13 +37,21 @@ export const authenticateToken = async (
     );
 
     if (error instanceof jwt.JsonWebTokenError) {
-      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
+      sendErrorResponse(req, res, {
+        status: HttpStatus.UNAUTHORIZED,
+        message: error instanceof Error ? error.message : "Authentication Error",
+      });
     }
 
     if (error instanceof jwt.TokenExpiredError) {
-      return sendErrorResponse(res, HttpStatus.UNAUTHORIZED);
+      sendErrorResponse(req, res, {
+        status: HttpStatus.UNAUTHORIZED,
+        message: error instanceof Error ? error.message : "Authentication Error",
+      });
     }
-
-    return sendErrorResponse(res, HttpStatus.INTERNAL_SERVER_ERROR);
+    return sendErrorResponse(req, res, {
+      status: HttpStatus.FORBIDDEN,
+      message: error instanceof Error ? error.message : "Authentication Error",
+    });
   }
 };

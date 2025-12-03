@@ -1,14 +1,13 @@
 import { Job } from "bullmq";
 import { User } from "../users.schema";
-import { BaseJobPayload } from "../../lib/bullmq/types";
-import { logger } from "../../lib/logger";
+import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
+import { logger } from "@/lib/logger";
 
 export const userCreatedWorker = async (
   job: Job<BaseJobPayload<{ user: User }>>,
 ) => {
   const { payload, metadata, eventId } = job.data;
   const { user } = payload;
-
   try {
     logger.info(
       {

@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { usersSchema } from "../users.schema";
 import { User } from "../users.schema";
 import { GetUsersQuery } from "../users.types";
@@ -8,14 +8,11 @@ import {
   BaseSortParams, 
   BaseFilterParams,
   SortDirection
-} from "../../lib/express/express.types";
-import { getPaginationParams, getSortConfig } from "../../lib/express/pagination";
+} from "@/lib/express/express.types";
+import { getPaginationParams, getSortConfig } from "@/lib/express/pagination";
+import { checkUserRole } from "@/feature/auth/auth.utils";
 
 type FindAllOptions = GetUsersQuery;
-
-const isUserRole = (role: string): role is 'admin' | 'user' | 'lawyer' => {
-  return role === 'admin' || role === 'user' || role === 'lawyer';
-};
 
 export async function findAll(options?: FindAllOptions): Promise<{ 
   users: User[]; 
@@ -35,7 +32,7 @@ export async function findAll(options?: FindAllOptions): Promise<{
 
   const conditions = [];
 
-  if (options?.role && isUserRole(options.role)) {
+  if (options?.role && checkUserRole(options.role)) {
     conditions.push(eq(usersSchema.role, options.role));
   }
   const search = (options as BaseFilterParams)?.search;

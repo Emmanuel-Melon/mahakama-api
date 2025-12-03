@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { usersSchema } from "../users.schema";
 import { eq, ilike } from "drizzle-orm";
 import type { User } from "../users.schema";
@@ -27,9 +27,6 @@ export async function findByFingerprint(fingerprint: string): Promise<User> {
     .select()
     .from(usersSchema)
     .where(eq(usersSchema.fingerprint, fingerprint));
-
-  console.log("user", user);
-
   return user[0];
 }
 
@@ -53,7 +50,6 @@ export const findOrCreateUser = async ({
   if (existingUser) {
     return existingUser;
   }
-
   // Create new user if not found
   const [newUser] = await db
     .insert(usersSchema)
@@ -64,6 +60,5 @@ export const findOrCreateUser = async ({
       isAnonymous: true,
     })
     .returning();
-
   return newUser;
 };

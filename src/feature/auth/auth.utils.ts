@@ -63,3 +63,7 @@ export const extractAuthToken = (req: Request): string | null => {
 
   return null;
 };
+
+export const checkUserRole = (role: string): role is 'admin' | 'user' | 'lawyer' => {
+  return role === 'admin' || role === 'user' || role === 'lawyer';
+};

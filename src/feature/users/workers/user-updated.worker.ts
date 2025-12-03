@@ -1,7 +1,7 @@
 import { Job } from "bullmq";
 import { User } from "../users.schema";
-import { BaseJobPayload } from "../../lib/bullmq/types";
-import { logger } from "../../lib/logger";
+import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
+import { logger } from "@/lib/logger";
 
 export const userUpdatedWorker = async (
   job: Job<BaseJobPayload<{ user: Partial<User> }>>,

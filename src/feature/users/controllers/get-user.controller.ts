@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import { findById } from "../operations/users.find";
-import { userResponseSchema } from "../users.schema";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/express.response";
+} from "@/lib/express/express.response";
 import { GetUsersParams } from "../users.types";
-import { HttpStatus } from "../../lib/express/http-status";
-import { SuccessResponse } from "../../lib/express/express.types";
+import { HttpStatus } from "@/lib/express/http-status";
+import { SuccessResponse } from "@/lib/express/express.types";
 import { UserResponse } from "../users.types";
+import { UserSerializer } from "../users.config";
 
 export const getUserController = async (
   req: Request<GetUsersParams, {}, {}, {}>,
@@ -17,19 +17,25 @@ export const getUserController = async (
 ) => {
   try {
     const userId = req.params.id;
-    if (!userId) {
-      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
-    }
     const user = await findById(userId);
     if (!user) {
-      return sendErrorResponse(res, HttpStatus.BAD_REQUEST);
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.NOT_FOUND,
+        message: "The requested user profile doesn't exist on this serve.",
+      });
     }
     return sendSuccessResponse(
+      req,
       res,
-      { user: userResponseSchema.parse(user) },
+      {
+        data: {
+          ...user,
+        },
+        serializerConfig: UserSerializer,
+        type: "single",
+      },
       {
         status: HttpStatus.SUCCESS,
-        requestId: req.requestId,
       },
     );
   } catch (error) {

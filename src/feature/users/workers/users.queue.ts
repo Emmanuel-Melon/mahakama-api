@@ -1,16 +1,10 @@
-import { queueManager, QueueName } from "../../lib/bullmq";
+import { queueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
 import { User } from "../users.schema";
-import { QueueInstance, BaseJobPayload } from "../../lib/bullmq/types";
-import { setQueueJobOptions } from "../../lib/bullmq/utils";
-
-export enum UsersJobType {
-  UserCreated = "user-created",
-  UserUpdated = "user-updated",
-  UserDeleted = "user-deleted",
-  UserOnboarded = "user-onboarded",
-  UserVerified = "user-verified",
-}
+import { QueueInstance, BaseJobPayload } from "@/lib/bullmq/bullmq.types";
+import { setQueueJobOptions } from "@/lib/bullmq/bullmq.utils";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
+import { UsersJobType } from "../users.config";
 
 export type UsersJobPayloadMap = {
   [UsersJobType.UserCreated]: BaseJobPayload<{ user: User }>;

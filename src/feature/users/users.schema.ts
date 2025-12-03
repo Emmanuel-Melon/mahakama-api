@@ -42,7 +42,37 @@ export const usersSchema = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-
+export const createUserSchema = z.object({
+  id: z.string().uuid("v4").optional(),
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(255, "Name cannot exceed 255 characters")
+    .optional(),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .max(255, "Email cannot exceed 255 characters")
+    .optional(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(255, "Password cannot exceed 255 characters")
+    .optional(),
+  role: z.enum(UserRoleValues).default(UserRoles.USER).optional(),
+  fingerprint: z.string().optional(),
+  userAgent: z.string().optional(),
+  lastIp: z.string().optional(),
+  isAnonymous: z.boolean().default(false).optional(),
+  age: z.number().int().positive().max(120).optional(),
+  gender: z.enum(GenderValues).optional(),
+  country: z.string().max(100).optional(),
+  city: z.string().max(100).optional(),
+  phoneNumber: z.string().max(20).optional(),
+  occupation: z.string().max(100).optional(),
+  bio: z.string().optional(),
+  profilePicture: z.string().url("Invalid profile picture URL").optional(),
+});
 
 // Schema for user responses (exclude sensitive fields like password)
 const baseSchema = createSelectSchema(usersSchema);
@@ -57,9 +87,10 @@ export const usersRelations = relations(usersSchema, ({ many }) => ({
 }));
 
 
-export type User = z.infer<typeof userResponseSchema>;
+export type User = z.infer<typeof usersSchema>;
 export type NewUser = typeof usersSchema.$inferInsert;
-
+export type CreateUserRequest = z.infer<typeof createUserSchema>;
+export type UserAttrs = z.infer<typeof createUserSchema>;
 
 export const combinedUsersSchema = {
   usersSchema,

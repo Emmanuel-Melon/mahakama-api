@@ -1,4 +1,4 @@
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { usersSchema } from "../users.schema";
 import { UserAttrs, User, UserRoles } from "../users.schema";
 import { eq } from "drizzle-orm";

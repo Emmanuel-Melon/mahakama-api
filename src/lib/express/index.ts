@@ -4,10 +4,10 @@ import { serverConfig } from "@/config";
 import { sendErrorResponse, sendSuccessResponse } from "./express.response";
 import { HttpStatus } from "./http-status";
 import { HealthCheckResponse, WelcomeResponse } from "./express.types";
+import { HealthCheckSerializerConfig, WelcomeResponseSerializerConfig } from "./express.config";
 
 export const shutdownExpressServer = async (server: any) => {
   logger.warn("SIGTERM received. Shutting down gracefully...");
-
   server.close(() => {
     logger.fatal("Process terminated");
     process.exit(0);
@@ -33,34 +33,41 @@ export const testServerHealth = (): Promise<HealthCheckResponse> => {
 };
 
 export const checkServerHealthController = async (
-  _req: Request,
+  req: Request,
   res: Response,
 ) => {
   const healthCheck = await testServerHealth();
   try {
-    sendSuccessResponse(res, healthCheck, {
-      status: HttpStatus.SUCCESS,
-      requestId: res.locals.requestId,
-    });
+    sendSuccessResponse(
+      req,
+      res,
+      {
+        data: {
+          ...healthCheck,
+          id: req.requestId,
+        },
+        serializerConfig: HealthCheckSerializerConfig,
+        type: "single",
+      },
+      {
+        status: HttpStatus.SUCCESS,
+      },
+    );
   } catch (error) {
     healthCheck.status = "unhealthy";
     healthCheck.message = "Service Unavailable";
     healthCheck.error =
       error instanceof Error ? error.message : "Unknown error";
-    sendErrorResponse(res, HttpStatus.SERVICE_UNAVAILABLE, {
+    sendErrorResponse(req, res, {
+      status: HttpStatus.SERVICE_UNAVAILABLE,
       message: "Service Unavailable",
-      details: {
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
     });
   }
 };
 
-
-export const welcomeController = (_req: Request, res: Response) => {
+export const welcomeController = (req: Request, res: Response) => {
   const baseUrl = `${serverConfig.protocol}://${serverConfig.hostname}${serverConfig.port ? `:${serverConfig.port}` : ''
     }`;
-
   const response: WelcomeResponse = {
     message: "Welcome to Mahakama API - Legal Knowledge Platform",
     documentation: `${baseUrl}${serverConfig.endpoints.docs}`,
@@ -73,6 +80,19 @@ export const welcomeController = (_req: Request, res: Response) => {
       apiBase: `${baseUrl}${serverConfig.endpoints.api}`,
     },
   };
-
-  res.json(response);
+  return sendSuccessResponse(
+    req,
+    res,
+    {
+      data: {
+        ...response,
+        id: "welcome",
+      },
+      serializerConfig: WelcomeResponseSerializerConfig,
+      type: "single",
+    },
+    {
+      status: HttpStatus.SUCCESS,
+    },
+  );
 };
