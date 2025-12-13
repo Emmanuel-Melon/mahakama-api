@@ -1,5 +1,5 @@
 import cors from "cors";
-import { corsOrigins } from "@/config/dev.config";
+import { corsOrigins } from "@/config";
 
 const corsOptions = {
     origin: corsOrigins,

@@ -3,43 +3,24 @@ import { ParsedQs } from "qs";
 import { ParamsDictionary } from "express-serve-static-core";
 import { Request } from "express";
 import { StatusConfig } from "@/http-status";
+import { JsonApiError, ResponseLinks, ResponseMetadata } from "./express.schema";
 
-export type ErrorResponseConfig = Pick<StatusConfig, | "title" | "description"> & {
-  status: StatusConfig;
-  source?: { pointer?: string; method?: string };
-};
-
+// server types
+export type ServerStatus = "healthy" | "maintenance" | "unhealthy";
 export type ResourceType = "single" | "collection";
-
-export interface ResponseLinks {
-  self?: string;
-  first?: string;
-  last?: string;
-  prev?: string;
-  next?: string;
-}
-
 export interface ResourceLinkObject {
   self?: string;
   related?: string;
   [key: string]: string | undefined;
 }
-
 export interface ResourceIdentifierObject {
   type: string;
   id: string;
 }
-
 export type ResourceLinkage =
   | ResourceIdentifierObject
   | ResourceIdentifierObject[]
   | null;
-
-export interface RelationshipObject<T> {
-  links?: (resource: T, req: Request) => ResourceLinkObject;
-  data?: (resource: T) => ResourceLinkage;
-}
-
 export interface ResourceObject<T> {
   type: string;
   id: string;
@@ -51,22 +32,10 @@ export interface ResourceObject<T> {
   meta?: Record<string, any>;
   links?: Record<string, string>;
 }
-
-
-export type ControllerMetadata = {
-  name: string;
-  route: string;
-  operation?: string;
-  resourceType?: string;
-  requestId: string;
-  resourceId?: string | number;
-};
-
-export type ResponseMetadata = {
-  timestamp?: string;
-  requestId?: string;
-  resourceId?: string | number;
-};
+export interface RelationshipObject<T> {
+  links?: (resource: T, req: Request) => ResourceLinkObject;
+  data?: (resource: T) => ResourceLinkage;
+}
 
 // Base type for all SSE events
 export type SSEEvent<T = any, Type extends string = string> = {
@@ -92,6 +61,20 @@ export function createEvent<T extends string, D = any>(
     retry: options?.retry,
   };
 }
+export type ErrorResponseConfig = Partial<Pick<StatusConfig, "description" | "title">> & {
+  status: StatusConfig;
+  source?: { pointer?: string; method?: string };
+  details?: Record<string, any>;
+};
+
+export type ControllerMetadata = {
+  name: string;
+  route: string;
+  operation?: string;
+  resourceType?: string;
+  requestId: string;
+  resourceId?: string | number;
+};
 
 export type SSEOptions = {
   headers?: Record<string, string>;
@@ -195,10 +178,6 @@ export type UpdateRequest<T> = {
 export type DeleteRequest = {
   id: string;
 };
-
-// server types
-export type ServerStatus = "healthy" | "maintenance" | "unhealthy";
-
 export interface HealthCheckResponse {
   status: ServerStatus;
   message: string;
@@ -259,19 +238,6 @@ export interface JsonApiResponse<T> {
   };
 }
 
-export interface JsonApiError {
-  id: string;
-  status: string;
-  code: string;
-  title: string;
-  detail: string;
-  metadata: ResponseMetadata;
-  source?: {
-    pointer?: string;
-    method?: string;
-  };
-}
-
 export interface JsonApiErrorResponse {
   errors: JsonApiError[];
 }
@@ -295,4 +261,16 @@ export interface SerializedResponse<T> {
 export interface SerializedError {
   error: JsonApiError;
   metadata: ResponseMetadata;
+}
+
+export interface ErrorResponseOptions {
+  additionalMeta?: Record<string, unknown>;
+  errorId?: string;
+  suppressLogging?: boolean;
+  retryAfter?: number;
+  documentationUrl?: string;
+  suggestedAction?: string;
+  includeStackTrace?: boolean;
+  errorCode?: string;
+  correlationId?: string;
 }

@@ -1,5 +1,6 @@
 import { Request } from "express";
-import { JsonApiResourceConfig, ResourceObject, ResponseMetadata, JsonApiError, ErrorResponseConfig, SerializedError, SerializedResponse, SerializeJsonApiOptions } from "./express.types";
+import { JsonApiResourceConfig, ResourceObject, ErrorResponseConfig, SerializedError, SerializedResponse, SerializeJsonApiOptions } from "./express.types";
+import { type ResponseMetadata, type JsonApiError } from "./express.schema";
 import { v4 as uuidv4 } from "uuid";
 
 export const serializeResource = <T>(
@@ -68,7 +69,6 @@ export function serializeError(
   additionalMetadata?: Record<string, any>
 ): SerializedError {
   const { status, description, title, source } = errorConfig;
-
   const errorObject: JsonApiError = {
     id: uuidv4(),
     status: status.statusCode.toString(),

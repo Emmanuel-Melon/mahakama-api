@@ -1,164 +1,135 @@
-import { z } from "zod";
-import { Request } from "express";
-import { StatusConfig } from "../../http-status";
+import { z } from 'zod';
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
-export const ErrorResponseConfigSchema = z.object({
-  status: z.custom<StatusConfig>(),
-  message: z.string().optional(),
-  title: z.string().optional(),
-  source: z.object({
-    pointer: z.string().optional(),
-    method: z.string().optional(),
-  }).optional(),
-});
-
-export type ErrorResponseConfig = z.infer<typeof ErrorResponseConfigSchema>;
-
-export const ResourceTypeSchema = z.enum(["single", "collection"]);
-
-export type ResourceType = z.infer<typeof ResourceTypeSchema>;
-
-export const ResponseLinksSchema = z.object({
-  self: z.string().optional(),
-  first: z.string().optional(),
-  last: z.string().optional(),
-  prev: z.string().optional(),
-  next: z.string().optional(),
-});
-
-export type ResponseLinks = z.infer<typeof ResponseLinksSchema>;
-
-export const ResourceLinkObjectSchema = z.object({
-  self: z.string().optional(),
-  related: z.string().optional(),
-}).passthrough();
-
-export type ResourceLinkObject = z.infer<typeof ResourceLinkObjectSchema>;
-
-export const ResourceIdentifierObjectSchema = z.object({
-  type: z.string(),
-  id: z.string(),
-});
-
-export type ResourceIdentifierObject = z.infer<typeof ResourceIdentifierObjectSchema>;
-
-export const ResourceLinkageSchema = 
-  z.union([
-    ResourceIdentifierObjectSchema,
-    z.array(ResourceIdentifierObjectSchema),
-    z.null(),
-  ]);
-
-export type ResourceLinkage = z.infer<typeof ResourceLinkageSchema>;
-
-export const RelationshipObjectSchema = <T>() => z.object({
-  links: z.custom<(resource: T, req: Request) => ResourceLinkObject>().optional(),
-  data: z.custom<(resource: T) => ResourceLinkage>().optional(),
-});
-
-export interface RelationshipObject<T> {
-  links?: (resource: T, req: Request) => ResourceLinkObject;
-  data?: (resource: T) => ResourceLinkage;
-}
-
-export const ResourceObjectSchema = <T>() => z.object({
-  type: z.string(),
-  id: z.string(),
-  attributes: z.object(z.any()),
-  relationships: z.object(z.object({
-    links: ResourceLinkObjectSchema.optional(),
-    data: ResourceLinkageSchema.optional(),
-  })).optional(),
-  meta: z.object(z.any()),
-  links: z.object(z.string()),
-});
-
-export interface ResourceObject<T> {
-  type: string;
-  id: string;
-  attributes: Record<string, any>;
-  relationships?: Record<string, {
-    links?: ResourceLinkObject;
-    data?: ResourceLinkage;
-  }>;
-  meta?: Record<string, any>;
-  links?: Record<string, string>;
-}
-
-export const JsonApiResourceConfigSchema = <T>() => z.object({
-  type: z.string(),
-  attributes: z.custom<(resource: T) => Record<string, any>>(),
-  relationships: z.object(z.any()).optional(),
-  resourceMeta: z.custom<(resource: T) => Record<string, any>>().optional(),
-  links: z.custom<(resource: T, req: Request) => ResourceLinkObject>().optional(),
-});
-
-export interface JsonApiResourceConfig<T> {
-  type: string;
-  attributes: (resource: T) => Record<string, any>;
-  relationships?: Record<string, RelationshipObject<T>>;
-  resourceMeta?: (resource: T) => Record<string, any>;
-  links?: (resource: T, req: Request) => ResourceLinkObject;
-}
-
-export const JsonApiResponseConfigSchema = <T>() => z.object({
-  type: ResourceTypeSchema,
-  data: z.union([
-    z.custom<T & { id: string }>(),
-    z.array(z.custom<T & { id: string }>()),
-  ]),
-  serializerConfig: JsonApiResourceConfigSchema<T>(),
-});
-
-export type JsonApiResponseConfig<T> = {
-  type: ResourceType;
-  data: (T & { id: string }) | (T & { id: string })[];
-  serializerConfig: JsonApiResourceConfig<T>;
-};
+extendZodWithOpenApi(z);
 
 export const ResponseMetadataSchema = z.object({
-  timestamp: z.string().optional(),
-  requestId: z.string().optional(),
-  resourceId: z.union([z.string(), z.number()]).optional(),
-}).passthrough();
-
-export type ResponseMetadata = z.infer<typeof ResponseMetadataSchema>;
-
-export const JsonApiResponseSchema = <T>() => z.object({
-  data: z.any(),
-  metadata: ResponseMetadataSchema,
+  timestamp: z.string().datetime().optional().openapi({
+    description: 'ISO 8601 timestamp of the response',
+    example: '2023-12-09T15:39:00Z'
+  }),
+  requestId: z.string().uuid().optional().openapi({
+    description: 'Unique identifier for the request',
+    example: 'req_12345'
+  }),
+  resourceId: z.union([z.string(), z.number()]).optional().openapi({
+    description: 'Identifier of the resource',
+    example: 'resource_678'
+  }),
+}).passthrough().openapi({
+  description: 'Metadata about the response'
 });
 
-export interface JsonApiResponse<T> {
-  data: T;
-  metadata: ResponseMetadata;
-}
+export const ValidationErrorSchema = z.object({
+  field: z.string().openapi({
+    description: 'The field that failed validation',
+    example: 'email'
+  }),
+  message: z.string().openapi({
+    description: 'Description of the validation error',
+    example: 'Invalid email format'
+  }),
+  code: z.string().openapi({
+    description: 'Error code from validator',
+    example: 'invalid_string'
+  }),
+}).openapi({
+  description: 'Validation error detail'
+});
 
 export const JsonApiErrorSchema = z.object({
-  id: z.string(),
-  status: z.string(),
-  code: z.string(),
-  title: z.string(),
-  detail: z.string(),
+  id: z.string().uuid().openapi({
+    description: 'Unique identifier for this error instance',
+    example: 'error_123'
+  }),
+  status: z.string().openapi({
+    description: 'HTTP status code as string',
+    example: '400'
+  }),
+  code: z.string().openapi({
+    description: 'Application-specific error code',
+    example: 'BAD_REQUEST'
+  }),
+  title: z.string().openapi({
+    description: 'Short, human-readable summary of the error',
+    example: 'Bad Request'
+  }),
+  detail: z.string().openapi({
+    description: 'Human-readable explanation specific to this error',
+    example: 'The request could not be understood'
+  }),
   metadata: ResponseMetadataSchema,
   source: z.object({
-    pointer: z.string().optional(),
-    method: z.string().optional(),
+    pointer: z.string().optional().openapi({
+      description: 'JSON Pointer to the associated entity in request',
+      example: '/data/attributes/email'
+    }),
+    method: z.string().optional().openapi({
+      description: 'HTTP method of the request',
+      example: 'POST'
+    }),
   }).optional(),
+  meta: z.object(z.any()).optional().openapi({
+    description: 'Additional error metadata (e.g., validation errors)',
+    example: {
+      validationErrors: [
+        { field: 'email', message: 'Invalid email format', code: 'invalid_string' }
+      ]
+    }
+  }),
+}).openapi({
+  description: 'JSON:API error format',
+  example: {
+    id: 'error_123',
+    status: '400',
+    code: 'BAD_REQUEST',
+    title: 'Bad Request',
+    detail: 'Request validation failed',
+    metadata: {
+      timestamp: '2023-12-09T15:39:00Z',
+      requestId: 'req_12345'
+    },
+    meta: {
+      validationErrors: [
+        { field: 'email', message: 'Invalid email format', code: 'invalid_string' }
+      ]
+    }
+  }
 });
-
-export type JsonApiError = z.infer<typeof JsonApiErrorSchema>;
 
 export const JsonApiErrorResponseSchema = z.object({
-  errors: z.array(JsonApiErrorSchema),
+  errors: z.array(JsonApiErrorSchema).openapi({
+    description: 'Array of error objects'
+  })
+}).openapi({
+  description: 'JSON:API error response format'
 });
 
-export type JsonApiErrorResponse = z.infer<typeof JsonApiErrorResponseSchema>;
-
-export const SuccessResponseOptionsSchema = z.object({
-  status: z.custom<StatusConfig>().optional(),
-  additionalMeta: z.object(z.unknown()).optional(),
-  links: ResponseLinksSchema.optional(),
+export const ResponseLinksSchema = z.object({
+  self: z.string().url().optional().openapi({
+    description: 'Link to the current resource',
+    example: 'https://api.example.com/api/v1/users/123'
+  }),
+  first: z.string().url().optional().openapi({
+    description: 'Link to the first page',
+    example: 'https://api.example.com/api/v1/users?page=1'
+  }),
+  last: z.string().url().optional().openapi({
+    description: 'Link to the last page',
+    example: 'https://api.example.com/api/v1/users?page=10'
+  }),
+  prev: z.string().url().optional().openapi({
+    description: 'Link to the previous page',
+    example: 'https://api.example.com/api/v1/users?page=2'
+  }),
+  next: z.string().url().optional().openapi({
+    description: 'Link to the next page',
+    example: 'https://api.example.com/api/v1/users?page=4'
+  }),
+}).openapi({
+  description: 'Links related to the response'
 });
 
-export type SuccessResponseOptions = z.infer<typeof SuccessResponseOptionsSchema>;
+export type ResponseMetadata = z.infer<typeof ResponseMetadataSchema>;
+export type ResponseLinks = z.infer<typeof ResponseLinksSchema>;
+export type JsonApiError = z.infer<typeof JsonApiErrorSchema>;

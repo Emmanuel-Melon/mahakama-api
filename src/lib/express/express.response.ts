@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { serializeJsonApi, serializeError } from "./express.serializer";
 import {
   JsonApiResponseConfig,
@@ -7,13 +7,25 @@ import {
   JsonApiErrorResponse,
   SSEEvent,
   SSEOptions,
-  SuccessResponseOptions
+  SuccessResponseOptions,
+  ErrorResponseOptions
 } from "./express.types";
+import z from "zod";
+import { ResponseLinksSchema, ResponseMetadataSchema } from "./express.schema";
+
+export const asyncHandler = <T>(
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<T>
+) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+};
 
 export const sendErrorResponse = (
   req: Request,
   res: Response,
   errorConfig: ErrorResponseConfig,
+  opts?: ErrorResponseOptions,
 ): Response<JsonApiErrorResponse> => {
   const { error } = serializeError(req, errorConfig);
   return res.status(errorConfig.status.statusCode).json({ errors: [error] });
@@ -24,7 +36,7 @@ export const sendSuccessResponse = <T>(
   res: Response,
   responseConfig: JsonApiResponseConfig<T>,
   opts?: SuccessResponseOptions,
-): Response<JsonApiResponse<any>> => {
+): Response<JsonApiResponse<T>> => {
   const { data, metadata } = serializeJsonApi(req, {
     responseConfig,
     metadata: opts?.additionalMeta,
@@ -38,7 +50,6 @@ export const sendSuccessResponse = <T>(
     },
     metadata: metadata,
   };
-
   return res.status(opts?.status?.statusCode || 200).json(response);
 };
 
@@ -101,4 +112,17 @@ export const initSSE = (res: Response, options?: SSEOptions) => {
       options?: { id?: string; retry?: number }
     ) => sendEvent({ type, data, ...options })
   };
+};
+
+export const createSuccessResponseSchema = <T extends z.ZodTypeAny>(
+  dataSchema: T,
+  description: string = 'Successful response'
+) => {
+  return z.object({
+    data: dataSchema,
+    links: ResponseLinksSchema.optional(),
+    metadata: ResponseMetadataSchema,
+  }).openapi({
+    description
+  });
 };

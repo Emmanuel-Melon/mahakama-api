@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { config } from "@/config/dev.config";
+import { serverConfig } from "@/config";
 import { findById } from "@/feature/users/operations/users.find";
 import { logger } from "@/lib/logger";
 import {
   sendErrorResponse,
 } from "@/lib/express/express.response";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
 
 export const authenticateToken = async (
   req: Request,
@@ -15,18 +15,22 @@ export const authenticateToken = async (
 ) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader?.split(" ")[1]; // Format: "Bearer TOKEN"
+  if(!token) {
+    sendErrorResponse(req, res, {
+      status: HttpStatus.UNAUTHORIZED,
+      description: "Authentication Error",
+    });
+  }
   try {
-    const verified = jwt.verify(token, config.jwtSecret) as JwtPayload;
+    const verified = jwt.verify(token!, serverConfig.jwtSecret!) as JwtPayload;
     const user = await findById(verified.id);
     if (!user) {
-      logger.warn({ userId: verified.id }, "User not found for valid token");
       sendErrorResponse(req, res, {
         status: HttpStatus.NOT_FOUND,
-        message: "Authentication Error",
+        description: "User not found for valid token",
       });
     }
     req.user = user;
-    logger.debug({ userId: user.id, path: req.path }, "User authenticated");
     next();
   } catch (error) {
     const errorMessage =
@@ -39,19 +43,19 @@ export const authenticateToken = async (
     if (error instanceof jwt.JsonWebTokenError) {
       sendErrorResponse(req, res, {
         status: HttpStatus.UNAUTHORIZED,
-        message: error instanceof Error ? error.message : "Authentication Error",
+        description: error instanceof Error ? error.message : "Authentication Error",
       });
     }
 
     if (error instanceof jwt.TokenExpiredError) {
       sendErrorResponse(req, res, {
         status: HttpStatus.UNAUTHORIZED,
-        message: error instanceof Error ? error.message : "Authentication Error",
+        description: error instanceof Error ? error.message : "Authentication Error",
       });
     }
     return sendErrorResponse(req, res, {
       status: HttpStatus.FORBIDDEN,
-      message: error instanceof Error ? error.message : "Authentication Error",
+      description: error instanceof Error ? error.message : "Authentication Error",
     });
   }
 };

@@ -2,8 +2,7 @@ import { Application, Request, Response, NextFunction } from "express";
 import express from "express";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
-import { catchErrors, notFoundHandler } from "./errors";
-import routesfrom "@/routes";
+import { globalErrorHandler, notFoundHandler } from "./errors";
 import { apiSpecs } from "@/lib/swagger";
 import { authRouter } from "@/feature/auth/auth.routes";
 import { getIpAddress } from "./ip-address";
@@ -18,6 +17,8 @@ import { swaggerSetup, rawJSONDocs } from "@/lib/swagger";
 import { welcomeController, checkServerHealthController } from "@/lib/express";
 import { validateRequestHeaders } from "./request-validators";
 import { authHeadersSchema } from "@/feature/auth/auth.schema";
+import mahakamaRouter from "@/routes";
+import { requestMetadata } from "./request-metadata";
 
 export function initializeMiddlewares(app: Application): void {
   // global middleware
@@ -34,6 +35,7 @@ export function initializeMiddlewares(app: Application): void {
   app.get("/api-docs.json", rawJSONDocs);
 
   // Request logging
+  app.use(requestMetadata);
   app.use(requestLogger);
 
   // Apply middlewares to all routes
@@ -45,9 +47,9 @@ export function initializeMiddlewares(app: Application): void {
   app.get("/", welcomeController);
   app.get(["/health", "/api/health"], checkServerHealthController);
   app.use("/api/v1/auth", authRouter);
-  app.use("/api", validateRequestHeaders(authHeadersSchema), authenticateToken, routes);
+  app.use("/api", validateRequestHeaders(authHeadersSchema), authenticateToken, mahakamaRouter);
 
   // ERROR HANDLERS
   app.use(notFoundHandler);
-  app.use(catchErrors);
+  app.use(globalErrorHandler);
 }

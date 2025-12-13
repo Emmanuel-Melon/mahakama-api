@@ -63,7 +63,7 @@ export const checkServerHealthController = async (
       error instanceof Error ? error.message : "Unknown error";
     sendErrorResponse(req, res, {
       status: HttpStatus.SERVICE_UNAVAILABLE,
-      message: "Service Unavailable",
+      description: "Service Unavailable"
     });
   }
 };

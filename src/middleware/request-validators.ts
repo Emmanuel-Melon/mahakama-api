@@ -1,7 +1,7 @@
 import { NextFunction, Response, Request } from "express";
 import { z, ZodTypeAny } from "zod";
 import { sendErrorResponse } from "@/lib/express/express.response";
-import { HttpStatus } from "@/lib/express/http-status-codes";
+import { HttpStatus } from "@/http-status";
 
 export function validateRequestBody<T extends z.ZodTypeAny>(schema: T) {
   type SchemaType = z.infer<T>;
@@ -12,12 +12,18 @@ export function validateRequestBody<T extends z.ZodTypeAny>(schema: T) {
         const formattedErrors = result.error.format();
         return sendErrorResponse(req, res, {
           status: HttpStatus.BAD_REQUEST,
-          message: "Request validation failed",
+          description: "Request validation failed",
           source: {
             pointer: req.originalUrl,
             method: req.method,
-          },
-          config: { ...formattedErrors, requestId: req.requestId },
+          }
+        }, {
+          additionalMeta: {
+            errorType: 'VALIDATION ERROR',
+            timestamp: new Date().toISOString(),
+            requestId: req.requestId,
+            ...formattedErrors
+          }
         });
       }
       req.validatedBody = result.data as SchemaType;
@@ -25,7 +31,7 @@ export function validateRequestBody<T extends z.ZodTypeAny>(schema: T) {
     } catch (error) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: "An unexpected error occurred during validation",
+        description: "An unexpected error occurred during validation",
       });
     }
   };
@@ -41,12 +47,18 @@ export function validateRequestParams<T extends z.ZodType<Record<string, any>>>(
       const formattedErrors = result.error.format();
       return sendErrorResponse(req, res, {
         status: HttpStatus.BAD_REQUEST,
-        message: "Request validation failed",
+        description: "Request validation failed",
         source: {
           pointer: req.originalUrl,
           method: req.method,
-        },
-        config: { ...formattedErrors, requestId: req.requestId },
+        }
+      }, {
+        additionalMeta: {
+          errorType: 'VALIDATION ERROR',
+          timestamp: new Date().toISOString(),
+          requestId: req.requestId,
+          ...formattedErrors
+        }
       });
     }
     req.validatedParams = result.data as ParamsType;
@@ -64,12 +76,18 @@ export function validateRequestQuery<T extends z.ZodType<Record<string, any>>>(
       const formattedErrors = result.error.format();
       return sendErrorResponse(req, res, {
         status: HttpStatus.BAD_REQUEST,
-        message: "Request validation failed",
+        description: "Request validation failed",
         source: {
           pointer: req.originalUrl,
           method: req.method,
-        },
-        config: { ...formattedErrors, requestId: req.requestId },
+        }
+      }, {
+        additionalMeta: {
+          errorType: 'VALIDATION ERROR',
+          timestamp: new Date().toISOString(),
+          requestId: req.requestId,
+          ...formattedErrors
+        }
       });
     }
     req.validatedQuery = result.data as QueryType;
@@ -91,17 +109,20 @@ export function validateRequestHeaders<
 
       return sendErrorResponse(req, res, {
         status: isAuthError ? HttpStatus.UNAUTHORIZED : HttpStatus.BAD_REQUEST,
-        message: isAuthError
+        description: isAuthError
           ? "Authentication required: Missing or invalid 'authorization' or 'x-access-token' header"
           : "Request Header Validation Failed",
         source: {
           pointer: req.originalUrl,
           method: req.method,
-        },
-        config: {
-          ...formattedErrors,
+        }
+      }, {
+        additionalMeta: {
+          errorType: 'VALIDATION ERROR',
+          timestamp: new Date().toISOString(),
           requestId: req.requestId,
-        },
+          ...formattedErrors
+        }
       });
     }
     req.validatedHeaders = result.data as HeadersType;
