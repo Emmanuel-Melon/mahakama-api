@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { logger } from "@/lib/logger";
 import { serverConfig } from "@/config";
 import { sendErrorResponse, sendSuccessResponse } from "./express.response";
-import { HttpStatus } from "./http-status";
+import { HttpStatus } from "../../http-status";
 import { HealthCheckResponse, WelcomeResponse } from "./express.types";
 import { HealthCheckSerializerConfig, WelcomeResponseSerializerConfig } from "./express.config";
 import { queueManager } from "@/lib/bullmq";

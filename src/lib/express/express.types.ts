@@ -1,8 +1,57 @@
 import { z, ZodTypeAny } from "zod";
 import { ParsedQs } from "qs";
 import { ParamsDictionary } from "express-serve-static-core";
-import { NextFunction, Response, Request } from "express";
-import { StatusConfig } from "./http-status";
+import { Request } from "express";
+import { StatusConfig } from "@/http-status";
+
+export type ErrorResponseConfig = Pick<StatusConfig, | "title" | "description"> & {
+  status: StatusConfig;
+  source?: { pointer?: string; method?: string };
+};
+
+export type ResourceType = "single" | "collection";
+
+export interface ResponseLinks {
+  self?: string;
+  first?: string;
+  last?: string;
+  prev?: string;
+  next?: string;
+}
+
+export interface ResourceLinkObject {
+  self?: string;
+  related?: string;
+  [key: string]: string | undefined;
+}
+
+export interface ResourceIdentifierObject {
+  type: string;
+  id: string;
+}
+
+export type ResourceLinkage =
+  | ResourceIdentifierObject
+  | ResourceIdentifierObject[]
+  | null;
+
+export interface RelationshipObject<T> {
+  links?: (resource: T, req: Request) => ResourceLinkObject;
+  data?: (resource: T) => ResourceLinkage;
+}
+
+export interface ResourceObject<T> {
+  type: string;
+  id: string;
+  attributes: Record<string, any>;
+  relationships?: Record<string, {
+    links?: ResourceLinkObject;
+    data?: ResourceLinkage;
+  }>;
+  meta?: Record<string, any>;
+  links?: Record<string, string>;
+}
+
 
 export type ControllerMetadata = {
   name: string;
@@ -18,45 +67,6 @@ export type ResponseMetadata = {
   requestId?: string;
   resourceId?: string | number;
 };
-
-export type SuccessResponse<T> = {
-  success: true;
-  data: T;
-  metadata?: ResponseMetadata & {
-    status?: StatusConfig;
-    [key: string]: any;
-  };
-  message?: string;
-};
-
-export type ErrorResponseConfig = {
-  status: StatusConfig;
-  message?: string;
-  title?: string;
-  source?: { pointer?: string; method?: string };
-  config?: any;
-};
-
-export type ErrorResponseOptions = {
-  message?: string;
-};
-
-export type ErrorResponse = {
-  error: {
-    id: string;
-    status: string;
-    code?: string;
-    title: string;
-    detail?: string;
-    source?: {
-      pointer?: string;
-      method?: string;
-    };
-    meta?: unknown;
-  };
-};
-
-export type BaseExpressResponse<T> = SuccessResponse<T> | ErrorResponse;
 
 // Base type for all SSE events
 export type SSEEvent<T = any, Type extends string = string> = {
@@ -186,7 +196,6 @@ export type DeleteRequest = {
   id: string;
 };
 
-
 // server types
 export type ServerStatus = "healthy" | "maintenance" | "unhealthy";
 
@@ -230,11 +239,13 @@ export interface ResourceResponseOptions {
 export interface JsonApiResourceConfig<T> {
   type: string;
   attributes: (resource: T) => Record<string, any>;
+  relationships?: Record<string, RelationshipObject<T>>;
   resourceMeta?: (resource: T) => Record<string, any>;
+  links?: (resource: T, req: Request) => ResourceLinkObject;
 }
 
 export type JsonApiResponseConfig<T> = {
-  type: "single" | "collection";
+  type: ResourceType;
   data: (T & { id: string }) | (T & { id: string })[];
   serializerConfig: JsonApiResourceConfig<T>;
 };
@@ -254,11 +265,7 @@ export interface JsonApiError {
   code: string;
   title: string;
   detail: string;
-  meta: {
-    requestId: string;
-    timestamp: string;
-    [key: string]: any;
-  };
+  metadata: ResponseMetadata;
   source?: {
     pointer?: string;
     method?: string;
@@ -267,4 +274,25 @@ export interface JsonApiError {
 
 export interface JsonApiErrorResponse {
   errors: JsonApiError[];
+}
+
+export interface SuccessResponseOptions {
+  status?: StatusConfig;
+  additionalMeta?: Record<string, unknown>;
+  links?: ResponseLinks;
+}
+
+export interface SerializeJsonApiOptions {
+  responseConfig: JsonApiResponseConfig<any>;
+  metadata?: Record<string, any>;
+}
+
+export interface SerializedResponse<T> {
+  data: T | T[];
+  metadata: ResponseMetadata;
+}
+
+export interface SerializedError {
+  error: JsonApiError;
+  metadata: ResponseMetadata;
 }
