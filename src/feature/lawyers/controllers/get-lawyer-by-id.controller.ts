@@ -26,7 +26,9 @@ export const getLawyerByIdController = async (
       req,
       res,
       {
-        data: { ...lawyer, id: lawyer.id.toString() } as typeof lawyer & { id: string },
+        data: { ...lawyer, id: lawyer.id.toString() } as typeof lawyer & {
+          id: string;
+        },
         type: "single",
         serializerConfig: LawyersSerializer,
       },

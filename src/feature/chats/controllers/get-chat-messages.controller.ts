@@ -24,7 +24,10 @@ export const getMessagesByChatIdController = async (
       req,
       res,
       {
-        data: messages.map(message => ({ ...message, id: message.id.toString() })) as (typeof messages[number] & { id: string })[],
+        data: messages.map((message) => ({
+          ...message,
+          id: message.id.toString(),
+        })) as ((typeof messages)[number] & { id: string })[],
         type: "collection",
         serializerConfig: MessageSerializer,
       },

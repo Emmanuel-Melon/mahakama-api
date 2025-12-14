@@ -17,7 +17,10 @@ export const getLawyersController = async (
       req,
       res,
       {
-        data: result.map(lawyer => ({ ...lawyer, id: lawyer.id.toString() })) as (typeof result[number] & { id: string })[],
+        data: result.map((lawyer) => ({
+          ...lawyer,
+          id: lawyer.id.toString(),
+        })) as ((typeof result)[number] & { id: string })[],
         type: "collection",
         serializerConfig: LawyersSerializer,
       },

@@ -14,7 +14,7 @@ export const sendMessageController = async (
 ) => {
   try {
     const { chatId, content, sender, metadata } = req.body;
-    
+
     const message = await sendMessage({
       chatId,
       content,
@@ -26,7 +26,9 @@ export const sendMessageController = async (
       req,
       res,
       {
-        data: { ...message, id: message.id.toString() } as typeof message & { id: string },
+        data: { ...message, id: message.id.toString() } as typeof message & {
+          id: string;
+        },
         type: "single",
         serializerConfig: MessageSerializer,
       },

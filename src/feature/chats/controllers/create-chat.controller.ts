@@ -100,7 +100,10 @@ export const createChatController = async (
         req,
         res,
         {
-          data: { ...createdChat, id: createdChat.id.toString() } as typeof createdChat & { id: string },
+          data: {
+            ...createdChat,
+            id: createdChat.id.toString(),
+          } as typeof createdChat & { id: string },
           type: "single",
           serializerConfig: ChatSerializer,
         },

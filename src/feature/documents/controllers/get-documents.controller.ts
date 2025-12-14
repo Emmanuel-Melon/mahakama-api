@@ -33,7 +33,10 @@ export const getDocumentsController = async (
       req,
       res,
       {
-        data: documents.data.map(document => ({ ...document, id: document.id.toString() })) as (typeof documents.data[number] & { id: string })[],
+        data: documents.data.map((document) => ({
+          ...document,
+          id: document.id.toString(),
+        })) as ((typeof documents.data)[number] & { id: string })[],
         type: "collection",
         serializerConfig: DocumentsSerializer,
       },

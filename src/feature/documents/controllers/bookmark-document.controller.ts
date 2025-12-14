@@ -40,7 +40,9 @@ export const bookmarkDocumentController = async (
       req,
       res,
       {
-        data: { ...document, id: document.id.toString() } as typeof document & { id: string },
+        data: { ...document, id: document.id.toString() } as typeof document & {
+          id: string;
+        },
         type: "single",
         serializerConfig: DocumentsSerializer,
       },
