@@ -2,11 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { bookmarkDocument } from "../operations/documents.update";
 import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
+import { DocumentsSerializer } from "../document.config";
 
 export const bookmarkDocumentController = async (
   req: Request,
@@ -29,21 +30,21 @@ export const bookmarkDocumentController = async (
       user_id: userId!,
     });
 
-    res.on("finish", async () => {
-      await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
-        ...document,
-      });
-    });
+    // res.on("finish", async () => {
+    //   await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
+    //     ...document,
+    //   });
+    // });
 
     sendSuccessResponse(
+      req,
       res,
       {
-        ...document,
+        data: { ...document, id: document.id.toString() } as typeof document & { id: string },
+        type: "single",
+        serializerConfig: DocumentsSerializer,
       },
       {
-        ...metadata,
-        timestamp: new Date().toISOString(),
-        resourceId: document.id,
         status: HttpStatus.CREATED,
       },
     );

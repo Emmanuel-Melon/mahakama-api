@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { downloadDocument } from "../operations/documents.update";
-import { sendSuccessResponse } from "@/lib/express/express.response";
+import { sendErrorResponse, sendSuccessResponse } from "@/lib/express/express.response";
 import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
 import { findDocumentById } from "../operations/document.find";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { DocumentsSerializer } from "../document.config";
 
 export const downloadDocumentController = async (
   req: Request,
@@ -27,19 +28,29 @@ export const downloadDocumentController = async (
       user_id: userId!,
     });
 
+    const document = await findDocumentById(documentId);
+    
+    if (!document) {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.NOT_FOUND,
+      });
+    }
+
     res.on("finish", async () => {
-      // const document = await findDocumentById(documentId);
       // await documentsQueue.enqueue(DocumentsJobType.DocumentDownloaded, {
       //   ...document,
       // });
     });
 
     sendSuccessResponse(
+      req,
       res,
-      { ...document },
       {
-        ...metadata,
-        timestamp: new Date().toISOString(),
+        data: { ...document, id: document.id.toString() } as typeof document & { id: string },
+        type: "single",
+        serializerConfig: DocumentsSerializer,
+      },
+      {
         status: HttpStatus.SUCCESS,
       },
     );

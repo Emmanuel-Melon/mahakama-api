@@ -10,7 +10,8 @@ import { z } from "zod";
 import { usersRegistry } from "@/feature/users/users.docs";
 import { authRegistry } from "@/feature/auth/auth.docs";
 import { expressRegistry } from "./express/express.schema";
-import { lawyersRegistry } from "@/feature/lawyers/operations/lawyers.docs";
+import { lawyersRegistry } from "@/feature/lawyers/lawyers.docs";
+import { documentsRegistry } from "@/feature/documents/documents.docs";
 
 extendZodWithOpenApi(z);
 
@@ -26,6 +27,7 @@ securityRegistry.registerComponent("securitySchemes", "bearerAuth", {
 // Combine all registries
 const registries = [
   authRegistry,
+  documentsRegistry,
   expressRegistry,
   lawyersRegistry,
   usersRegistry,

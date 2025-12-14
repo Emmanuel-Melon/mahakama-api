@@ -5,7 +5,8 @@ import {
   sendSuccessResponse,
 } from "@/lib/express/express.response";
 import { type ControllerMetadata } from "@/lib/express/express.types";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { DocumentsSerializer } from "../document.config";
 
 export const getDocumentsController = async (
   req: Request,
@@ -29,11 +30,14 @@ export const getDocumentsController = async (
     });
 
     sendSuccessResponse(
+      req,
       res,
-      { documents: documents.data },
       {
-        ...metadata,
-        timestamp: new Date().toISOString(),
+        data: documents.data.map(document => ({ ...document, id: document.id.toString() })) as (typeof documents.data[number] & { id: string })[],
+        type: "collection",
+        serializerConfig: DocumentsSerializer,
+      },
+      {
         status: HttpStatus.SUCCESS,
       },
     );

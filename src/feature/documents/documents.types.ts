@@ -2,36 +2,51 @@ import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
 import { documentsTable } from "./documents.schema";
 
-export type EventType = "started" | "progress" | "content" | "completed" | "error";
+export type EventType =
+  | "started"
+  | "progress"
+  | "content"
+  | "completed"
+  | "error";
 
 export type DocumentIngestionEvent = Extract<
   {
     [K in EventType]: {
       type: K;
-      data: K extends "started" ? {
-        timestamp: string;
-        filename: string;
-        size: number;
-      } : K extends "progress" ? {
-        processed: number;
-        total: number;
-        percentage: number;
-        chunk: number;
-        totalChunks: number;
-      } : K extends "content" ? {
-        chunk: number;
-        preview: string;
-      } : K extends "completed" ? {
-        filename: string;
-        size: number;
-        processedAt: string;
-        totalChunks: number;
-      } : K extends "error" ? {
-        message: string;
-        code?: string;
-        details?: unknown;
-      } : never;
-    }
+      data: K extends "started"
+        ? {
+            timestamp: string;
+            filename: string;
+            size: number;
+          }
+        : K extends "progress"
+          ? {
+              processed: number;
+              total: number;
+              percentage: number;
+              chunk: number;
+              totalChunks: number;
+            }
+          : K extends "content"
+            ? {
+                chunk: number;
+                preview: string;
+              }
+            : K extends "completed"
+              ? {
+                  filename: string;
+                  size: number;
+                  processedAt: string;
+                  totalChunks: number;
+                }
+              : K extends "error"
+                ? {
+                    message: string;
+                    code?: string;
+                    details?: unknown;
+                  }
+                : never;
+    };
   }[EventType],
   { type: string; data: any }
 >;
@@ -101,7 +116,7 @@ export type NewDocument = typeof documentsTable.$inferInsert;
 export type DocumentIngestionEventType = DocumentIngestionEvent["type"];
 
 export function isDocumentIngestionEvent(
-  event: unknown
+  event: unknown,
 ): event is DocumentIngestionEvent {
   try {
     documentIngestionEventSchema.parse(event);

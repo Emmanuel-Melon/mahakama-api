@@ -15,6 +15,6 @@ documentRoutes.get("/:id", getDocumentByIdControlle);
 documentRoutes.post("/", createDocumentHandler);
 documentRoutes.post("/:id/bookmark", bookmarkDocumentController);
 documentRoutes.get("/:id/download", downloadDocumentController);
-documentRoutes.post("/ingest", upload.single('file'), ingestDocumentController);
+documentRoutes.post("/ingest", upload.single("file"), ingestDocumentController);
 
 export default documentRoutes;

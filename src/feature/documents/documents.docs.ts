@@ -1,265 +1,359 @@
-/**
- * @swagger
- * tags:
- *   - name: Documents v1
- *     description: Document management endpoints
- *
- * @swagger
- * components:
- *   schemas:
- *     Document:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *           description: Unique identifier for the document
- *         title:
- *           type: string
- *           description: Title of the document
- *         description:
- *           type: string
- *           description: Description of the document
- *         type:
- *           type: string
- *           description: Type/category of the document
- *         sections:
- *           type: integer
- *           description: Number of sections in the document
- *         lastUpdated:
- *           type: string
- *           format: date
- *           description: Last updated year (YYYY)
- *         downloadCount:
- *           type: integer
- *           description: Number of times the document has been downloaded
- *         createdAt:
- *           type: string
- *           format: date-time
- *         updatedAt:
- *           type: string
- *           format: date-time
- * @swagger
- * /api/documents:
- *   get:
- *     summary: Get all documents
- *     tags: [Documents v1]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of documents per page
- *     responses:
- *       200:
- *         description: A list of documents
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Document'
- *                 meta:
- *                   type: object
- *                   properties:
- *                     total:
- *                       type: integer
- *                     page:
- *                       type: integer
- *                     limit:
- *                       type: integer
- * @swagger
- * /api/documents/{id}:
- *   get:
- *     summary: Get a document by ID
- *     tags: [Documents v1]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Document ID
- *     responses:
- *       200:
- *         description: Document found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Document'
- *       404:
- *         description: Document not found
- * @swagger
- * /api/documents:
- *   post:
- *     summary: Create a new document
- *     tags: [Documents v1]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - title
- *               - description
- *               - type
- *               - sections
- *               - lastUpdated
- *               - storageUrl
- *             properties:
- *               title:
- *                 type: string
- *                 description: Title of the document
- *               description:
- *                 type: string
- *                 description: Description of the document
- *               type:
- *                 type: string
- *                 description: Type/category of the document
- *               sections:
- *                 type: integer
- *                 description: Number of sections in the document
- *               lastUpdated:
- *                 type: string
- *                 format: date
- *                 description: Last updated year (YYYY)
- *               storageUrl:
- *                 type: string
- *                 format: uri
- *                 description: URL to the document storage
- *     responses:
- *       201:
- *         description: Document created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Document'
- *       400:
- *         description: Invalid input
- * @swagger
- * /api/documents/{id}/bookmark:
- *   post:
- *     summary: Bookmark a document
- *     tags: [Documents v1]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Document ID
- *     responses:
- *       200:
- *         description: Document bookmarked successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: object
- *                   properties:
- *                     documentId:
- *                       type: integer
- *                     bookmarked:
- *                       type: boolean
- * @swagger
- * /api/documents/{id}/download:
- *   get:
- *     summary: Download a document
- *     tags: [Documents v1]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Document ID
- *     responses:
- *       200:
- *         description: Document download initiated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: object
- *                   properties:
- *                     documentId:
- *                       type: integer
- *                     downloadUrl:
- *                       type: string
- *                     downloadCount:
- *                       type: integer
- * @swagger
- * /api/documents/ingest:
- *   post:
- *     summary: Ingest a new document with SSE progress updates
- *     tags: [Documents v1]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - file
- *             properties:
- *               file:
- *                 type: string
- *                 format: binary
- *                 description: The document file to upload
- *     responses:
- *       200:
- *         description: Document ingestion started
- *         content:
- *           text/event-stream:
- *             schema:
- *               type: string
- *               format: binary
- *       400:
- *         description: No file uploaded or invalid file
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
+import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { documentResponseSchema } from "./documents.schema";
+import { createDocumentSchema } from "./documents.types";
+import { HttpStatus } from "@/http-status";
+import {
+    createJsonApiResourceSchema,
+    createJsonApiSingleResponseSchema,
+    createJsonApiCollectionResponseSchema
+} from '@/lib/express/express.serializer';
+
+const ErrorResponseRef = { $ref: "#/components/schemas/JsonApiErrorResponse" };
+const documentResourceSchema = createJsonApiResourceSchema('document', documentResponseSchema);
+const documentSingleResponseSchema = createJsonApiSingleResponseSchema(documentResourceSchema);
+const documentsCollectionResponseSchema = createJsonApiCollectionResponseSchema(documentResourceSchema);
+
+// Create registry and register schemas
+export const documentsRegistry = new OpenAPIRegistry();
+documentsRegistry.register('Document', documentResponseSchema);
+documentsRegistry.register('CreateDocument', createDocumentSchema);
+documentsRegistry.register('DocumentResource', documentResourceSchema);
+documentsRegistry.register('DocumentSingleResponse', documentSingleResponseSchema);
+documentsRegistry.register('DocumentsCollectionResponse', documentsCollectionResponseSchema);
+
+// 1. GET /v1/documents (Get All Documents)
+documentsRegistry.registerPath({
+    method: "get",
+    path: "/v1/documents",
+    summary: "Get all documents",
+    description: "Returns a list of all documents with optional filtering and pagination",
+    tags: ["Documents v1"],
+    security: [{ bearerAuth: [] }],
+    parameters: [
+        {
+            name: "type",
+            in: "query",
+            required: false,
+            schema: { type: "string" },
+            description: "Filter documents by type",
+        },
+        {
+            name: "limit",
+            in: "query",
+            required: false,
+            schema: { type: "integer", default: 10 },
+            description: "Number of documents per page",
+        },
+        {
+            name: "offset",
+            in: "query",
+            required: false,
+            schema: { type: "integer", default: 0 },
+            description: "Number of documents to skip",
+        },
+    ],
+    responses: {
+        [HttpStatus.SUCCESS.statusCode]: {
+            description: HttpStatus.SUCCESS.description,
+            content: {
+                "application/json": {
+                    schema: documentsCollectionResponseSchema,
+                },
+            },
+        },
+        [HttpStatus.UNAUTHORIZED.statusCode]: {
+            description: HttpStatus.UNAUTHORIZED.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.INTERNAL_SERVER_ERROR.statusCode]: {
+            description: HttpStatus.INTERNAL_SERVER_ERROR.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+    },
+});
+
+// 2. GET /v1/documents/{id} (Get Document by ID)
+documentsRegistry.registerPath({
+    method: "get",
+    path: "/v1/documents/{id}",
+    summary: "Get document by ID",
+    description: "Retrieve document details by document ID",
+    tags: ["Documents v1"],
+    security: [{ bearerAuth: [] }],
+    parameters: [
+        {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Document's unique identifier",
+        },
+    ],
+    responses: {
+        [HttpStatus.SUCCESS.statusCode]: {
+            description: HttpStatus.SUCCESS.description,
+            content: {
+                "application/json": {
+                    schema: documentSingleResponseSchema,
+                },
+            },
+        },
+        [HttpStatus.UNAUTHORIZED.statusCode]: {
+            description: HttpStatus.UNAUTHORIZED.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.NOT_FOUND.statusCode]: {
+            description: HttpStatus.NOT_FOUND.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.INTERNAL_SERVER_ERROR.statusCode]: {
+            description: HttpStatus.INTERNAL_SERVER_ERROR.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+    },
+});
+
+// 3. POST /v1/documents (Create a new document)
+documentsRegistry.registerPath({
+    method: "post",
+    path: "/v1/documents",
+    summary: "Create a new document",
+    description: "Register a new document in the system",
+    tags: ["Documents v1"],
+    security: [{ bearerAuth: [] }],
+    request: {
+        body: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: createDocumentSchema,
+                },
+            },
+        },
+    },
+    responses: {
+        [HttpStatus.CREATED.statusCode]: {
+            description: HttpStatus.CREATED.description,
+            content: {
+                "application/json": {
+                    schema: documentSingleResponseSchema,
+                },
+            },
+        },
+        [HttpStatus.BAD_REQUEST.statusCode]: {
+            description: HttpStatus.BAD_REQUEST.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.UNAUTHORIZED.statusCode]: {
+            description: HttpStatus.UNAUTHORIZED.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.INTERNAL_SERVER_ERROR.statusCode]: {
+            description: HttpStatus.INTERNAL_SERVER_ERROR.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+    },
+});
+
+// 4. POST /v1/documents/{id}/bookmark (Bookmark Document)
+documentsRegistry.registerPath({
+    method: "post",
+    path: "/v1/documents/{id}/bookmark",
+    summary: "Bookmark a document",
+    description: "Add or remove a bookmark for a document",
+    tags: ["Documents v1"],
+    security: [{ bearerAuth: [] }],
+    parameters: [
+        {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Document's unique identifier",
+        },
+    ],
+    responses: {
+        [HttpStatus.CREATED.statusCode]: {
+            description: HttpStatus.CREATED.description,
+            content: {
+                "application/json": {
+                    schema: documentSingleResponseSchema,
+                },
+            },
+        },
+        [HttpStatus.BAD_REQUEST.statusCode]: {
+            description: HttpStatus.BAD_REQUEST.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.UNAUTHORIZED.statusCode]: {
+            description: HttpStatus.UNAUTHORIZED.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.NOT_FOUND.statusCode]: {
+            description: HttpStatus.NOT_FOUND.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.INTERNAL_SERVER_ERROR.statusCode]: {
+            description: HttpStatus.INTERNAL_SERVER_ERROR.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+    },
+});
+
+// 5. GET /v1/documents/{id}/download (Download Document)
+documentsRegistry.registerPath({
+    method: "get",
+    path: "/v1/documents/{id}/download",
+    summary: "Download a document",
+    description: "Increment download count and return document details",
+    tags: ["Documents v1"],
+    security: [{ bearerAuth: [] }],
+    parameters: [
+        {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Document's unique identifier",
+        },
+    ],
+    responses: {
+        [HttpStatus.SUCCESS.statusCode]: {
+            description: HttpStatus.SUCCESS.description,
+            content: {
+                "application/json": {
+                    schema: documentSingleResponseSchema,
+                },
+            },
+        },
+        [HttpStatus.UNAUTHORIZED.statusCode]: {
+            description: HttpStatus.UNAUTHORIZED.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.NOT_FOUND.statusCode]: {
+            description: HttpStatus.NOT_FOUND.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.INTERNAL_SERVER_ERROR.statusCode]: {
+            description: HttpStatus.INTERNAL_SERVER_ERROR.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+    },
+});
+
+// 6. POST /v1/documents/ingest (Ingest Document with SSE)
+documentsRegistry.registerPath({
+    method: "post",
+    path: "/v1/documents/ingest",
+    summary: "Ingest a document with progress updates",
+    description: "Upload and process a document with real-time progress updates via Server-Sent Events",
+    tags: ["Documents v1"],
+    security: [{ bearerAuth: [] }],
+    requestBody: {
+        required: true,
+        content: {
+            "multipart/form-data": {
+                schema: {
+                    type: "object",
+                    required: ["file"],
+                    properties: {
+                        file: {
+                            type: "string",
+                            format: "binary",
+                            description: "The document file to upload and process",
+                        },
+                    },
+                },
+            },
+        },
+    },
+    responses: {
+        200: {
+            description: "Document ingestion started - SSE stream for progress updates",
+            content: {
+                "text/event-stream": {
+                    schema: {
+                        type: "string",
+                        format: "binary",
+                    },
+                },
+            },
+        },
+        [HttpStatus.BAD_REQUEST.statusCode]: {
+            description: HttpStatus.BAD_REQUEST.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+        [HttpStatus.UNAUTHORIZED.statusCode]: {
+            description: HttpStatus.UNAUTHORIZED.description,
+            content: {
+                "application/json": {
+                    schema: ErrorResponseRef,
+                },
+            },
+        },
+    },
+});

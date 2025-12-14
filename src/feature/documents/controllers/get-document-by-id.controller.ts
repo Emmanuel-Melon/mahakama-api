@@ -5,7 +5,8 @@ import {
   sendSuccessResponse,
 } from "@/lib/express/express.response";
 import { type ControllerMetadata } from "@/lib/express/express.types";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { DocumentsSerializer } from "../document.config";
 
 export const getDocumentByIdControlle = async (
   req: Request,
@@ -14,7 +15,7 @@ export const getDocumentByIdControlle = async (
 ) => {
   try {
     const metadata: ControllerMetadata = {
-      name: "createDocumentController",
+      name: "getDocumentByIdController",
       resourceType: "document",
       route: req.path,
       operation: "fetch",
@@ -24,15 +25,20 @@ export const getDocumentByIdControlle = async (
     const document = await findDocumentById(Number(id));
 
     if (!document) {
-      return sendErrorResponse(res, HttpStatus.NOT_FOUND);
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.NOT_FOUND,
+      });
     }
 
     sendSuccessResponse(
+      req,
       res,
-      { ...document },
       {
-        ...metadata,
-        timestamp: new Date().toISOString(),
+        data: { ...document, id: document.id.toString() } as typeof document & { id: string },
+        type: "single",
+        serializerConfig: DocumentsSerializer,
+      },
+      {
         status: HttpStatus.SUCCESS,
       },
     );

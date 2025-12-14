@@ -9,27 +9,27 @@ export const ingestDocumentController = async (
 ) => {
   const { sendEvent, sendError, close } = initSSE(res, {
     headers: {
-      'Content-Disposition': 'inline',
+      "Content-Disposition": "inline",
     },
     metadata: {
-      name: 'document-ingestion',
-      route: '/api/documents/ingest',
-      requestId: req.requestId || 'unknown',
+      name: "document-ingestion",
+      route: "/api/documents/ingest",
+      requestId: req.requestId || "unknown",
     },
   });
 
   try {
     sendEvent({
-      type: 'started',
+      type: "started",
       data: {
         timestamp: new Date().toISOString(),
-        filename: req.file?.originalname || 'unknown',
+        filename: req.file?.originalname || "unknown",
         size: req.file?.size || 0,
       },
     });
 
     if (!req.file) {
-      throw new Error('No file uploaded');
+      throw new Error("No file uploaded");
     }
 
     const fileBuffer = req.file.buffer;
@@ -39,11 +39,11 @@ export const ingestDocumentController = async (
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, fileBuffer.length);
       const chunk = fileBuffer.slice(start, end);
-      
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       sendEvent({
-        type: 'progress',
+        type: "progress",
         data: {
           processed: end,
           total: fileBuffer.length,
@@ -53,20 +53,23 @@ export const ingestDocumentController = async (
         },
       });
 
-      const text = chunk.toString('utf8').replace(/[^\x20-\x7E\n\r\t]/g, '').trim();
+      const text = chunk
+        .toString("utf8")
+        .replace(/[^\x20-\x7E\n\r\t]/g, "")
+        .trim();
       if (text) {
         sendEvent({
-          type: 'content',
+          type: "content",
           data: {
             chunk: i + 1,
-            preview: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
+            preview: text.substring(0, 200) + (text.length > 200 ? "..." : ""),
           },
         });
       }
     }
 
     sendEvent({
-      type: 'completed',
+      type: "completed",
       data: {
         filename: req.file.originalname,
         size: req.file.size,
@@ -76,10 +79,11 @@ export const ingestDocumentController = async (
     });
     close();
   } catch (error) {
-    console.error('Document ingestion error:', error);
+    console.error("Document ingestion error:", error);
     sendError({
-      message: error instanceof Error ? error.message : 'Failed to process document',
-      code: 'DOCUMENT_PROCESSING_ERROR',
+      message:
+        error instanceof Error ? error.message : "Failed to process document",
+      code: "DOCUMENT_PROCESSING_ERROR",
       details: error instanceof Error ? error.stack : undefined,
     });
     close();

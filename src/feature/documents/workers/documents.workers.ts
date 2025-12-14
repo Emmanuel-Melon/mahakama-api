@@ -9,7 +9,7 @@ const usersWorker = new Worker(
   QueueName.Auth,
   async (job) => {
     console.log(
-      `Processing job ${job.id} of type ${job.name === DocumentsJobType.DocumentCreatd}!!!`,
+      `Processing job ${job.id} of type ${job.name === DocumentsJobType.DocumentCreated}!!!`,
     );
     if (job.name === DocumentsJobType.DocumentCreated) {
       // process user created hib

@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import { createDocument } from "../operations/documents.create";
 import { CreateDocumentInput } from "../documents.types";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
 import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
+import { DocumentsSerializer } from "../document.config";
 
 export const createDocumentHandler = async (
   req: Request,
@@ -35,19 +36,22 @@ export const createDocumentHandler = async (
       storageUrl,
     });
 
-    // we're gonna have to investigate this! Pushing into queues during or after the request has been processed
-    res.on("finish", async () => {
-      await documentsQueue.enqueue(DocumentsJobType.DocumentCreated, {
-        ...document,
-      });
-    });
+    // // we're gonna have to investigate this! Pushing into queues during or after the request has been processed
+    // res.on("finish", async () => {
+    //   await documentsQueue.enqueue(DocumentsJobType.DocumentCreated, {
+    //     ...document,
+    //   });
+    // });
 
     sendSuccessResponse(
+      req,
       res,
-      { ...document },
       {
-        ...metadata,
-        timestamp: new Date().toISOString(),
+        data: { ...document, id: document.id.toString() } as typeof document & { id: string },
+        type: "single",
+        serializerConfig: DocumentsSerializer,
+      },
+      {
         status: HttpStatus.CREATED,
       },
     );

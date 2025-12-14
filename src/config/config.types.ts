@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const ServerEndpointsSchema = z.object({
   api: z.string().min(1, "API endpoint is required"),
@@ -19,7 +19,7 @@ export const ServerConfigSchema = z.object({
   endpoints: ServerEndpointsSchema,
   shutdownTimeout: z.number().int().min(0),
   trustProxy: z.union([z.string(), z.number()]),
-  environment: z.string()
+  environment: z.string(),
 });
 
 export const PostgresConfigSchema = z.object({

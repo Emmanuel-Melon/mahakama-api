@@ -1,5 +1,7 @@
 import { Router } from "express";
-import documentRoutes, { DOCUMENTS_PATH } from "@/feature/documents/documents.routes";
+import documentRoutes, {
+  DOCUMENTS_PATH,
+} from "@/feature/documents/documents.routes";
 import userRoutes, { USERS_PATH } from "@/feature/users/users.routes";
 import lawyerRoutes, { LAWYERS_PATH } from "@/feature/lawyers/lawyer.routes";
 import chatRoutes, { CHATS_PATH } from "@/feature/chats/chats.routes";
@@ -23,6 +25,3 @@ export const availableRoutes = [
   `${BASE_PATH}${LAWYERS_PATH}`,
   `${BASE_PATH}${CHATS_PATH}`,
 ] as const;
-
-
-
