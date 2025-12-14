@@ -1,5 +1,5 @@
-import { chat } from "../../lib/llm/ollama/ollama.chat";
-import type { LLMMessage } from "../../lib/llm/llms.types";
+import { chat } from "@/lib/llm/ollama/ollama.chat";
+import type { LLMMessage } from "@/lib/llm/llms.types";
 import { findRelevantLaws, getMostRelevantLaw } from "../knowledge/vectorizer";
 import { generateResponsePrompt } from "../response-prompts";
 import { laws as lawsDataset } from "../dataset/laws.dataset";

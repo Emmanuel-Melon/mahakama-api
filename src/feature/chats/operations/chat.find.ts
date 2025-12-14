@@ -1,9 +1,5 @@
 import { db } from "@/lib/drizzle";
-import {
-  chatsSchema,
-  chatMessages,
-  type ChatSession,
-} from "../chats.schema";
+import { chatsSchema, chatMessages, type ChatSession } from "../chats.schema";
 import { eq } from "drizzle-orm";
 import { usersSchema } from "@/feature/users/users.schema";
 import type { User } from "@/feature/users/users.schema";
@@ -30,7 +26,7 @@ export const getChatById = async (
     .from(chatsSchema)
     .where(eq(chatsSchema.id, chatId))
     .limit(1);
-  
+
   return chat || null;
 };
 

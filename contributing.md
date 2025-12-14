@@ -64,7 +64,7 @@ Operations are **framework-agnostic**, they contain no Express-specific code, ma
 
 **Example** (`users/operations/users.create.ts`):
 ```typescript
-import { db } from "../../lib/drizzle";
+import { db } from "@/lib/drizzle";
 import { usersSchema, CreateUserRequest, User } from "../user.schema";
 
 export async function createUser(userData: CreateUserRequest): Promise<User> {
@@ -283,7 +283,7 @@ When adding a new domain (e.g., `notifications`), follow these steps:
 
 3. **Create operation** (`notifications/operations/notifications.create.ts`):
    ```typescript
-   import { db } from "../../lib/drizzle";
+   import { db } from "@/lib/drizzle";
    import { notificationsTable, CreateNotificationRequest } from "../notification.schema";
    
    export async function createNotification(data: CreateNotificationRequest) {

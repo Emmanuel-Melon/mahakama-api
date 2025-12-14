@@ -9,7 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
-import { usersSchema } from "../../users/users.schema";
+import { usersSchema } from "@/feature/users/users.schema";
 import { SenderType, SenderTypeEnum } from "../chats/chats.types";
 import { chatsSchema } from "../chats/chats.schema";
 
@@ -54,8 +54,7 @@ export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
   }),
 }));
 
-
-const messageSchema = z.object(any)
+const messageSchema = z.object(any);
 
 // Schema for API responses
 export const chatMessageResponseSchema = createSelectSchema(chatMessages);

@@ -13,7 +13,6 @@ import { createSelectSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
 import { SenderType, SenderTypeEnum, sendMessageSchema } from "./chats.types";
 
-
 // Chat Sessions Table
 export const chatsSchema = pgTable(
   "chat_sessions",
@@ -65,16 +64,13 @@ export const chatMessages = pgTable(
 );
 
 // Relations
-export const chatSchemaRelations = relations(
-  chatsSchema,
-  ({ many, one }) => ({
-    messages: many(chatMessages),
-    user: one(usersSchema, {
-      fields: [chatsSchema.userId],
-      references: [usersSchema.id],
-    }),
+export const chatSchemaRelations = relations(chatsSchema, ({ many, one }) => ({
+  messages: many(chatMessages),
+  user: one(usersSchema, {
+    fields: [chatsSchema.userId],
+    references: [usersSchema.id],
   }),
-);
+}));
 
 export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
   chat: one(chatsSchema, {

@@ -35,7 +35,7 @@ const executeClassifier = async () => {
       },
     );
     logger.debug("Sentiment analysis pipeline initialized successfully");
-    
+
     const result = await classifier("I love programming!");
     logger.info({ result }, "Sentiment analysis completed");
     return result;
@@ -48,7 +48,7 @@ const executeClassifier = async () => {
 export const generateLawEmbeddings = async (): Promise<LawEmbedding[]> => {
   logger.info(`Generating embeddings for ${laws.length} laws...`);
   const startTime = Date.now();
-  
+
   try {
     const embeddings = await Promise.all(
       laws.map(async (law) => {
@@ -61,9 +61,11 @@ export const generateLawEmbeddings = async (): Promise<LawEmbedding[]> => {
         };
       }),
     );
-    
+
     const duration = Date.now() - startTime;
-    logger.info(`Successfully generated ${embeddings.length} embeddings in ${duration}ms`);
+    logger.info(
+      `Successfully generated ${embeddings.length} embeddings in ${duration}ms`,
+    );
     return embeddings;
   } catch (error) {
     logger.error({ error }, "Error generating law embeddings");
@@ -73,38 +75,40 @@ export const generateLawEmbeddings = async (): Promise<LawEmbedding[]> => {
 
 // Answer generation with Gemini
 const answerQuestion = async (chatId: string, question: string) => {
-  logger.info({ chatId, questionLength: question.length }, "Processing question");
-  
+  logger.info(
+    { chatId, questionLength: question.length },
+    "Processing question",
+  );
+
   try {
     logger.debug("Retrieving chat history...");
     const messages = await getMessagesForLLM(chatId);
     logger.debug(`Retrieved ${messages.length} messages from chat history`);
-    
+
     logger.debug("Formatting request for provider...");
-    const formattedRequest = formatMessagesForProvider(
-      "gemini",
-      messages,
-      {
-        systemPrompt:
-          "You are a helpful legal assistant. Provide concise answers within 300 characters.",
-      },
-    );
-    
+    const formattedRequest = formatMessagesForProvider("gemini", messages, {
+      systemPrompt:
+        "You are a helpful legal assistant. Provide concise answers within 300 characters.",
+    });
+
     logger.debug("Sending request to LLM...");
-    const response = await llMClient.createChatCompletion(chatId, formattedRequest.options.systemPrompt);
+    const response = await llMClient.createChatCompletion(
+      chatId,
+      formattedRequest.options.systemPrompt,
+    );
     const answer = response.content.slice(0, 300);
 
     logger.info(
-      { 
+      {
         questionLength: question.length,
         answerLength: answer.length,
         chatId,
       },
-      "Successfully generated answer"
+      "Successfully generated answer",
     );
-    
+
     logger.debug({ question, answer }, "Question and answer details");
-    
+
     return answer;
   } catch (error) {
     logger.error({ error, chatId, question }, "Error generating answer");

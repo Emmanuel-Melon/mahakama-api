@@ -10,13 +10,13 @@ export interface CreateChatParams {
 export const createChat = async (
   params: CreateChatParams,
 ): Promise<ChatSession | null> => {
-    const [newChat] = await db
-      .insert(chatsSchema)
-      .values({
-        userId: params.userId,
-        title: params.title || "New Chat",
-        metadata: params.metadata || {},
-      })
-      .returning();
-    return newChat;
+  const [newChat] = await db
+    .insert(chatsSchema)
+    .values({
+      userId: params.userId,
+      title: params.title || "New Chat",
+      metadata: params.metadata || {},
+    })
+    .returning();
+  return newChat;
 };

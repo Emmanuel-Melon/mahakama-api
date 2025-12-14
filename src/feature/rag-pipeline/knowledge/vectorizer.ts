@@ -1,12 +1,14 @@
 import { SimilarityResult, QueryEmbedding } from "../types";
-import { chromaClient } from "../../lib/chroma";
+import { chromaClient } from "@/lib/chroma";
 
 const COLLECTION_NAME = "legal_questions";
 const RELEVANCE_THRESHOLD = 0.7;
 
 // Local interface that extends SimilarityResult but allows string IDs
-export interface ChromaSimilarityResult
-  extends Omit<SimilarityResult, "id" | "embeddingLength"> {
+export interface ChromaSimilarityResult extends Omit<
+  SimilarityResult,
+  "id" | "embeddingLength"
+> {
   id: string; // Allow string IDs from ChromaDB
   title: string;
   content: string;

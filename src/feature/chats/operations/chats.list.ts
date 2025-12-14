@@ -91,4 +91,3 @@ export async function listUserChats({
     messageCount: Number(chat.messageCount) || 0,
   }));
 }
-

@@ -10,11 +10,15 @@ import {
   createSystemPrompt,
   createChatSessionPayload,
 } from "@/lib/llm/ollama/chat-utils";
-import { sendErrorResponse, sendSuccessResponse } from "@/lib/express/express.response";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "@/lib/express/express.response";
 import { type ControllerMetadata } from "@/lib/express/express.types";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
 import { getChatById } from "../operations/chat.find";
 import { eq } from "drizzle-orm";
+import { ChatSerializer } from "../chats.config";
 
 export const createChatController = async (
   req: Request<{}, {}, any>,
@@ -45,7 +49,6 @@ export const createChatController = async (
       // const query = await queryProcessor.processQuery(message);
       // const relevantLaws = await findRelevantLaws(query);
       // const mostRelevantLaw = getMostRelevantLaw(relevantLaws, query);
-
       // Send the user's message
       // await sendMessage({
       //   chatId: chat.id,
@@ -57,7 +60,6 @@ export const createChatController = async (
       //   },
       //   metadata: { query, relevantLaws },
       // });
-
       // // Send the initial message to the LLM
       // const response = await chat(
       //   createChatSessionPayload([
@@ -71,7 +73,6 @@ export const createChatController = async (
       //     },
       //   ]),
       // );
-
       // Send the AI's response as the first message
       // await sendMessage({
       //   chatId: chat.id,
@@ -89,13 +90,28 @@ export const createChatController = async (
     if (chat) {
       const createdChat = await getChatById(chat.id);
 
-      return sendSuccessResponse(res, {
-        data: createdChat,
-        message: "Chat created successfully",
-        status: HttpStatus.CREATED,
-      });
+      if (!createdChat) {
+        return sendErrorResponse(req, res, {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+        });
+      }
+
+      return sendSuccessResponse(
+        req,
+        res,
+        {
+          data: { ...createdChat, id: createdChat.id.toString() } as typeof createdChat & { id: string },
+          type: "single",
+          serializerConfig: ChatSerializer,
+        },
+        {
+          status: HttpStatus.CREATED,
+        },
+      );
     }
-    sendErrorResponse(res, HttpStatus.INTERNAL_SERVER_ERROR);
+    sendErrorResponse(req, res, {
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+    });
   } catch (error) {
     console.error("Error creating chat:", error);
     next(error);

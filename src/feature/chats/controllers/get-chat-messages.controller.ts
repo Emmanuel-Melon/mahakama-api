@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { getMessagesByChatId } from "../operations/messages.list";
-import {
-  sendSuccessResponse,
-} from "@/lib/express/express.response";
+import { sendSuccessResponse } from "@/lib/express/express.response";
 import { type ControllerMetadata } from "@/lib/express/express.types";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { MessageSerializer } from "../../messages/messages.config";
 
 export const getMessagesByChatIdController = async (
   req: Request,
@@ -14,7 +13,7 @@ export const getMessagesByChatIdController = async (
   try {
     const metadata: ControllerMetadata = {
       name: "getMessagesByChatIdController",
-      resourceType: "chats",
+      resourceType: "message",
       route: req.path,
       operation: "fetch",
       requestId: req.requestId,
@@ -22,11 +21,14 @@ export const getMessagesByChatIdController = async (
     const { chatId } = req.params;
     const messages = await getMessagesByChatId(chatId);
     sendSuccessResponse(
+      req,
       res,
-      { messages },
       {
-        ...metadata,
-        timestamp: new Date().toISOString(),
+        data: messages.map(message => ({ ...message, id: message.id.toString() })) as (typeof messages[number] & { id: string })[],
+        type: "collection",
+        serializerConfig: MessageSerializer,
+      },
+      {
         status: HttpStatus.SUCCESS,
       },
     );

@@ -1,53 +1,40 @@
-import { db } from "../../../lib/drizzle";
-import { chatsSchema, chatMessages, type ChatMessage } from "../../chats/chats.schema";
-import { eq } from "drizzle-orm";
-import { getChatById } from "../../chats/operations/chat.find";
+import { Request, Response, NextFunction } from "express";
+import { sendMessage } from "../operations/messages.create";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "@/lib/express/express.response";
+import { HttpStatus } from "@/http-status";
+import { MessageSerializer } from "../messages.config";
 
-export interface MessageSender {
-  id: string;
-  type: "user" | "assistant" | "system";
-  displayName?: string;
-}
-
-export interface SendMessageParams {
-  chatId: string;
-  content: string;
-  sender: MessageSender;
-  metadata?: Record<string, unknown>;
-}
-
-export const sendMessage = async ({
-  chatId,
-  content,
-  sender,
-  metadata = {},
-}: SendMessageParams): Promise<ChatMessage> => {
-  const timestamp = new Date();
-
-  // Verify chat exists
-  const chat = await getChatById(chatId);
-  if (!chat) {
-    throw new Error("Chat not found");
-  }
-
-  // Insert the new message
-  const [message] = await db
-    .insert(chatMessages)
-    .values({
+export const sendMessageController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { chatId, content, sender, metadata } = req.body;
+    
+    const message = await sendMessage({
       chatId,
       content,
-      senderId: sender.id,
-      senderType: sender.type,
+      sender,
       metadata,
-      timestamp,
-    })
-    .returning();
+    });
 
-  // Update the chat's updatedAt timestamp
-  await db
-    .update(chatsSchema)
-    .set({ updatedAt: timestamp })
-    .where(eq(chatsSchema.id, chatId));
-
-  return message;
+    sendSuccessResponse(
+      req,
+      res,
+      {
+        data: { ...message, id: message.id.toString() } as typeof message & { id: string },
+        type: "single",
+        serializerConfig: MessageSerializer,
+      },
+      {
+        status: HttpStatus.CREATED,
+      },
+    );
+  } catch (error) {
+    next(error);
+  }
 };

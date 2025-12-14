@@ -1,11 +1,11 @@
-import { queueManager, QueueName } from "../../lib/bullmq";
+import { queueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions, Worker } from "bullmq";
-import { stripUpstashUrl } from "../../lib/bullmq/utils";
-import { config } from "../../config/dev.config";
-import { QueueInstance } from "../../lib/bullmq/types";
+import { stripUpstashUrl, QueueName } from "@/lib/bullmq/bullmq.config";
+import { dbConfig } from "@/config";
+import { QueueInstance } from "@/lib/bullmq/bullmq.types";
 
-const { host, port } = stripUpstashUrl(config.upstashRedisRestUrl as string);
-const password = config.upstashRedisRestToken;
+const { host, port } = stripUpstashUrl(dbConfig.redis?.url as string);
+const password = dbConfig.redis?.port;
 
 export class EmbeddingsQueueManager {
   private static instance: EmbeddingsQueueManager;
@@ -38,40 +38,40 @@ export class EmbeddingsQueueManager {
   }
 }
 
-const embeddingsWorker = new Worker(
-  QueueName.Embeddings,
-  async (job) => {
-    console.log(`Processing job ${job.id} of type ${job.name}`);
-  },
-  {
-    connection: {
-      host,
-      port,
-      password,
-      tls: {},
-    },
-    concurrency: 5, // Process 5 jobs in parallel
-    removeOnComplete: { count: 100 }, // Keep last 100 completed jobs
-    removeOnFail: { count: 200 }, // Keep last 200 failed jobs
-  },
-);
+// const embeddingsWorker = new Worker(
+//   QueueName.Embeddings,
+//   async (job) => {
+//     console.log(`Processing job ${job.id} of type ${job.name}`);
+//   },
+//   {
+//     connection: {
+//       host,
+//       port,
+//       password,
+//       tls: {},
+//     },
+//     concurrency: 5, // Process 5 jobs in parallel
+//     removeOnComplete: { count: 100 }, // Keep last 100 completed jobs
+//     removeOnFail: { count: 200 }, // Keep last 200 failed jobs
+//   },
+// );
 
-embeddingsWorker.on("completed", (job) => {
-  console.log(`Job ${job.id} completed`);
-});
+// embeddingsWorker.on("completed", (job) => {
+//   console.log(`Job ${job.id} completed`);
+// });
 
-embeddingsWorker.on("failed", (job, error) => {
-  console.error(`Job ${job?.id} failed with error:`, error);
-});
+// embeddingsWorker.on("failed", (job, error) => {
+//   console.error(`Job ${job?.id} failed with error:`, error);
+// });
 
-embeddingsWorker.on("error", (error) => {
-  console.error("Worker error:", error);
-});
+// embeddingsWorker.on("error", (error) => {
+//   console.error("Worker error:", error);
+// });
 
-process.on("SIGTERM", async () => {
-  console.log("SIGTERM received, shutting down worker...");
-  await embeddingsWorker.close();
-  process.exit(0);
-});
+// process.on("SIGTERM", async () => {
+//   console.log("SIGTERM received, shutting down worker...");
+//   await embeddingsWorker.close();
+//   process.exit(0);
+// });
 
 console.log("Embeddings Worker started and listening for jobs...");

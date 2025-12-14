@@ -5,7 +5,8 @@ import {
   sendSuccessResponse,
 } from "@/lib/express/express.response";
 import { type ControllerMetadata } from "@/lib/express/express.types";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { ChatSerializer } from "../chats.config";
 
 export const getChatController = async (
   req: Request,
@@ -15,7 +16,7 @@ export const getChatController = async (
   try {
     const metadata: ControllerMetadata = {
       name: "getChatController",
-      resourceType: "chats",
+      resourceType: "chat",
       route: req.path,
       operation: "fetch",
       requestId: req.requestId,
@@ -24,14 +25,19 @@ export const getChatController = async (
     const userId = req.user?.id!;
     const chat = await getChat(chatId, userId);
     if (!chat) {
-      return sendErrorResponse(res, HttpStatus.NOT_FOUND);
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.NOT_FOUND,
+      });
     }
     sendSuccessResponse(
+      req,
       res,
-      { ...chat },
       {
-        ...metadata,
-        timestamp: new Date().toISOString(),
+        data: { ...chat.chat, id: chat.chat.id.toString() } as typeof chat.chat & { id: string },
+        type: "single",
+        serializerConfig: ChatSerializer,
+      },
+      {
         status: HttpStatus.SUCCESS,
       },
     );

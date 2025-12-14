@@ -104,7 +104,7 @@ export async function downloadDocument({
 
     await tx.insert(downloadsTable).values({
       user_id,
-      documentId,
+      document_id: documentId,
     });
 
     const [updatedDocument] = await tx

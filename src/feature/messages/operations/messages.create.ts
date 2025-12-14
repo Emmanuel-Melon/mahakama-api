@@ -1,7 +1,11 @@
-import { db } from "../../../lib/drizzle";
-import { chatsSchema, chatMessages, type ChatMessage } from "../../chats/chats.schema";
+import { db } from "@/lib/drizzle";
+import {
+  chatsSchema,
+  chatMessages,
+  type ChatMessage,
+} from "@/feature/chats/chats.schema";
 import { eq } from "drizzle-orm";
-import { getChatById } from "../../chats/operations/chat.find";
+import { getChatById } from "@/feature/chats/operations/chat.find";
 
 export interface MessageSender {
   id: string;
@@ -24,13 +28,11 @@ export const sendMessage = async ({
 }: SendMessageParams): Promise<ChatMessage> => {
   const timestamp = new Date();
 
-  // Verify chat exists
   const chat = await getChatById(chatId);
   if (!chat) {
     throw new Error("Chat not found");
   }
 
-  // Insert the new message
   const [message] = await db
     .insert(chatMessages)
     .values({
@@ -42,8 +44,6 @@ export const sendMessage = async ({
       timestamp,
     })
     .returning();
-
-  // Update the chat's updatedAt timestamp
   await db
     .update(chatsSchema)
     .set({ updatedAt: timestamp })
