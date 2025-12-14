@@ -53,8 +53,18 @@ export class QueueManager {
       const queue = new Queue(name, config as QueueOptions);
 
       // Add error handler for the queue
-      queue.on("error", (error) => {
-        logger.error(error, `Queue ${name} error:`);
+      queue.on("error", (error: Error) => {
+        logger.error(
+          {
+            error: {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+              queue: name,
+            },
+          },
+          `[Queue:${name}] Failed to process job: ${error.message}`,
+        );
       });
 
       const instance: QueueInstance = {

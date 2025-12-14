@@ -1,68 +1,63 @@
-import { Request, Response } from "express";
-import swaggerJsdoc from "swagger-jsdoc";
-import { mahakamaServers } from "@/config";
-import { resolveAbsolutePaths } from "@/utils/fs";
+import { Request, Response, RequestHandler } from "express";
 import swaggerUi from "swagger-ui-express";
+import { mahakamaServers } from "@/config";
+import {
+  OpenApiGeneratorV3,
+  OpenAPIRegistry,
+} from "@asteasolutions/zod-to-openapi";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
+import { usersRegistry } from "@/feature/users/users.docs";
+import { authRegistry } from "@/feature/auth/auth.docs";
+import { expressRegistry } from "./express/express.schema";
+import { lawyersRegistry } from "@/feature/lawyers/operations/lawyers.docs";
 
-const apiDocPaths = [
-  "src/feature/auth/auth.docs.ts",
-  "src/feature/chats/chats.docs.ts",
-  "src/feature/documents/documents.docs.ts",
-  "src/feature/lawyers/lawyers.docs.ts",
-  "src/feature/messages/messages.docs.ts",
-  "src/feature/questions/questions.docs.ts",
-  "src/feature/search/search.docs.ts",
-  "src/feature/users/users.docs.ts",
-] as const;
+extendZodWithOpenApi(z);
 
-export const swaggerApiRoutes = resolveAbsolutePaths(apiDocPaths);
+// Create a registry for security schemes
+const securityRegistry = new OpenAPIRegistry();
+securityRegistry.registerComponent("securitySchemes", "bearerAuth", {
+  type: "http",
+  scheme: "bearer",
+  bearerFormat: "JWT",
+  description: "JWT Bearer token for authentication",
+});
 
-const options: swaggerJsdoc.Options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Mahakama API",
-      version: "1.0.0",
-      description: "API documentation for Mahakama Legal Assistant",
-      contact: {
-        name: "API Support",
-        url: "mailto:emmanuelgatwech@gmail.com",
-      },
-    },
-    // These URLs are used as the base for all API endpoints in the documentation.
-    servers: mahakamaServers,
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-    security: [
-      {
-        bearerAuth: [],
-      },
-    ],
+// Combine all registries
+const registries = [
+  authRegistry,
+  expressRegistry,
+  lawyersRegistry,
+  usersRegistry,
+  securityRegistry,
+];
+
+const definitions = registries.flatMap((r) => r.definitions);
+const generator = new OpenApiGeneratorV3(definitions);
+
+export const openApiSpec = generator.generateDocument({
+  openapi: "3.0.0",
+  info: {
+    title: "Mahakama Legal Assistant API",
+    version: "1.0.0",
+    description: "API documentation for Mahakama Legal Assistant",
   },
-  // Paths to files containing OpenAPI definitions (JSDoc comments)
-  apis: swaggerApiRoutes,
-};
+  servers: mahakamaServers,
+});
 
-const apiSpecs = swaggerJsdoc(options);
-
-export { apiSpecs };
-
-
+// Serve raw JSON
 export const rawJSONDocs = (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "application/json");
-  res.json(apiSpecs);
+  res.json(openApiSpec);
 };
 
+// Setup Swagger UI
 export const swaggerSetup = () => {
-  return swaggerUi.setup(apiSpecs, {
-    explorer: true,
-    customCss: ".swagger-ui \n.swagger-ui .info { margin: 20px 0 }\n",  
-  });
+  return [
+    swaggerUi.serve as unknown as RequestHandler,
+    swaggerUi.setup(openApiSpec, {
+      explorer: true,
+      customCss: ".swagger-ui .info { margin: 20px 0 }",
+    }) as unknown as RequestHandler,
+  ] as RequestHandler[];
 };

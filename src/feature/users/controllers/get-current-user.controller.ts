@@ -3,8 +3,8 @@ import {
   sendSuccessResponse,
   sendErrorResponse,
 } from "@/lib/express/express.response";
-import { HttpStatus } from "@/lib/express/http-status";
-import { UserSerializer } from "../users.config";
+import { HttpStatus } from "@/http-status";
+import { SerializedUser } from "../users.config";
 import { findById } from "../operations/users.find";
 
 export const getCurrentUserController = async (
@@ -13,11 +13,11 @@ export const getCurrentUserController = async (
   next: NextFunction,
 ) => {
   try {
-    const user = await findById(req.user.id);
+    const user = await findById(req?.user?.id || "");
     if (!user) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.NOT_FOUND,
-        message: "The requested user profile doesn't exist on this serve.",
+        description: "The requested user profile doesn't exist on this serve.",
       });
     }
     return sendSuccessResponse(
@@ -27,7 +27,7 @@ export const getCurrentUserController = async (
         data: {
           ...user,
         },
-        serializerConfig: UserSerializer,
+        serializerConfig: SerializedUser,
         type: "single",
       },
       {

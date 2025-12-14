@@ -7,7 +7,8 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { LawyersSerializer } from "../lawyers.config";
 
 export const createLawyerController = async (
   req: Request,
@@ -21,17 +22,27 @@ export const createLawyerController = async (
       .from(lawyersTable)
       .where(eq(lawyersTable.email, lawyerAttrs.email))
       .limit(1);
-
     if (existingLawyer) {
-      return sendErrorResponse(res, HttpStatus.CONFLICT);
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.CONFLICT,
+      });
     }
     const lawyer = await createLawyer(lawyerAttrs);
+    if (!lawyer) {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
     return sendSuccessResponse(
+      req,
       res,
-      { lawyer: lawyerResponseSchema.parse(lawyer) },
+      {
+        data: { ...lawyer, id: lawyer.id.toString() } as typeof lawyer & { id: string },
+        type: "single",
+        serializerConfig: LawyersSerializer,
+      },
       {
         status: HttpStatus.CREATED,
-        requestId: req.requestId,
       },
     );
   } catch (error) {

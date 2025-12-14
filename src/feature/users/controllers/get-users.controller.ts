@@ -1,17 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { findAll } from "../operations/users.list";
 import { sendSuccessResponse } from "@/lib/express/express.response";
-import { GetUsersQuery } from "../users.types";
-import { HttpStatus } from "@/lib/express/http-status";
-import { UserSerializer } from "../users.config";
+import { HttpStatus } from "@/http-status";
+import { SerializedUser } from "../users.config";
 
 export const getUsersController = async (
-  req: Request<{}, {}, {}, GetUsersQuery>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { users: data, total } = await findAll({ 
+    const { users: data, total } = await findAll({
       ...req.query,
       limit: req.pagination.limit,
       page: req.pagination.page,
@@ -21,14 +20,14 @@ export const getUsersController = async (
       res,
       {
         data: data,
-        serializerConfig: UserSerializer,
+        serializerConfig: SerializedUser,
         type: "collection",
       },
       {
         status: HttpStatus.SUCCESS,
         additionalMeta: {
-          total
-        }
+          total,
+        },
       },
     );
   } catch (error) {

@@ -6,9 +6,7 @@ import {
   ChatCompletionOptions,
 } from "../llms.types";
 import { llmConfig } from "@/config";
-import {
-    getMessagesForLLM,
-} from "@/feature/chats/operations/messages.list";
+import { getMessagesForLLM } from "@/feature/chats/operations/messages.list";
 import { logger } from "@/lib/logger";
 import { formatMessagesForProvider } from "../llm.utils";
 
@@ -102,6 +100,4 @@ export const generateEmbedding = async (query: string) => {
   };
 };
 
-
 export const ollamaClient = OllamaClient.getInstance();
-

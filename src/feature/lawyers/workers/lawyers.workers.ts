@@ -1,8 +1,8 @@
 import { Worker } from "bullmq";
-import { QueueName } from "../../lib/bullmq";
-import { setWorkerOptions } from "../../lib/bullmq/utils";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
+import { setWorkerOptions } from "@/lib/bullmq/bullmq.utils";
 import { LawyersJobType } from "./lawyers.queue";
-import { logger } from "../../lib/logger";
+import { logger } from "@/lib/logger";
 
 const lawyersWorker = new Worker(
   QueueName.Auth,

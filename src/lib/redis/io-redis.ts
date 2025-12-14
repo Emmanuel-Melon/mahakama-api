@@ -22,7 +22,7 @@ export class IORedisClient implements IRedisClient {
       });
 
       logger.info(
-      `🔗 Redis Cluster initialized with ${config.cluster.nodes.length} nodes`,
+        `🔗 Redis Cluster initialized with ${config.cluster.nodes.length} nodes`,
       );
     } else {
       const options: RedisOptions = {

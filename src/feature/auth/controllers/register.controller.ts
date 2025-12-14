@@ -1,16 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { RegisterUserAttrs } from "../auth.schema";
-import { generateAuthToken, hashPassword, getCookieOptions } from "../auth.utils";
+import {
+  generateAuthToken,
+  hashPassword,
+  getCookieOptions,
+} from "../auth.utils";
 import { registerUser } from "../operations/auth.create";
 import { findUserByEmail } from "../operations/auth.find";
-import { authQueue, AuthJobType } from "../workers/auth.queue";
+import { authQueue } from "../workers/auth.queue";
 import { RegisterResponse } from "../auth.types";
 import {
   sendErrorResponse,
   sendSuccessResponse,
-} from "../../lib/express/express.response";
+} from "@/lib/express/express.response";
 import { userResponseSchema } from "../../users/users.schema";
-import { HttpStatus } from "../../lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { SerializedUser } from "@/feature/users/users.config";
 
 export const registerUserController = async (
   req: Request<{}, {}, RegisterUserAttrs>,
@@ -22,8 +27,9 @@ export const registerUserController = async (
     const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
-      return sendErrorResponse(res, HttpStatus.CONFLICT, {
-        message: "User with this email already exists",
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.CONFLICT,
+        description: "User with this email already exists",
       });
     }
 
@@ -35,27 +41,24 @@ export const registerUserController = async (
 
     const token = generateAuthToken(user);
 
-    await authQueue.enqueue(AuthJobType.Registration, {
-      userId: user.id,
-      email,
-      name,
-      password,
-      timestamp: Date.now(),
-      userAgent: req.headers["user-agent"],
-    });
+    // await authQueue.enqueue(AuthJobType.Registration, {
+    //   userId: user.id,
+    //   email,
+    //   name,
+    //   password,
+    //   timestamp: Date.now(),
+    //   userAgent: req.headers["user-agent"],
+    // });
 
     res.cookie("token", token, getCookieOptions());
 
     const { ...userWithoutPassword } = user;
 
-    return sendSuccessResponse(
-      res,
-      { user: userResponseSchema.parse(userWithoutPassword) },
-      {
-        requestId: req.requestId,
-        status: HttpStatus.CREATED,
-      },
-    );
+    return sendSuccessResponse(req, res, {
+      data: userWithoutPassword,
+      serializerConfig: SerializedUser,
+      type: "single",
+    });
   } catch (error) {
     next(error);
   }

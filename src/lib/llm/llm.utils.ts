@@ -3,7 +3,7 @@ import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 export interface FormattedRequest {
-  messages: any; 
+  messages: any;
   options: Record<string, any>;
 }
 
@@ -15,17 +15,18 @@ export function formatMessagesForProvider(
     responseSchema?: z.ZodSchema<any>;
     responseFormat?: "text" | "json";
     [key: string]: any;
-  } = {}
+  } = {},
 ): FormattedRequest {
-  const { systemPrompt, responseSchema, responseFormat, ...otherOptions } = options;
+  const { systemPrompt, responseSchema, responseFormat, ...otherOptions } =
+    options;
   const baseOptions: Record<string, any> = { ...otherOptions };
 
   if (responseSchema) {
     const jsonSchema = zodToJsonSchema(responseSchema);
-    if (provider === 'gemini') {
+    if (provider === "gemini") {
       baseOptions.responseMimeType = "application/json";
       baseOptions.responseJsonSchema = jsonSchema;
-    } else if (provider === 'ollama') {
+    } else if (provider === "ollama") {
       baseOptions.responseSchema = jsonSchema;
       baseOptions.responseFormat = "json";
     }
@@ -35,36 +36,36 @@ export function formatMessagesForProvider(
 
   let formattedMessages: any;
   switch (provider) {
-    case 'gemini': {
-      const messageTexts = messages.map(msg => {
-        const prefix = msg.role === 'assistant' ? 'Assistant' : 'User';
+    case "gemini": {
+      const messageTexts = messages.map((msg) => {
+        const prefix = msg.role === "assistant" ? "Assistant" : "User";
         return `${prefix}: ${msg.content}`;
       });
-      
-      let fullContent = messageTexts.join('\n\n');
+
+      let fullContent = messageTexts.join("\n\n");
       if (systemPrompt) {
         fullContent = `System: ${systemPrompt}\n\n${fullContent}`;
       }
-      
+
       return {
         messages: fullContent,
-        options: baseOptions
+        options: baseOptions,
       };
     }
 
-    case 'ollama': {
+    case "ollama": {
       const formatted = [...messages];
-      
+
       if (systemPrompt) {
         formatted.unshift({
-          role: 'system',
-          content: systemPrompt
+          role: "system",
+          content: systemPrompt,
         });
       }
-      
+
       return {
         messages: formatted,
-        options: baseOptions
+        options: baseOptions,
       };
     }
 
@@ -76,25 +77,25 @@ export function formatMessagesForProvider(
 export function buildRequestConfig(
   provider: LLMProvider,
   messages: any,
-  options: Record<string, any> = {}
+  options: Record<string, any> = {},
 ): any {
   switch (provider) {
-    case 'gemini': {
+    case "gemini": {
       return {
         contents: [
           {
-            role: 'user',
-            parts: [{ text: messages }] // messages is a string for Gemini
-          }
+            role: "user",
+            parts: [{ text: messages }], // messages is a string for Gemini
+          },
         ],
-        ...options
+        ...options,
       };
     }
 
-    case 'ollama': {
+    case "ollama": {
       return {
         messages, // messages is an array for Ollama
-        ...options
+        ...options,
       };
     }
 
@@ -102,7 +103,6 @@ export function buildRequestConfig(
       throw new Error(`Unsupported provider: ${provider}`);
   }
 }
-
 
 export interface SchemaValidationResult {
   isValid: boolean;

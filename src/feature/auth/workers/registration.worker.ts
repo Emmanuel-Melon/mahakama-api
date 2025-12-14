@@ -3,7 +3,9 @@ import { User } from "@/feature/users/users.schema";
 import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
 import { logger } from "@/lib/logger";
 
-export const registerUserWorker = async (job: Job<BaseJobPayload<{ user: User }>>) => {
+export const registerUserWorker = async (
+  job: Job<BaseJobPayload<{ user: User }>>,
+) => {
   const { payload, metadata, eventId } = job.data;
   const { user } = payload;
   try {

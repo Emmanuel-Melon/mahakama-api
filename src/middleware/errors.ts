@@ -35,9 +35,9 @@ export const globalErrorHandler = (
   if (error instanceof AppError) {
     statusCode = error.statusCode;
     errorMessage = error.message;
-    statusConfig = Object.values(HttpStatus).find(
-      s => s.statusCode === statusCode
-    ) || HttpStatus.INTERNAL_SERVER_ERROR;
+    statusConfig =
+      Object.values(HttpStatus).find((s) => s.statusCode === statusCode) ||
+      HttpStatus.INTERNAL_SERVER_ERROR;
   } else if (error instanceof ZodError) {
     statusConfig = HttpStatus.BAD_REQUEST;
     errorMessage = "Validation error";
@@ -57,13 +57,13 @@ export const globalErrorHandler = (
       message: error.message,
       stack: error.stack,
       ...(error instanceof AppError && {
-        isOperational: error.isOperational
+        isOperational: error.isOperational,
       }),
     },
     request: {
       method: req.method,
       url: req.originalUrl,
-      ip: res.locals.clientIp
+      ip: res.locals.clientIp,
     },
     timestamp: new Date().toISOString(),
   };
@@ -74,22 +74,27 @@ export const globalErrorHandler = (
     logger.error(errorLog, `Unhandled error: ${error.message}`);
   }
 
-  sendErrorResponse(req, res, {
-    status: statusConfig,
-    description: errorMessage,
-    source: {
-      pointer: req.originalUrl,
-      method: req.method,
-    }
-  }, {
-    additionalMeta: {
-      ...errorMeta,
-      ...(serverConfig.isDevelopment && {
-        stack: error.stack,
-        errorType: error.constructor.name,
-      }),
-    }
-  });
+  sendErrorResponse(
+    req,
+    res,
+    {
+      status: statusConfig,
+      description: errorMessage,
+      source: {
+        pointer: req.originalUrl,
+        method: req.method,
+      },
+    },
+    {
+      additionalMeta: {
+        ...errorMeta,
+        ...(serverConfig.isDevelopment && {
+          stack: error.stack,
+          errorType: error.constructor.name,
+        }),
+      },
+    },
+  );
 };
 
 export const notFoundHandler = (req: Request, res: Response) => {

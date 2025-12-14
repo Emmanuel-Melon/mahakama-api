@@ -16,7 +16,7 @@ export type ConnectionOptions = {
   port: number;
   password: string;
   tls: object;
-}
+};
 
 export type QueueConfig = {
   connection: ConnectionOptions;
@@ -26,7 +26,7 @@ export type BullWorkerOptions = QueueConfig & {
   concurrency: number;
   removeOnComplete: { count: number };
   removeOnFail: { count: number };
-}
+};
 
 export interface QueueHealth {
   waiting: number;
@@ -70,4 +70,3 @@ export interface BaseJobPayload<T> {
   payload: T;
   metadata: JobMetadata;
 }
-

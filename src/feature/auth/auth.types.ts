@@ -1,5 +1,8 @@
 import { User } from "@/feature/users/users.schema";
-import { SuccessResponse, ErrorResponse } from "@/lib/express/express.types";
+import {
+  JsonApiErrorResponse,
+  JsonApiResponse,
+} from "@/lib/express/express.types";
 
 export interface AuthJobData {
   userId?: string;
@@ -29,9 +32,9 @@ type AuthData = {
   token?: string;
 };
 
-export type AuthSuccessResponse = SuccessResponse<AuthData>;
+export type AuthSuccessResponse = JsonApiResponse<AuthData>;
 
-export type AuthErrorResponse = ErrorResponse;
+export type AuthErrorResponse = JsonApiErrorResponse;
 
 export type AuthResponse = AuthSuccessResponse | AuthErrorResponse;
 
@@ -39,7 +42,7 @@ export type RegisterData = {
   user: UserWithoutPassword;
 };
 
-export type RegisterSuccessResponse = SuccessResponse<RegisterData>;
+export type RegisterSuccessResponse = JsonApiResponse<RegisterData>;
 
 export type RegisterErrorResponse = AuthErrorResponse;
 

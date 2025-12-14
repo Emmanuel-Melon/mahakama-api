@@ -1,8 +1,9 @@
-import { queueManager, QueueName, QueueManager } from "../../lib/bullmq";
+import { queueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
-import { QueueInstance } from "../../lib/bullmq/types";
-import { setQueueJobOptions } from "../../lib/bullmq/utils";
+import { QueueInstance } from "@/lib/bullmq/bullmq.types";
+import { setQueueJobOptions } from "@/lib/bullmq/bullmq.utils";
 import { Lawyer } from "../lawyers.schema";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
 
 export enum LawyersJobType {
   LawyerOnboarded = "lawyer-onboarded",

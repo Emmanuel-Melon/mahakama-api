@@ -1,23 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import { updateUser } from "../operations/users.update";
-import {
-  userResponseSchema,
-  User,
-} from "../users.schema";
+import { User, type UserAttrs, type UserRole } from "../users.schema";
 import { findById } from "../operations/users.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { type SuccessResponse } from "@/lib/express/express.types";
-import { GetUsersParams,   UserAttrs,
-  UserRoles, } from "../users.types";
-import { HttpStatus } from "@/lib/express/http-status";
-import { UserSerializer } from "../users.config";
+import { type JsonApiResponse } from "@/lib/express/express.types";
+import { GetUsersParams, UserRoles } from "../users.types";
+import { HttpStatus } from "@/http-status";
+import { SerializedUser } from "../users.config";
 
 export const updateUserController = async (
-  req: Request<GetUsersParams, {}, Omit<UserAttrs, "password">, {}>,
-  res: Response<SuccessResponse<User>>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
@@ -26,17 +22,17 @@ export const updateUserController = async (
     if (!existingUser) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.NOT_FOUND,
-        message: "The requested user profile doesn't exist on this serve.",
+        description: "The requested user profile doesn't exist on this serve.",
       });
     }
     if (req.user?.id !== userId && req.user?.role !== "admin") {
       return sendErrorResponse(req, res, {
-        status: HttpStatus.FORBIDDEN
+        status: HttpStatus.FORBIDDEN,
       });
     }
     const data = await updateUser(userId, {
       ...req.body,
-      role: req.body.role as UserRoles,
+      role: req.body.role as UserRole,
     });
     if (!data) {
       throw new Error("Failed to update user");
@@ -46,7 +42,7 @@ export const updateUserController = async (
       res,
       {
         data: data,
-        serializerConfig: UserSerializer,
+        serializerConfig: SerializedUser,
         type: "single",
       },
       {
@@ -57,5 +53,3 @@ export const updateUserController = async (
     next(error);
   }
 };
-
-

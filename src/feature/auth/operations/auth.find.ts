@@ -1,8 +1,10 @@
-import { db } from "../../lib/drizzle";
-import { usersSchema, type User } from "../../users/users.schema";
+import { db } from "@/lib/drizzle";
+import { usersSchema, type User } from "@/feature/users/users.schema";
 import { eq } from "drizzle-orm";
 
 export type UserWithPassword = User & {
+  id: any;
+  email: any;
   password: string | null;
 };
 

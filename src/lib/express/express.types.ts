@@ -3,7 +3,11 @@ import { ParsedQs } from "qs";
 import { ParamsDictionary } from "express-serve-static-core";
 import { Request } from "express";
 import { StatusConfig } from "@/http-status";
-import { JsonApiError, ResponseLinks, ResponseMetadata } from "./express.schema";
+import {
+  JsonApiError,
+  ResponseLinks,
+  ResponseMetadata,
+} from "./express.schema";
 
 // server types
 export type ServerStatus = "healthy" | "maintenance" | "unhealthy";
@@ -25,10 +29,13 @@ export interface ResourceObject<T> {
   type: string;
   id: string;
   attributes: Record<string, any>;
-  relationships?: Record<string, {
-    links?: ResourceLinkObject;
-    data?: ResourceLinkage;
-  }>;
+  relationships?: Record<
+    string,
+    {
+      links?: ResourceLinkObject;
+      data?: ResourceLinkage;
+    }
+  >;
   meta?: Record<string, any>;
   links?: Record<string, string>;
 }
@@ -46,13 +53,15 @@ export type SSEEvent<T = any, Type extends string = string> = {
 };
 
 // Helper type to extract the data type from an event type
-export type EventDataType<T> = T extends { type: string; data?: infer D } ? D : never;
+export type EventDataType<T> = T extends { type: string; data?: infer D }
+  ? D
+  : never;
 
 // Helper type to create strongly typed events
 export function createEvent<T extends string, D = any>(
   type: T,
   data: D,
-  options?: { id?: string; retry?: number }
+  options?: { id?: string; retry?: number },
 ): SSEEvent<D, T> {
   return {
     type,
@@ -61,7 +70,9 @@ export function createEvent<T extends string, D = any>(
     retry: options?.retry,
   };
 }
-export type ErrorResponseConfig = Partial<Pick<StatusConfig, "description" | "title">> & {
+export type ErrorResponseConfig = Partial<
+  Pick<StatusConfig, "description" | "title">
+> & {
   status: StatusConfig;
   source?: { pointer?: string; method?: string };
   details?: Record<string, any>;
@@ -113,7 +124,7 @@ export type PaginationQueryParams = {
   total?: number;
 };
 
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
 export type BaseSortParams = {
   sortBy?: string;

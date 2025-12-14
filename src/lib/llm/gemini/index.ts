@@ -6,9 +6,7 @@ import {
 } from "../llms.types";
 import { GoogleGenAI } from "@google/genai";
 import { llmConfig } from "@/config";
-import {
-    getMessagesForLLM,
-} from "@/feature/chats/operations/messages.list";
+import { getMessagesForLLM } from "@/feature/chats/operations/messages.list";
 
 export class GeminiClient implements ILLMProvider {
   protected readonly client: GoogleGenAI;

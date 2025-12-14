@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { logRoute } from "@/lib/express/express.utils";
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 export const requestLogger = (
   req: Request,

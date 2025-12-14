@@ -23,10 +23,10 @@ const usersWorker = new Worker<BaseJobPayload<any>>(
     );
     try {
       switch (name) {
-        case UserEvents.UserCreated:
+        case UserEvents.UserCreated.jobName:
           await userCreatedWorker(job as Job<BaseJobPayload<{ user: User }>>);
           break;
-        case UserEvents.UserUpdated:
+        case UserEvents.UserUpdated.jobName:
           await userUpdatedWorker(
             job as Job<BaseJobPayload<{ user: Partial<User> }>>,
           );

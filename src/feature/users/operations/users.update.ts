@@ -1,12 +1,12 @@
 import { db } from "@/lib/drizzle";
 import { usersSchema } from "../users.schema";
-import { UserAttrs, User, UserRoles } from "../users.schema";
+import { UserAttrs, type UserRole, type User } from "../users.schema";
 import { eq } from "drizzle-orm";
 import { findById } from "./users.find";
 
 export async function updateUser(
   userId: string,
-  userAttrs: Omit<UserAttrs, "password">,
+  userAttrs: User,
 ): Promise<User | null> {
   const userExists = await findById(userId);
   const [updatedUser] = await db
@@ -14,7 +14,7 @@ export async function updateUser(
     .set({
       ...userAttrs,
       updatedAt: new Date(),
-      role: userAttrs.role as UserRoles,
+      role: userAttrs.role as UserRole,
     })
     .where(eq(usersSchema.id, userId))
     .returning();

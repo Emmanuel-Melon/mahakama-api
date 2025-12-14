@@ -4,7 +4,10 @@ import { serverConfig } from "@/config";
 import { sendErrorResponse, sendSuccessResponse } from "./express.response";
 import { HttpStatus } from "../../http-status";
 import { HealthCheckResponse, WelcomeResponse } from "./express.types";
-import { HealthCheckSerializerConfig, WelcomeResponseSerializerConfig } from "./express.config";
+import {
+  HealthCheckSerializerConfig,
+  WelcomeResponseSerializerConfig,
+} from "./express.config";
 import { queueManager } from "@/lib/bullmq";
 
 export const shutdownExpressServer = async (server: any) => {
@@ -63,14 +66,15 @@ export const checkServerHealthController = async (
       error instanceof Error ? error.message : "Unknown error";
     sendErrorResponse(req, res, {
       status: HttpStatus.SERVICE_UNAVAILABLE,
-      description: "Service Unavailable"
+      description: "Service Unavailable",
     });
   }
 };
 
 export const welcomeController = (req: Request, res: Response) => {
-  const baseUrl = `${serverConfig.protocol}://${serverConfig.hostname}${serverConfig.port ? `:${serverConfig.port}` : ''
-    }`;
+  const baseUrl = `${serverConfig.protocol}://${serverConfig.hostname}${
+    serverConfig.port ? `:${serverConfig.port}` : ""
+  }`;
   const response: WelcomeResponse = {
     message: "Welcome to Mahakama API - Legal Knowledge Platform",
     documentation: `${baseUrl}${serverConfig.endpoints.docs}`,

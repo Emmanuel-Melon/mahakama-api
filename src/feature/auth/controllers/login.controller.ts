@@ -13,8 +13,9 @@ import {
   sendSuccessResponse,
 } from "@/lib/express/express.response";
 import { userResponseSchema } from "@/feature/users/users.schema";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
 import { type AuthJobType, AuthEvents } from "../auth.config";
+import { SerializedUser } from "@/feature/users/users.config";
 
 export const loginUserController = async (
   req: Request<{}, {}, LoginUserAttrs>,
@@ -27,14 +28,14 @@ export const loginUserController = async (
     if (!user) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.UNAUTHORIZED,
-        message: "Invalid email or password",
+        description: "Invalid email or password",
       });
     }
 
     if (!user.password) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.UNAUTHORIZED,
-        message: "Account not properly set up. Please reset your password.",
+        description: "Account not properly set up. Please reset your password.",
       });
     }
 
@@ -42,32 +43,20 @@ export const loginUserController = async (
     if (!isPasswordValid) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.UNAUTHORIZED,
-        message: "Invalid email or password",
+        description: "Invalid email or password",
       });
     }
 
     const token = generateAuthToken(user);
-
-    await authQueue.enqueue(AuthEvents.Login.jobName, {
-      userId: user.id,
-      email: user.email!,
-      timestamp: Date.now(),
-      userAgent: req.headers["user-agent"],
-      ip: req.ip,
-    });
-
     res.cookie("token", token, getCookieOptions());
 
     const { ...userWithoutPassword } = user;
 
-    return sendSuccessResponse(
-      res,
-      { user: userResponseSchema.parse(userWithoutPassword) },
-      {
-        requestId: req.requestId,
-        status: HttpStatus.SUCCESS,
-      },
-    );
+    return sendSuccessResponse(req, res, {
+      data: userWithoutPassword,
+      serializerConfig: SerializedUser,
+      type: "single",
+    });
   } catch (error: unknown) {
     next(error);
   }

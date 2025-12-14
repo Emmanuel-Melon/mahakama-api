@@ -5,7 +5,7 @@ import { hashPassword } from "../../../auth/auth.utils";
 import { UserRoles, Genders } from "../../../users/users.types";
 
 // Helper to get a random element from an array
-const randomElement = <T>(array: T[]): T => 
+const randomElement = <T>(array: T[]): T =>
   array[Math.floor(Math.random() * array.length)];
 
 // Helper to get a random role with weighted distribution
@@ -20,10 +20,10 @@ async function createRandomUser(index: number): Promise<NewUser> {
   const gender = randomElement(Object.values(Genders));
   const firstName = faker.person.firstName(gender as any);
   const lastName = faker.person.lastName();
-  const email = faker.internet.email({ 
-    firstName, 
+  const email = faker.internet.email({
+    firstName,
     lastName,
-    provider: 'example.com' 
+    provider: "example.com",
   });
 
   return {
@@ -57,13 +57,16 @@ async function seedUsers() {
 
     // Log role distribution for verification
     const roleCounts = users.reduce<Record<string, number>>((acc, user) => {
-      const role = user.role || 'unknown';
+      const role = user.role || "unknown";
       acc[role] = (acc[role] || 0) + 1;
       return acc;
     }, {});
-    console.log('Role distribution:', roleCounts);
+    console.log("Role distribution:", roleCounts);
 
-    const insertedUsers = await db.insert(usersSchema).values(users).returning();
+    const insertedUsers = await db
+      .insert(usersSchema)
+      .values(users)
+      .returning();
 
     console.log(`Successfully seeded ${insertedUsers.length} users`);
     console.log("Seeded users:", insertedUsers);

@@ -1,12 +1,12 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { dbConfig, serverConfig } from "@/config";
-import { combinedUsersSchema} from "@/feature/users/users.schema";
+import { combinedUsersSchema } from "@/feature/users/users.schema";
 import * as chatsSchema from "@/feature/chats/chats.schema";
 
 // Create the connection pool
 const pool = new Pool({
-  connectionString: dbConfig.postgres.url
+  connectionString: dbConfig.postgres.url,
 });
 
 // Create the Drizzle instance with proper typing
@@ -25,6 +25,3 @@ export type Database = typeof db;
 export const closeDb = async () => {
   await pool.end();
 };
-
-
-

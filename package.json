@@ -31,9 +31,7 @@
     "chroma:search-laws": "tsx scripts/retrieve-laws-from-chroma.ts",
     "test:embeddings": "ts-node src/lib/llm/ollama/ollama.embeddings.ts",
     "ollama:list": "ts-node scripts/manage-ollama-models.ts list",
-    "ollama:pull": "ts-node scripts/manage-ollama-models.ts pull nomic-embed-text",
-    "postinstall": "npm run build && npm run ollama:pull",
-    "postbuild": "npm run ollama:pull"
+    "ollama:pull": "ts-node scripts/manage-ollama-models.ts pull nomic-embed-text"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
@@ -58,6 +56,7 @@
   },
   "dependencies": {
     "@11ty/eleventy": "^3.1.2",
+    "@asteasolutions/zod-to-openapi": "^8.2.0",
     "@chroma-core/default-embed": "^0.1.8",
     "@chroma-core/ollama": "^0.1.7",
     "@faker-js/faker": "^10.1.0",

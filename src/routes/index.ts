@@ -3,7 +3,6 @@ import documentRoutes, { DOCUMENTS_PATH } from "@/feature/documents/documents.ro
 import userRoutes, { USERS_PATH } from "@/feature/users/users.routes";
 import lawyerRoutes, { LAWYERS_PATH } from "@/feature/lawyers/lawyer.routes";
 import chatRoutes, { CHATS_PATH } from "@/feature/chats/chats.routes";
-import authRoutes from "@/feature/auth/auth.routes";
 
 export const AUTH_PATH = "/v1";
 const BASE_PATH = "/api/v1";

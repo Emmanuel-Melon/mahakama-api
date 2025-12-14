@@ -3,7 +3,6 @@ import express from "express";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { globalErrorHandler, notFoundHandler } from "./errors";
-import { apiSpecs } from "@/lib/swagger";
 import { authRouter } from "@/feature/auth/auth.routes";
 import { getIpAddress } from "./ip-address";
 import { authenticateToken } from "./auth";
@@ -12,7 +11,7 @@ import { userAgentMiddleware } from "./user-agent";
 import { fingerprintMiddleware } from "./fingerprint";
 import { corsMiddleware } from "./cors";
 import { serverConfig } from "@/config";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import { swaggerSetup, rawJSONDocs } from "@/lib/swagger";
 import { welcomeController, checkServerHealthController } from "@/lib/express";
 import { validateRequestHeaders } from "./request-validators";
@@ -40,14 +39,18 @@ export function initializeMiddlewares(app: Application): void {
 
   // Apply middlewares to all routes
   app.use(userAgentMiddleware);
-  app.use(fingerprintMiddleware);
+  // app.use(fingerprintMiddleware);
   app.use(getIpAddress);
 
   // API routes
   app.get("/", welcomeController);
   app.get(["/health", "/api/health"], checkServerHealthController);
-  app.use("/api/v1/auth", authRouter);
-  app.use("/api", validateRequestHeaders(authHeadersSchema), authenticateToken, mahakamaRouter);
+
+  // Debug: Log auth router registration
+  console.log("Registering auth router at /auth/v1");
+  app.use("/auth/v1", authRouter);
+
+  app.use("/api", authenticateToken, mahakamaRouter);
 
   // ERROR HANDLERS
   app.use(notFoundHandler);

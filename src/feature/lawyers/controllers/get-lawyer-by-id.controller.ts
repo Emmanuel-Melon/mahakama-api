@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { findById } from "../operations/lawyers.find";
 import { lawyerResponseSchema } from "../lawyers.schema";
-import { NotFoundError } from "@/middleware/errors";
-import { sendSuccessResponse } from "@/lib/express/express.response";
-import { HttpStatus } from "@/lib/express/http-status";
+import { AppError } from "@/middleware/errors";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "@/lib/express/express.response";
+import { HttpStatus } from "@/http-status";
+import { LawyersSerializer } from "../lawyers.config";
 
 export const getLawyerByIdController = async (
   req: Request,
@@ -14,14 +18,20 @@ export const getLawyerByIdController = async (
     const lawyerId = parseInt(req.params.id);
     const lawyer = await findById(lawyerId);
     if (!lawyer) {
-      throw new NotFoundError("Lawyer", { id: lawyerId });
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.NOT_FOUND,
+      });
     }
-    sendSuccessResponse(
+    return sendSuccessResponse(
+      req,
       res,
-      { lawyer: lawyerResponseSchema.parse(lawyer) },
       {
-        status: HttpStatus.SUCCESS,
-        requestId: req.requestId,
+        data: { ...lawyer, id: lawyer.id.toString() } as typeof lawyer & { id: string },
+        type: "single",
+        serializerConfig: LawyersSerializer,
+      },
+      {
+        status: HttpStatus.CREATED,
       },
     );
   } catch (error) {

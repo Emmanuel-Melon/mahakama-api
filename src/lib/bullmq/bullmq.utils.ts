@@ -2,15 +2,6 @@ import { JobsOptions, WorkerOptions } from "bullmq";
 import { defaultWorkerOptions, defaultBullJobOptions } from "./bullmq.config";
 import { QueueConfig } from "./bullmq.types";
 
-export const stripUpstashUrl = (
-  url: string,
-): { host: string; port: number } => {
-  const parsedUrl = new URL(url);
-  const host = parsedUrl.hostname;
-  const port = parseInt(parsedUrl.port) || 6379;
-  return { host, port };
-};
-
 export const setQueueJobOptions = (options?: JobsOptions) => {
   return {
     ...defaultBullJobOptions,
@@ -33,5 +24,5 @@ export const setQueueOptions = (options?: QueueConfig) => {
       password: "",
       tls: {},
     },
-  }
-}
+  };
+};

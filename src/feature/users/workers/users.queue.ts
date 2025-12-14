@@ -34,7 +34,7 @@ export class UsersQueueManager {
     return UsersQueueManager.instance;
   }
 
-  public async enqueue<T extends UsersJobPayloadMap>(
+  public async enqueue<T extends BaseJobPayload<T>>(
     jobName: UsersJobType | string,
     data: T,
     options?: JobsOptions,

@@ -1,29 +1,32 @@
 import { z } from "zod";
-import { User } from "./users.schema";
-import { BaseExpressResponse } from "@/lib/express/express.types";
+import {
+  User,
+  NewUser,
+  CreateUserRequest,
+  UserAttrs,
+  genderSchema,
+  userRoleSchema,
+} from "./users.schema";
 import { GetRequestQuery } from "@/lib/express/express.types";
+import {
+  JsonApiResponse,
+  JsonApiErrorResponse,
+} from "@/lib/express/express.types";
 
-export type UserWithoutPassword = Omit<User, "password">;
-
-export type UserSuccessResponse = BaseExpressResponse<UserWithoutPassword> & {
-  success: true;
-};
-export type UserErrorResponse = BaseExpressResponse<UserWithoutPassword> & {
-  success: false;
-};
-
+// Use inferred types from schemas
+export type UserSuccessResponse = JsonApiResponse<User>;
+export type UserErrorResponse = JsonApiErrorResponse;
 export type UserResponse = UserSuccessResponse | UserErrorResponse;
 
-export type GetUsersQuery = Omit<GetRequestQuery, 'page' | 'limit'> & {
-  role?: "admin" | "user" | "lawyer";
-  page?: number | string;
-  limit?: number | string;
+export type GetUsersQuery = GetRequestQuery & {
+  role?: z.infer<typeof userRoleSchema>;
 };
 
 export type GetUsersParams = {
   id?: string;
 };
 
+// Keep the constants for enum values (needed for drizzle schema)
 export const Genders = {
   MALE: "male",
   FEMALE: "female",
@@ -32,14 +35,12 @@ export const Genders = {
   OTHER: "other",
 } as const;
 
-export type Gender = (typeof Genders)[keyof typeof Genders];
-export const GenderValues = Object.values(Genders) as [string, ...string[]];
-
 export const UserRoles = {
   USER: "user" as const,
   ADMIN: "admin" as const,
   LAWYER: "lawyer" as const,
 } as const;
 
-export type UserRoles = (typeof UserRoles)[keyof typeof UserRoles];
+// Export inferred types from schemas
+export const GenderValues = Object.values(Genders) as [string, ...string[]];
 export const UserRoleValues = Object.values(UserRoles) as [string, ...string[]];

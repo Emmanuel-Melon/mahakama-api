@@ -1,7 +1,7 @@
 export const AuthEvents = {
   Login: {
     label: "login",
-    jobName: "auth:login"
+    jobName: "auth:login",
   },
   Registration: {
     label: "registration",
@@ -13,4 +13,5 @@ export const AuthEvents = {
   },
 } as const;
 
-export type AuthJobType = typeof AuthEvents[keyof typeof AuthEvents]['jobName'];
+export type AuthJobType =
+  (typeof AuthEvents)[keyof typeof AuthEvents]["jobName"];

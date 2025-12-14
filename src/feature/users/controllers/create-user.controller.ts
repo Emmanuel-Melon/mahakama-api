@@ -1,17 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import { createUser as createUserOperation } from "../operations/users.create";
-import { UserAttrs, userResponseSchema, User } from "../users.schema";
+import { UserAttrs, User } from "../users.schema";
 import { findById, findByFingerprint } from "../operations/users.find";
 import { v4 as uuid } from "uuid";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { usersQueue, UsersJobType } from "../workers/users.queue";
-import { HttpStatus } from "@/lib/express/http-status";
+import { usersQueue } from "../workers/users.queue";
+import { HttpStatus } from "@/http-status";
 import { logger } from "@/lib/logger";
 import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
-import { UserSerializer } from "../users.config";
+import { SerializedUser, UserEvents } from "../users.config";
 
 export const createUserController = async (
   req: Request<{}, {}, UserAttrs>,
@@ -20,7 +20,7 @@ export const createUserController = async (
 ) => {
   try {
     const { name, email } = req.body ?? {};
-    const userId = req.user?.id;
+    const userId = req.user?.id || "";
 
     const [userById, userByFingerprint] = await Promise.all([
       findById(userId),
@@ -48,7 +48,7 @@ export const createUserController = async (
         data: {
           ...user,
         },
-        serializerConfig: UserSerializer,
+        serializerConfig: SerializedUser,
         type: "single",
       },
       {
@@ -70,20 +70,20 @@ export const createUserController = async (
         },
       };
 
-      try {
-        await usersQueue.enqueue(UsersJobType.UserCreated, jobPayload);
-      } catch (err) {
-        logger.error(
-          {
-            err,
-            jobType: UsersJobType.UserCreated,
-            userId: user.id,
-            requestId: req.requestId,
-            jobPayload,
-          },
-          "Failed to enqueue UserCreated job",
-        );
-      }
+      // try {
+      //   await usersQueue.enqueue(UserEvents.UserCreated.jobName, jobPayload, {});
+      // } catch (err) {
+      //   logger.error(
+      //     {
+      //       err,
+      //       jobType: UserEvents.UserCreated.jobName,
+      //       userId: user.id,
+      //       requestId: req.requestId,
+      //       jobPayload,
+      //     },
+      //     "Failed to enqueue UserCreated job",
+      //   );
+      // }
     });
   } catch (error) {
     next(error);

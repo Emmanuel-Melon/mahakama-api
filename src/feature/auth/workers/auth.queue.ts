@@ -28,7 +28,11 @@ export class AuthQueueManager {
     data: T,
     options?: JobsOptions,
   ): Promise<string> {
-    const job = await this.queue.add(jobName, data, setQueueJobOptions(options));
+    const job = await this.queue.add(
+      jobName,
+      data,
+      setQueueJobOptions(options),
+    );
 
     return job.id!;
   }

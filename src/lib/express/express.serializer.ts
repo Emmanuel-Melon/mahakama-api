@@ -1,14 +1,29 @@
 import { Request } from "express";
-import { JsonApiResourceConfig, ResourceObject, ErrorResponseConfig, SerializedError, SerializedResponse, SerializeJsonApiOptions } from "./express.types";
+import {
+  JsonApiResourceConfig,
+  ResourceObject,
+  ErrorResponseConfig,
+  SerializedError,
+  SerializedResponse,
+  SerializeJsonApiOptions,
+} from "./express.types";
 import { type ResponseMetadata, type JsonApiError } from "./express.schema";
 import { v4 as uuidv4 } from "uuid";
+import { z } from 'zod';
+
 
 export const serializeResource = <T>(
   resource: T & { id: string },
   config: JsonApiResourceConfig<T>,
-  req: Request
+  req: Request,
 ): ResourceObject<T> => {
-  const { attributes, relationships, resourceMeta, type, links: configLinks } = config;
+  const {
+    attributes,
+    relationships,
+    resourceMeta,
+    type,
+    links: configLinks,
+  } = config;
 
   const serialized: ResourceObject<T> = {
     type,
@@ -39,7 +54,7 @@ export const serializeResource = <T>(
 
 export function serializeJsonApi<T>(
   req: Request,
-  options: SerializeJsonApiOptions
+  options: SerializeJsonApiOptions,
 ): SerializedResponse<ResourceObject<T>> {
   const { responseConfig, metadata: additionalMetadata = {} } = options;
   const { type, data, serializerConfig } = responseConfig;
@@ -47,8 +62,8 @@ export function serializeJsonApi<T>(
   const serializedData =
     type === "collection"
       ? (data as (T & { id: string })[]).map((resource) =>
-        serializeResource(resource, serializerConfig, req)
-      )
+          serializeResource(resource, serializerConfig, req),
+        )
       : serializeResource(data as T & { id: string }, serializerConfig, req);
 
   const responseMetadata: ResponseMetadata = {
@@ -66,7 +81,7 @@ export function serializeJsonApi<T>(
 export function serializeError(
   req: Request,
   errorConfig: ErrorResponseConfig,
-  additionalMetadata?: Record<string, any>
+  additionalMetadata?: Record<string, any>,
 ): SerializedError {
   const { status, description, title, source } = errorConfig;
   const errorObject: JsonApiError = {
@@ -91,3 +106,48 @@ export function serializeError(
     metadata: errorObject.metadata,
   };
 }
+
+export const createJsonApiResourceSchema = <T extends z.ZodType>(
+  type: string,
+  attributesSchema: T
+) => {
+  return z.object({
+    type: z.literal(type),
+    id: z.string().uuid(),
+    attributes: attributesSchema,
+    relationships: z.record(z.string(), z.any()).optional(), // Fixed: z.record needs (key, value)
+    meta: z.record(z.string(), z.any()).optional(),          // Fixed: z.record needs (key, value)
+    links: z.record(z.string(), z.string()).optional(),      // Fixed: z.record needs (key, value)
+  });
+};
+
+
+export const createJsonApiSingleResponseSchema = <T extends z.ZodType>(
+  resourceSchema: T
+) => {
+  return z.object({
+    data: resourceSchema,
+    links: z.object({
+      self: z.string(),
+    }),
+    metadata: z.object({
+      requestId: z.string(),
+      timestamp: z.string(),
+    }).catchall(z.any()), // Allows additionalMeta
+  });
+};
+
+export const createJsonApiCollectionResponseSchema = <T extends z.ZodType>(
+  resourceSchema: T
+) => {
+  return z.object({
+    data: z.array(resourceSchema),
+    links: z.object({
+      self: z.string(),
+    }),
+    metadata: z.object({
+      requestId: z.string(),
+      timestamp: z.string(),
+    }).catchall(z.any()), // Allows additionalMeta like total
+  });
+};

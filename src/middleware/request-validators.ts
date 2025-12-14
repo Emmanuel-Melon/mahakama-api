@@ -10,21 +10,26 @@ export function validateRequestBody<T extends z.ZodTypeAny>(schema: T) {
       const result = schema.safeParse(req.body);
       if (!result.success) {
         const formattedErrors = result.error.format();
-        return sendErrorResponse(req, res, {
-          status: HttpStatus.BAD_REQUEST,
-          description: "Request validation failed",
-          source: {
-            pointer: req.originalUrl,
-            method: req.method,
-          }
-        }, {
-          additionalMeta: {
-            errorType: 'VALIDATION ERROR',
-            timestamp: new Date().toISOString(),
-            requestId: req.requestId,
-            ...formattedErrors
-          }
-        });
+        return sendErrorResponse(
+          req,
+          res,
+          {
+            status: HttpStatus.BAD_REQUEST,
+            description: "Request validation failed",
+            source: {
+              pointer: req.originalUrl,
+              method: req.method,
+            },
+          },
+          {
+            additionalMeta: {
+              errorType: "VALIDATION ERROR",
+              timestamp: new Date().toISOString(),
+              requestId: req.requestId,
+              ...formattedErrors,
+            },
+          },
+        );
       }
       req.validatedBody = result.data as SchemaType;
       next();
@@ -45,21 +50,26 @@ export function validateRequestParams<T extends z.ZodType<Record<string, any>>>(
     const result = schema.safeParse(req.params);
     if (!result.success) {
       const formattedErrors = result.error.format();
-      return sendErrorResponse(req, res, {
-        status: HttpStatus.BAD_REQUEST,
-        description: "Request validation failed",
-        source: {
-          pointer: req.originalUrl,
-          method: req.method,
-        }
-      }, {
-        additionalMeta: {
-          errorType: 'VALIDATION ERROR',
-          timestamp: new Date().toISOString(),
-          requestId: req.requestId,
-          ...formattedErrors
-        }
-      });
+      return sendErrorResponse(
+        req,
+        res,
+        {
+          status: HttpStatus.BAD_REQUEST,
+          description: "Request validation failed",
+          source: {
+            pointer: req.originalUrl,
+            method: req.method,
+          },
+        },
+        {
+          additionalMeta: {
+            errorType: "VALIDATION ERROR",
+            timestamp: new Date().toISOString(),
+            requestId: req.requestId,
+            ...formattedErrors,
+          },
+        },
+      );
     }
     req.validatedParams = result.data as ParamsType;
     return next();
@@ -74,21 +84,26 @@ export function validateRequestQuery<T extends z.ZodType<Record<string, any>>>(
     const result = schema.safeParse(req.query);
     if (!result.success) {
       const formattedErrors = result.error.format();
-      return sendErrorResponse(req, res, {
-        status: HttpStatus.BAD_REQUEST,
-        description: "Request validation failed",
-        source: {
-          pointer: req.originalUrl,
-          method: req.method,
-        }
-      }, {
-        additionalMeta: {
-          errorType: 'VALIDATION ERROR',
-          timestamp: new Date().toISOString(),
-          requestId: req.requestId,
-          ...formattedErrors
-        }
-      });
+      return sendErrorResponse(
+        req,
+        res,
+        {
+          status: HttpStatus.BAD_REQUEST,
+          description: "Request validation failed",
+          source: {
+            pointer: req.originalUrl,
+            method: req.method,
+          },
+        },
+        {
+          additionalMeta: {
+            errorType: "VALIDATION ERROR",
+            timestamp: new Date().toISOString(),
+            requestId: req.requestId,
+            ...formattedErrors,
+          },
+        },
+      );
     }
     req.validatedQuery = result.data as QueryType;
     return next();
@@ -107,23 +122,30 @@ export function validateRequestHeaders<
         (formattedErrors as any).authorization?._errors?.length > 0 ||
         (formattedErrors as any)["x-access-token"]?._errors?.length > 0;
 
-      return sendErrorResponse(req, res, {
-        status: isAuthError ? HttpStatus.UNAUTHORIZED : HttpStatus.BAD_REQUEST,
-        description: isAuthError
-          ? "Authentication required: Missing or invalid 'authorization' or 'x-access-token' header"
-          : "Request Header Validation Failed",
-        source: {
-          pointer: req.originalUrl,
-          method: req.method,
-        }
-      }, {
-        additionalMeta: {
-          errorType: 'VALIDATION ERROR',
-          timestamp: new Date().toISOString(),
-          requestId: req.requestId,
-          ...formattedErrors
-        }
-      });
+      return sendErrorResponse(
+        req,
+        res,
+        {
+          status: isAuthError
+            ? HttpStatus.UNAUTHORIZED
+            : HttpStatus.BAD_REQUEST,
+          description: isAuthError
+            ? "Authentication required: Missing or invalid 'authorization' or 'x-access-token' header"
+            : "Request Header Validation Failed",
+          source: {
+            pointer: req.originalUrl,
+            method: req.method,
+          },
+        },
+        {
+          additionalMeta: {
+            errorType: "VALIDATION ERROR",
+            timestamp: new Date().toISOString(),
+            requestId: req.requestId,
+            ...formattedErrors,
+          },
+        },
+      );
     }
     req.validatedHeaders = result.data as HeadersType;
     return next();

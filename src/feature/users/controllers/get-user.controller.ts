@@ -5,14 +5,14 @@ import {
   sendSuccessResponse,
 } from "@/lib/express/express.response";
 import { GetUsersParams } from "../users.types";
-import { HttpStatus } from "@/lib/express/http-status";
-import { SuccessResponse } from "@/lib/express/express.types";
+import { HttpStatus } from "@/http-status";
+import { JsonApiResponse } from "@/lib/express/express.types";
 import { UserResponse } from "../users.types";
-import { UserSerializer } from "../users.config";
+import { SerializedUser } from "../users.config";
 
 export const getUserController = async (
-  req: Request<GetUsersParams, {}, {}, {}>,
-  res: Response<SuccessResponse<UserResponse>>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
@@ -21,7 +21,7 @@ export const getUserController = async (
     if (!user) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.NOT_FOUND,
-        message: "The requested user profile doesn't exist on this serve.",
+        description: "The requested user profile doesn't exist on this serve.",
       });
     }
     return sendSuccessResponse(
@@ -31,7 +31,7 @@ export const getUserController = async (
         data: {
           ...user,
         },
-        serializerConfig: UserSerializer,
+        serializerConfig: SerializedUser,
         type: "single",
       },
       {

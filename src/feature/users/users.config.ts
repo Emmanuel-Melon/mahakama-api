@@ -1,17 +1,10 @@
 import { JsonApiResourceConfig } from "@/lib/express/express.types";
-import { type User } from "./users.schema";
+import { userResponseSchema, type User } from "./users.schema";
+import { z } from "zod";
 
-export const UserSerializer: JsonApiResourceConfig<User> =
-{
+export const SerializedUser: JsonApiResourceConfig<User> = {
   type: "user",
-  attributes: (field) => ({
-    message: field.message,
-    documentation: field.documentation,
-    environment: field.environment,
-    timestamp: field.timestamp,
-    status: field.status,
-    endpoints: field.endpoints,
-  }),
+  attributes: (user: User) => userResponseSchema.parse(user),
 };
 
 export const UserEvents = {
@@ -37,4 +30,16 @@ export const UserEvents = {
   },
 } as const;
 
-export type UsersJobType = typeof UserEvents[keyof typeof UserEvents]['jobName'];
+export type UsersJobType =
+  (typeof UserEvents)[keyof typeof UserEvents]["jobName"];
+
+// for pagination and route queries
+export const sortableFields = [
+  "createdAt",
+  "updatedAt",
+  "name",
+  "email",
+] as const;
+export const searchableFields = ["name", "email"] as const;
+export type SearchableField = (typeof searchableFields)[number];
+export type SortableField = (typeof sortableFields)[number];

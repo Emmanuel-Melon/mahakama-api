@@ -29,7 +29,7 @@ export const serverConfig = ServerConfigSchema.parse({
   },
   shutdownTimeout: 5000,
   trustProxy: process.env.TRUST_PROXY || "loopback",
-  environment:  process.env.NODE_ENV === "production" ? "production" : "development";
+  environment:  process.env.NODE_ENV === "production" ? "production" : "development",
 }) satisfies IServerConfig;
 
 // Database Configuration

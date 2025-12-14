@@ -7,7 +7,8 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { HttpStatus } from "@/lib/express/http-status";
+import { HttpStatus } from "@/http-status";
+import { LawyersSerializer } from "../lawyers.config";
 
 export const updateLawyerController = async (
   req: Request,
@@ -25,7 +26,9 @@ export const updateLawyerController = async (
       .limit(1);
 
     if (!existingLawyer) {
-      return sendErrorResponse(res, HttpStatus.CONFLICT);
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.CONFLICT,
+      });
     }
 
     if (updateData.email && updateData.email !== existingLawyer.email) {
@@ -41,14 +44,18 @@ export const updateLawyerController = async (
         .limit(1);
     }
 
-    const updatedLawyer = await updateLawyer(lawyerId, updateData);
+    const lawyer = await updateLawyer(lawyerId, updateData);
 
     return sendSuccessResponse(
+      req,
       res,
-      { lawyer: updatedLawyer },
+      {
+        data: { ...lawyer, id: lawyer?.id.toString() } as typeof lawyer & { id: string },
+        type: "single",
+        serializerConfig: LawyersSerializer,
+      },
       {
         status: HttpStatus.ACCEPTED,
-        requestId: req.requestId,
       },
     );
   } catch (error) {

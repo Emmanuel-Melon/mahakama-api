@@ -57,4 +57,3 @@ export interface ILLMProvider {
     options?: ChatCompletionOptions,
   ): Promise<LLMResponse>;
 }
-

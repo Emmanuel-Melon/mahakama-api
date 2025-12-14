@@ -27,11 +27,10 @@ authWorker.on("completed", (job: Job) => {
   logger.info(`Job ${job.id} completed`);
 });
 
-authWorker.on("failed", (job: Job, error) => {
-  logger.error({ error }, `Job ${job?.id} failed with error:`);
+authWorker.on("failed", (job: Job) => {
+  logger.error(`Job ${job?.id} failed with error:`);
 });
 
 authWorker.on("error", (error) => {
   logger.error({ error }, "Worker error:");
 });
-

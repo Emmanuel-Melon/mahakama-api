@@ -10,8 +10,16 @@ const lawyersRoutes = Router();
 
 lawyersRoutes.get("/", getLawyersController);
 lawyersRoutes.get("/:id", getLawyerByIdController);
-lawyersRoutes.post("/", validateRequestBody(createLawyerSchema), createLawyerController);
-lawyersRoutes.put("/:id", validateRequestBody(createLawyerSchema), updateLawyerController);
+lawyersRoutes.post(
+  "/",
+  validateRequestBody(createLawyerSchema),
+  createLawyerController,
+);
+lawyersRoutes.put(
+  "/:id",
+  validateRequestBody(createLawyerSchema),
+  updateLawyerController,
+);
 
 export default lawyersRoutes;
 

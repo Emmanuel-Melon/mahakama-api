@@ -1,4 +1,8 @@
-import { JsonApiResourceConfig, HealthCheckResponse, WelcomeResponse } from "./express.types";
+import {
+  JsonApiResourceConfig,
+  HealthCheckResponse,
+  WelcomeResponse,
+} from "./express.types";
 
 export const HealthCheckSerializerConfig: JsonApiResourceConfig<HealthCheckResponse> =
   {

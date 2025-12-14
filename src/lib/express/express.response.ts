@@ -8,13 +8,13 @@ import {
   SSEEvent,
   SSEOptions,
   SuccessResponseOptions,
-  ErrorResponseOptions
+  ErrorResponseOptions,
 } from "./express.types";
 import z from "zod";
 import { ResponseLinksSchema, ResponseMetadataSchema } from "./express.schema";
 
 export const asyncHandler = <T>(
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<T>
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<T>,
 ) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
@@ -45,8 +45,8 @@ export const sendSuccessResponse = <T>(
   const response = {
     data,
     links: {
-      self: `${req.protocol}://${req.get('host')}${req.originalUrl}`,
-      ...opts?.links
+      self: `${req.protocol}://${req.get("host")}${req.originalUrl}`,
+      ...opts?.links,
     },
     metadata: metadata,
   };
@@ -66,7 +66,9 @@ export const initSSE = (res: Response, options?: SSEOptions) => {
   res.write(": connected\n\n");
 
   const sendEvent = <T, Type extends string = string>(
-    event: SSEEvent<T, Type> | { type: Type; data: T; id?: string; retry?: number }
+    event:
+      | SSEEvent<T, Type>
+      | { type: Type; data: T; id?: string; retry?: number },
   ) => {
     const { type, data = {} as T, id, retry } = event;
 
@@ -89,7 +91,11 @@ export const initSSE = (res: Response, options?: SSEOptions) => {
     }
   };
 
-  const sendError = (error: { message: string; code?: string; details?: unknown }) => {
+  const sendError = (error: {
+    message: string;
+    code?: string;
+    details?: unknown;
+  }) => {
     sendEvent({
       type: "error",
       data: { success: false, error },
@@ -109,20 +115,22 @@ export const initSSE = (res: Response, options?: SSEOptions) => {
     createEvent: <T, Type extends string = string>(
       type: Type,
       data: T,
-      options?: { id?: string; retry?: number }
-    ) => sendEvent({ type, data, ...options })
+      options?: { id?: string; retry?: number },
+    ) => sendEvent({ type, data, ...options }),
   };
 };
 
 export const createSuccessResponseSchema = <T extends z.ZodTypeAny>(
   dataSchema: T,
-  description: string = 'Successful response'
+  description: string = "Successful response",
 ) => {
-  return z.object({
-    data: dataSchema,
-    links: ResponseLinksSchema.optional(),
-    metadata: ResponseMetadataSchema,
-  }).openapi({
-    description
-  });
+  return z
+    .object({
+      data: dataSchema,
+      links: ResponseLinksSchema.optional(),
+      metadata: ResponseMetadataSchema,
+    })
+    .openapi({
+      description,
+    });
 };

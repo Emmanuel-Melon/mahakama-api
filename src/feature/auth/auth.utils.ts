@@ -57,13 +57,15 @@ export const extractAuthToken = (req: Request): string | null => {
 
   // Then try Authorization header (format: "Bearer TOKEN")
   const authHeader = req.headers.authorization;
-  if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.split(' ')[1];
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.split(" ")[1];
   }
 
   return null;
 };
 
-export const checkUserRole = (role: string): role is 'admin' | 'user' | 'lawyer' => {
-  return role === 'admin' || role === 'user' || role === 'lawyer';
+export const checkUserRole = (
+  role: string,
+): role is "admin" | "user" | "lawyer" => {
+  return role === "admin" || role === "user" || role === "lawyer";
 };

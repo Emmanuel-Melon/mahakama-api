@@ -13,7 +13,11 @@ const userRouter = Router();
 userRouter.get("/me", getCurrentUserController);
 userRouter.get("/", withPagination, getUsersController);
 userRouter.get("/:id", getUserController);
-userRouter.post("/", validateRequestBody(createUserSchema), createUserController);
+userRouter.post(
+  "/",
+  validateRequestBody(createUserSchema),
+  createUserController,
+);
 userRouter.patch(
   "/:id",
   validateRequestBody(createUserSchema.partial()),
