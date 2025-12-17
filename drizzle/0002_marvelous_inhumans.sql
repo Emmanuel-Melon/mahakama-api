@@ -1,1 +1,0 @@
-ALTER TABLE "lawyers" ALTER COLUMN "rating" SET DATA TYPE varchar(10);

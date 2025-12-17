@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { dbConfig, serverConfig } from "@/config";
+import { dbConfig } from "@/config";
 import { combinedUsersSchema } from "@/feature/users/users.schema";
 import * as chatsSchema from "@/feature/chats/chats.schema";
 

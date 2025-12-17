@@ -1,10 +1,11 @@
-import { pgTable, serial, text, integer, varchar, timestamp, unique, boolean, foreignKey, uuid, jsonb, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, serial, text, integer, varchar, timestamp, unique, boolean, foreignKey, uuid, jsonb, primaryKey, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
+export const senderType = pgEnum("sender_type", ['user', 'assistant', 'system'])
 
 
 export const documents = pgTable("documents", {
-	id: serial().primaryKey().notNull(),
+	id: uuid().defaultRandom().primaryKey().notNull(),
 	title: text().notNull(),
 	description: text().notNull(),
 	type: text().notNull(),
@@ -34,9 +35,9 @@ export const lawyers = pgTable("lawyers", {
 ]);
 
 export const documentDownloads = pgTable("document_downloads", {
-	id: serial().primaryKey().notNull(),
+	id: uuid().defaultRandom().primaryKey().notNull(),
 	userId: uuid("user_id").notNull(),
-	documentId: integer("document_id").notNull(),
+	documentId: uuid("document_id").notNull(),
 	downloadedAt: timestamp("downloaded_at", { mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	foreignKey({
@@ -48,34 +49,6 @@ export const documentDownloads = pgTable("document_downloads", {
 			columns: [table.documentId],
 			foreignColumns: [documents.id],
 			name: "document_downloads_document_id_documents_id_fk"
-		}).onDelete("cascade"),
-]);
-
-export const chatsSchema = pgTable("chat_sessions", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	userId: text("user_id").notNull(),
-	senderType: text("sender_type").notNull(),
-	title: text(),
-	metadata: jsonb().default({}),
-	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
-});
-
-export const chatMessages = pgTable("chat_messages", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	chatId: uuid("chat_id").notNull(),
-	content: text().notNull(),
-	userId: text("user_id").notNull(),
-	senderType: text("sender_type").notNull(),
-	senderDisplayName: text("sender_display_name"),
-	timestamp: timestamp({ mode: 'string' }).defaultNow().notNull(),
-	questionId: text("question_id"),
-	metadata: jsonb().default({}),
-}, (table) => [
-	foreignKey({
-			columns: [table.chatId],
-			foreignColumns: [chatsSchema.id],
-			name: "chat_messages_chat_id_chat_sessions_id_fk"
 		}).onDelete("cascade"),
 ]);
 
@@ -105,9 +78,37 @@ export const users = pgTable("users", {
 	unique("users_fingerprint_unique").on(table.fingerprint),
 ]);
 
+export const chatSessions = pgTable("chat_sessions", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	title: text().default('Untitled Chat'),
+	metadata: jsonb().default({}),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+	userId: uuid("user_id").notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "fk_chat_user"
+		}),
+]);
+
+export const legalServices = pgTable("legal_services", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	name: text().notNull(),
+	category: text(),
+	description: text().notNull(),
+	location: text().notNull(),
+	contact: text().notNull(),
+	website: text(),
+	services: jsonb().default([]),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+});
+
 export const documentBookmarks = pgTable("document_bookmarks", {
 	userId: uuid("user_id").notNull(),
-	documentId: integer("document_id").notNull(),
+	documentId: uuid("document_id").notNull(),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	foreignKey({

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { users, documentDownloads, documents, chatsSchema, chatMessages, documentBookmarks } from "./schema";
+import { users, documentDownloads, documents, chatSessions, documentBookmarks } from "./schema";
 
 export const documentDownloadsRelations = relations(documentDownloads, ({one}) => ({
 	user: one(users, {
@@ -14,6 +14,7 @@ export const documentDownloadsRelations = relations(documentDownloads, ({one}) =
 
 export const usersRelations = relations(users, ({many}) => ({
 	documentDownloads: many(documentDownloads),
+	chatSessions: many(chatSessions),
 	documentBookmarks: many(documentBookmarks),
 }));
 
@@ -22,15 +23,11 @@ export const documentsRelations = relations(documents, ({many}) => ({
 	documentBookmarks: many(documentBookmarks),
 }));
 
-export const chatMessagesRelations = relations(chatMessages, ({one}) => ({
-	chatSession: one(chatsSchema, {
-		fields: [chatMessages.chatId],
-		references: [chatsSchema.id]
+export const chatSessionsRelations = relations(chatSessions, ({one}) => ({
+	user: one(users, {
+		fields: [chatSessions.userId],
+		references: [users.id]
 	}),
-}));
-
-export const chatsSchemaRelations = relations(chatsSchema, ({many}) => ({
-	chatMessages: many(chatMessages),
 }));
 
 export const documentBookmarksRelations = relations(documentBookmarks, ({one}) => ({

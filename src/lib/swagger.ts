@@ -14,6 +14,7 @@ import { lawyersRegistry } from "@/feature/lawyers/lawyers.docs";
 import { documentsRegistry } from "@/feature/documents/documents.docs";
 import { messagesRegistry } from "@/feature/messages/messages.docs";
 import { chatsRegistry } from "@/feature/chats/chats.docs";
+import { servicesRegistry } from "@/feature/services/services.docs";
 
 extendZodWithOpenApi(z);
 
@@ -34,6 +35,7 @@ const registries = [
   expressRegistry,
   lawyersRegistry,
   messagesRegistry,
+  servicesRegistry,
   usersRegistry,
   securityRegistry,
 ];
