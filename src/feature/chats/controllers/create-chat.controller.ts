@@ -26,16 +26,8 @@ export const createChatController = async (
   next: NextFunction,
 ) => {
   try {
-    const metadata: ControllerMetadata = {
-      name: "createChatController",
-      resourceType: "chat",
-      route: req.path,
-      operation: "create",
-      requestId: req.requestId,
-    };
     const { message, metadata: bodyMetadata } = req.body;
     const user = req.user as User;
-
     // Create a new chat session
     const chat = await createChat({
       userId: user.id,

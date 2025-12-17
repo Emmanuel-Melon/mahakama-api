@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getChat } from "../operations/chat.find";
+import { getChatById } from "../operations/chat.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
@@ -14,16 +14,10 @@ export const getChatController = async (
   next: NextFunction,
 ) => {
   try {
-    const metadata: ControllerMetadata = {
-      name: "getChatController",
-      resourceType: "chat",
-      route: req.path,
-      operation: "fetch",
-      requestId: req.requestId,
-    };
+
     const { chatId } = req.params;
     const userId = req.user?.id!;
-    const chat = await getChat(chatId, userId);
+    const chat = await getChatById(chatId);
     if (!chat) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.NOT_FOUND,
@@ -34,9 +28,9 @@ export const getChatController = async (
       res,
       {
         data: {
-          ...chat.chat,
-          id: chat.chat.id.toString(),
-        } as typeof chat.chat & { id: string },
+          ...chat,
+          id: chat.id.toString(),
+        } as typeof chat & { id: string },
         type: "single",
         serializerConfig: ChatSerializer,
       },

@@ -1,26 +1,5 @@
 import { z } from "zod";
-import {
-  pgTable,
-  uuid,
-  text,
-  jsonb,
-  timestamp,
-  pgEnum,
-  foreignKey,
-} from "drizzle-orm/pg-core";
-
-export const SenderType = {
-  USER: "user",
-  ASSISTANT: "assistant",
-  SYSTEM: "system",
-} as const;
-
-export type SenderType = (typeof SenderType)[keyof typeof SenderType];
-
-export const SenderTypeEnum = pgEnum(
-  "sender_type",
-  Object.values(SenderType) as [string, ...string[]],
-);
+import { SenderType } from "./chats.schema";
 
 // Schema for creating a new chat
 export const createchatsSchemachema = z.object({

@@ -11,7 +11,21 @@ import {
 import { relations } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
-import { SenderType, SenderTypeEnum, sendMessageSchema } from "./chats.types";
+import { sendMessageSchema } from "./chats.types";
+
+// Define sender type enum
+export const SenderType = {
+  USER: "user",
+  ASSISTANT: "assistant",
+  SYSTEM: "system",
+} as const;
+
+export type SenderType = (typeof SenderType)[keyof typeof SenderType];
+
+export const senderTypeEnum = pgEnum(
+  "sender_type",
+  Object.values(SenderType) as [string, ...string[]],
+);
 
 // Chat Sessions Table
 export const chatsSchema = pgTable(
@@ -33,61 +47,16 @@ export const chatsSchema = pgTable(
   }),
 );
 
-// Chat Messages Table
-export const chatMessages = pgTable(
-  "chat_messages",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    chatId: uuid("chat_id").notNull(),
-    content: text("content").notNull(),
-    senderId: uuid("sender_id"),
-    senderType: SenderTypeEnum("sender_type")
-      .notNull()
-      .default(SenderType.USER),
-    timestamp: timestamp("timestamp").defaultNow().notNull(),
-    metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
-  },
-  (table) => ({
-    chatReference: foreignKey({
-      columns: [table.chatId],
-      foreignColumns: [chatsSchema.id],
-      name: "fk_message_chat",
-    }).onDelete("cascade"),
-    senderReference: foreignKey({
-      columns: [table.senderId],
-      foreignColumns: [usersSchema.id],
-      name: "fk_message_sender",
-    })
-      .onDelete("cascade")
-      .onUpdate("cascade"),
-  }),
-);
-
 // Relations
-export const chatSchemaRelations = relations(chatsSchema, ({ many, one }) => ({
-  messages: many(chatMessages),
+export const chatSchemaRelations = relations(chatsSchema, ({ one }) => ({
   user: one(usersSchema, {
     fields: [chatsSchema.userId],
     references: [usersSchema.id],
   }),
 }));
 
-export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
-  chat: one(chatsSchema, {
-    fields: [chatMessages.chatId],
-    references: [chatsSchema.id],
-  }),
-  sender: one(usersSchema, {
-    fields: [chatMessages.senderId],
-    references: [usersSchema.id],
-  }),
-}));
-
 // Schema for API responses
 export const chatSessionResponseSchema = createSelectSchema(chatsSchema);
-
-export type ChatMessage = typeof chatMessages.$inferSelect;
-export type NewChatMessage = typeof chatMessages.$inferInsert;
 
 export type ChatSession = typeof chatsSchema.$inferSelect;
 export type NewChatSession = typeof chatsSchema.$inferInsert;

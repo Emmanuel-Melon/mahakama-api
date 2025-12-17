@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getUserChats } from "../operations/chats.find";
 import { sendSuccessResponse } from "@/lib/express/express.response";
-import { type ControllerMetadata } from "@/lib/express/express.types";
 import { HttpStatus } from "@/http-status";
 import { ChatSerializer } from "../chats.config";
 
@@ -11,13 +10,6 @@ export const getUserChatsController = async (
   next: NextFunction,
 ) => {
   try {
-    const metadata: ControllerMetadata = {
-      name: "getUserChatsController",
-      resourceType: "chat",
-      route: req.path,
-      operation: "fetch",
-      requestId: req.requestId,
-    };
     const chats = await getUserChats(req.user?.id!);
     sendSuccessResponse(
       req,
