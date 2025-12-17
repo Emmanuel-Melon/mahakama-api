@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { createDocument } from "../operations/documents.create";
-import { CreateDocumentInput } from "../documents.types";
+import { NewDocument } from "../documents.types";
 import { HttpStatus } from "@/http-status";
 import {
   sendErrorResponse,
@@ -24,24 +24,15 @@ export const createDocumentHandler = async (
   };
 
   try {
-    const documentData: CreateDocumentInput = req.body;
-    // Format and validate URL
+    const documentData: NewDocument = req.body;
     let storageUrl = documentData.storageUrl;
     if (!storageUrl.startsWith("http")) {
       storageUrl = `https://${storageUrl}`;
     }
-
     const document = await createDocument({
       ...documentData,
       storageUrl,
     });
-
-    // // we're gonna have to investigate this! Pushing into queues during or after the request has been processed
-    // res.on("finish", async () => {
-    //   await documentsQueue.enqueue(DocumentsJobType.DocumentCreated, {
-    //     ...document,
-    //   });
-    // });
 
     sendSuccessResponse(
       req,

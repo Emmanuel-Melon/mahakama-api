@@ -1,6 +1,62 @@
 import { z } from "zod";
-import { createSelectSchema } from "drizzle-zod";
-import { documentsTable } from "./documents.schema";
+import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import { bookmarksTable, documentsTable, downloadsTable } from "./documents.schema";
+
+export const documentSelectSchema = createSelectSchema(documentsTable);
+export const documentInsertSchema = createInsertSchema(documentsTable);
+
+export const documentIngestionEventSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("started"),
+    data: z.object({
+      timestamp: z.string().datetime(),
+      filename: z.string(),
+      size: z.number().int().nonnegative(),
+    }),
+  }),
+  z.object({
+    type: z.literal("progress"),
+    data: z.object({
+      processed: z.number().int().nonnegative(),
+      total: z.number().int().positive(),
+      percentage: z.number().min(0).max(100),
+      chunk: z.number().int().positive(),
+      totalChunks: z.number().int().positive(),
+    }),
+  }),
+  z.object({
+    type: z.literal("content"),
+    data: z.object({
+      chunk: z.number().int().positive(),
+      preview: z.string(),
+    }),
+  }),
+  z.object({
+    type: z.literal("completed"),
+    data: z.object({
+      filename: z.string(),
+      size: z.number().int().nonnegative(),
+      processedAt: z.string().datetime(),
+      totalChunks: z.number().int().positive(),
+    }),
+  }),
+  z.object({
+    type: z.literal("error"),
+    data: z.object({
+      message: z.string(),
+      code: z.string().optional(),
+      details: z.unknown().optional(),
+    }),
+  }),
+]);
+
+export type DocumentIngestionEventType = DocumentIngestionEvent["type"];
+export type Bookmark = typeof bookmarksTable.$inferSelect;
+export type NewBookmark = typeof bookmarksTable.$inferInsert;
+export type Download = typeof downloadsTable.$inferSelect;
+export type NewDownload = typeof downloadsTable.$inferInsert;
+export type Document = z.infer<typeof documentSelectSchema>;
+export type NewDocument = z.infer<typeof documentInsertSchema>;
 
 export type EventType =
   | "started"
@@ -50,78 +106,3 @@ export type DocumentIngestionEvent = Extract<
   }[EventType],
   { type: string; data: any }
 >;
-
-export const documentIngestionEventSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("started"),
-    data: z.object({
-      timestamp: z.string().datetime(),
-      filename: z.string(),
-      size: z.number().int().nonnegative(),
-    }),
-  }),
-  z.object({
-    type: z.literal("progress"),
-    data: z.object({
-      processed: z.number().int().nonnegative(),
-      total: z.number().int().positive(),
-      percentage: z.number().min(0).max(100),
-      chunk: z.number().int().positive(),
-      totalChunks: z.number().int().positive(),
-    }),
-  }),
-  z.object({
-    type: z.literal("content"),
-    data: z.object({
-      chunk: z.number().int().positive(),
-      preview: z.string(),
-    }),
-  }),
-  z.object({
-    type: z.literal("completed"),
-    data: z.object({
-      filename: z.string(),
-      size: z.number().int().nonnegative(),
-      processedAt: z.string().datetime(),
-      totalChunks: z.number().int().positive(),
-    }),
-  }),
-  z.object({
-    type: z.literal("error"),
-    data: z.object({
-      message: z.string(),
-      code: z.string().optional(),
-      details: z.unknown().optional(),
-    }),
-  }),
-]);
-
-export const createDocumentSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  type: z.string().min(1, "Type is required"),
-  sections: z.number().int().positive("Sections must be a positive number"),
-  lastUpdated: z.string().length(4, "Last updated year must be 4 digits"),
-  storageUrl: z
-    .string()
-    .url("Invalid URL format")
-    .min(1, "Storage URL is required"),
-});
-
-export const documentResponseSchema = createSelectSchema(documentsTable);
-
-export type CreateDocumentInput = z.infer<typeof createDocumentSchema>;
-export type Document = z.infer<typeof documentResponseSchema>;
-export type NewDocument = typeof documentsTable.$inferInsert;
-export type DocumentIngestionEventType = DocumentIngestionEvent["type"];
-
-export function isDocumentIngestionEvent(
-  event: unknown,
-): event is DocumentIngestionEvent {
-  try {
-    documentIngestionEventSchema.parse(event);
-    return true;
-  } catch {
-    return false;
-  }
-}

@@ -11,13 +11,13 @@ export const authenticateToken = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1]; // Format: "Bearer TOKEN"
+  const token = req.cookies?.token || req.headers["authorization"]?.split(" ")[1];
   if (!token) {
     sendErrorResponse(req, res, {
       status: HttpStatus.UNAUTHORIZED,
       description: "Authentication Error",
     });
+    return;
   }
   try {
     const verified = jwt.verify(token!, serverConfig.jwtSecret!) as JwtPayload;
@@ -27,6 +27,7 @@ export const authenticateToken = async (
         status: HttpStatus.NOT_FOUND,
         description: "User not found for valid token",
       });
+      return;
     }
     req.user = user;
     next();
@@ -44,6 +45,7 @@ export const authenticateToken = async (
         description:
           error instanceof Error ? error.message : "Authentication Error",
       });
+      return
     }
 
     if (error instanceof jwt.TokenExpiredError) {

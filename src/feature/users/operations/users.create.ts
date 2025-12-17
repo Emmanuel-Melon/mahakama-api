@@ -1,15 +1,14 @@
 import { db } from "@/lib/drizzle";
-import { usersSchema } from "../users.schema";
+import { NewUser, usersSchema } from "../users.schema";
 import { CreateUserRequest, User } from "../users.schema";
-import { findByFingerprint } from "../operations/users.find";
 import { faker } from "@faker-js/faker";
 import { v4 as uuid } from "uuid";
+import { hashPassword } from "@/feature/auth/auth.utils";
+import { randomElement } from "@/lib/drizzle/seed";
+import { Genders } from "../users.types";
+import { getRandomRole } from "../users.utils"
 
 export async function createUser(userData: CreateUserRequest): Promise<User> {
-  const user = await findByFingerprint(userData.fingerprint!);
-  if (user) {
-    return user;
-  }
   const [newUser] = await db
     .insert(usersSchema)
     .values({
@@ -27,12 +26,29 @@ export async function createUser(userData: CreateUserRequest): Promise<User> {
   return newUser;
 }
 
-export async function createRandomUser(): Promise<
-  Pick<User, "id" | "email" | "name">
-> {
+export const createRandomUser = async (index: number): Promise<NewUser> => {
+  const gender = randomElement(Object.values(Genders));
+  const firstName = faker.person.firstName(gender as any);
+  const lastName = faker.person.lastName();
+  const email = faker.internet.email({
+    firstName,
+    lastName,
+    provider: "example.com",
+  });
+
   return {
     id: faker.string.uuid(),
-    email: faker.internet.email(),
-    name: faker.person.fullName(),
+    name: `${firstName} ${lastName}`,
+    email: email.toLowerCase(),
+    password: await hashPassword("test-password"),
+    role: getRandomRole(index),
+    age: faker.number.int({ min: 18, max: 80 }),
+    gender,
+    country: faker.location.country(),
+    city: faker.location.city(),
+    occupation: faker.person.jobTitle(),
+    bio: faker.lorem.paragraphs(2),
+    createdAt: faker.date.past({ years: 1 }),
+    updatedAt: faker.date.recent({ days: 30 }),
   };
 }

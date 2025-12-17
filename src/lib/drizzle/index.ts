@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { dbConfig } from "@/config";
 import { combinedUsersSchema } from "@/feature/users/users.schema";
 import * as chatsSchema from "@/feature/chats/chats.schema";
+import { combinedDocumentsSchema } from "@/feature/documents/documents.schema";
 
 // Create the connection pool
 const pool = new Pool({
@@ -14,6 +15,7 @@ export const db = drizzle(pool, {
   schema: {
     ...combinedUsersSchema,
     ...chatsSchema,
+    ...combinedDocumentsSchema,
   },
   logger: process.env.NODE_ENV !== "production",
 });

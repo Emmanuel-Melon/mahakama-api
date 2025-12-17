@@ -1,6 +1,5 @@
 import {
   pgTable,
-  serial,
   text,
   varchar,
   integer,
@@ -10,10 +9,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { usersSchema } from "@/feature/users/users.schema";
-import { createSelectSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+
+extendZodWithOpenApi(z);
 
 export const documentsTable = pgTable("documents", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   type: text("type").notNull(),
@@ -31,7 +33,7 @@ export const bookmarksTable = pgTable(
     user_id: uuid("user_id")
       .notNull()
       .references(() => usersSchema.id, { onDelete: "cascade" }),
-    documentId: integer("document_id")
+    documentId: uuid("document_id")
       .notNull()
       .references(() => documentsTable.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -44,21 +46,49 @@ export const bookmarksTable = pgTable(
 );
 
 export const downloadsTable = pgTable("document_downloads", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   user_id: uuid("user_id")
     .notNull()
     .references(() => usersSchema.id, { onDelete: "cascade" }),
-  document_id: integer("document_id")
+  document_id: uuid("document_id")
     .notNull()
     .references(() => documentsTable.id, { onDelete: "cascade" }),
   downloadedAt: timestamp("downloaded_at").defaultNow().notNull(),
 });
 
-export type Bookmark = typeof bookmarksTable.$inferSelect;
-export type NewBookmark = typeof bookmarksTable.$inferInsert;
+// relations
+export const documentsRelations = relations(documentsTable, ({ many }) => ({
+  bookmarks: many(bookmarksTable),
+  downloads: many(downloadsTable),
+}));
 
-export type Download = typeof downloadsTable.$inferSelect;
-export type NewDownload = typeof downloadsTable.$inferInsert;
+export const bookmarksRelations = relations(bookmarksTable, ({ one }) => ({
+  user: one(usersSchema, {
+    fields: [bookmarksTable.user_id],
+    references: [usersSchema.id],
+  }),
+  document: one(documentsTable, {
+    fields: [bookmarksTable.documentId],
+    references: [documentsTable.id],
+  }),
+}));
 
-export const documentResponseSchema = createSelectSchema(documentsTable);
-export type Document = z.infer<typeof documentResponseSchema>;
+export const downloadsRelations = relations(downloadsTable, ({ one }) => ({
+  user: one(usersSchema, {
+    fields: [downloadsTable.user_id],
+    references: [usersSchema.id],
+  }),
+  document: one(documentsTable, {
+    fields: [downloadsTable.document_id],
+    references: [documentsTable.id],
+  }),
+}));
+
+export const combinedDocumentsSchema = {
+  documentsTable,
+  bookmarksTable,
+  downloadsTable,
+  documentsRelations,
+  bookmarksRelations,
+  downloadsRelations,
+};

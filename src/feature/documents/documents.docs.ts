@@ -1,6 +1,5 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { documentResponseSchema } from "./documents.schema";
-import { createDocumentSchema } from "./documents.types";
+import { documentInsertSchema, documentSelectSchema } from "./documents.types";
 import { HttpStatus } from "@/http-status";
 import {
   createJsonApiResourceSchema,
@@ -11,7 +10,7 @@ import {
 const ErrorResponseRef = { $ref: "#/components/schemas/JsonApiErrorResponse" };
 const documentResourceSchema = createJsonApiResourceSchema(
   "document",
-  documentResponseSchema,
+  documentSelectSchema,
 );
 const documentSingleResponseSchema = createJsonApiSingleResponseSchema(
   documentResourceSchema,
@@ -22,8 +21,8 @@ const documentsCollectionResponseSchema = createJsonApiCollectionResponseSchema(
 
 // Create registry and register schemas
 export const documentsRegistry = new OpenAPIRegistry();
-documentsRegistry.register("Document", documentResponseSchema);
-documentsRegistry.register("CreateDocument", createDocumentSchema);
+documentsRegistry.register("Document", documentSelectSchema);
+documentsRegistry.register("CreateDocument", documentInsertSchema);
 documentsRegistry.register("DocumentResource", documentResourceSchema);
 documentsRegistry.register(
   "DocumentSingleResponse",
@@ -160,7 +159,7 @@ documentsRegistry.registerPath({
       required: true,
       content: {
         "application/json": {
-          schema: createDocumentSchema,
+          schema: documentInsertSchema,
         },
       },
     },

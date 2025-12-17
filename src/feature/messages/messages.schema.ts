@@ -6,12 +6,26 @@ import {
   jsonb,
   timestamp,
   foreignKey,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
-import { SenderType, SenderTypeEnum } from "../chats/chats.types";
 import { chatsSchema } from "../chats/chats.schema";
+
+// Define sender type enum
+export const SenderType = {
+  USER: "user",
+  ASSISTANT: "assistant",
+  SYSTEM: "system",
+} as const;
+
+export type SenderType = (typeof SenderType)[keyof typeof SenderType];
+
+export const senderTypeEnum = pgEnum(
+  "sender_type",
+  Object.values(SenderType) as [string, ...string[]],
+);
 
 // Chat Messages Table
 export const chatMessages = pgTable(
@@ -21,7 +35,7 @@ export const chatMessages = pgTable(
     chatId: uuid("chat_id").notNull(),
     content: text("content").notNull(),
     senderId: uuid("sender_id"),
-    senderType: SenderTypeEnum("sender_type")
+    senderType: senderTypeEnum("sender_type")
       .notNull()
       .default(SenderType.USER),
     timestamp: timestamp("timestamp").defaultNow().notNull(),

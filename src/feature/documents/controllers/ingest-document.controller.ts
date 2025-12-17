@@ -1,91 +1,52 @@
-import { Request, Response, NextFunction } from "express";
-import { initSSE } from "@/lib/express/express.response";
-import { DocumentIngestionEvent } from "../documents.types";
+// import { Request, Response, NextFunction } from "express";
+// import { uploadPublicDocument } from "@/lib/supabase/storage";
+// import { createDocument } from "../operations/documents.create";
+// import { sendSuccessResponse } from "@/lib/express/express.response";
+// import { HttpStatus } from "@/http-status";
+// import { DocumentsSerializer } from "../document.config";
+// import { ingestDocument } from "../operations/documents.ingest";
 
-export const ingestDocumentController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const { sendEvent, sendError, close } = initSSE(res, {
-    headers: {
-      "Content-Disposition": "inline",
-    },
-    metadata: {
-      name: "document-ingestion",
-      route: "/api/documents/ingest",
-      requestId: req.requestId || "unknown",
-    },
-  });
+// export const ingestDocumentController = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const file = req.file;
+//     const { title, description, type, sections } = req.body;
+//     const userId = req.user?.id || "default-user-id";
 
-  try {
-    sendEvent({
-      type: "started",
-      data: {
-        timestamp: new Date().toISOString(),
-        filename: req.file?.originalname || "unknown",
-        size: req.file?.size || 0,
-      },
-    });
+//     if (!file) {
+//       throw new Error("No file provided");
+//     }
 
-    if (!req.file) {
-      throw new Error("No file uploaded");
-    }
+//     const uploadResult = await ingestDocument(file);
 
-    const fileBuffer = req.file.buffer;
-    const chunkSize = 1024 * 10; // 10KB chunks
-    const totalChunks = Math.ceil(fileBuffer.length / chunkSize);
-    for (let i = 0; i < totalChunks; i++) {
-      const start = i * chunkSize;
-      const end = Math.min(start + chunkSize, fileBuffer.length);
-      const chunk = fileBuffer.slice(start, end);
+//     const document = await createDocument({
+//       title: title || file.originalname,
+//       description: description || "No description",
+//       type: type || "contract",
+//       sections: Number(sections) || 1,
+//       lastUpdated: new Date().getFullYear().toString(),
+//       storageUrl: uploadResult.storagePath,
+//     });
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+//     sendSuccessResponse(
+//       req,
+//       res,
+//       {
+//         data: { ...document, id: document.id.toString() } as typeof document & {
+//           id: string;
+//         },
+//         type: "single",
+//         serializerConfig: DocumentsSerializer,
+//       },
+//       {
+//         status: HttpStatus.CREATED,
+//       },
+//     );
 
-      sendEvent({
-        type: "progress",
-        data: {
-          processed: end,
-          total: fileBuffer.length,
-          percentage: Math.round((end / fileBuffer.length) * 100),
-          chunk: i + 1,
-          totalChunks,
-        },
-      });
-
-      const text = chunk
-        .toString("utf8")
-        .replace(/[^\x20-\x7E\n\r\t]/g, "")
-        .trim();
-      if (text) {
-        sendEvent({
-          type: "content",
-          data: {
-            chunk: i + 1,
-            preview: text.substring(0, 200) + (text.length > 200 ? "..." : ""),
-          },
-        });
-      }
-    }
-
-    sendEvent({
-      type: "completed",
-      data: {
-        filename: req.file.originalname,
-        size: req.file.size,
-        processedAt: new Date().toISOString(),
-        totalChunks,
-      },
-    });
-    close();
-  } catch (error) {
-    console.error("Document ingestion error:", error);
-    sendError({
-      message:
-        error instanceof Error ? error.message : "Failed to process document",
-      code: "DOCUMENT_PROCESSING_ERROR",
-      details: error instanceof Error ? error.stack : undefined,
-    });
-    close();
-  }
-};
+//   } catch (error) {
+//     next(error);
+//   }
+// };

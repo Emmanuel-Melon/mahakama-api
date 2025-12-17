@@ -1,14 +1,13 @@
 import { db } from "@/lib/drizzle";
-import { documentsTable, Document } from "../documents.schema";
-import { NewDocument } from "../documents.types";
+import { documentsTable } from "../documents.schema";
+import { NewDocument, type Document } from "../documents.types";
 
 export async function createDocument(
   documentData: NewDocument,
 ): Promise<Document> {
-  const [newDocument] = await db
+  const [document] = await db
     .insert(documentsTable)
     .values(documentData)
     .returning();
-
-  return newDocument;
+  return document;
 }

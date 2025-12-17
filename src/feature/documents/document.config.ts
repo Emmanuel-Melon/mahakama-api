@@ -1,9 +1,9 @@
 import { JsonApiResourceConfig } from "@/lib/express/express.types";
-import { documentResponseSchema, type Document } from "./documents.schema";
+import { documentSelectSchema, type Document } from "./documents.types";
 
 export const DocumentsSerializer: JsonApiResourceConfig<Document> = {
   type: "document",
-  attributes: (document: Document) => documentResponseSchema.parse(document),
+  attributes: (document: Document) => documentSelectSchema.parse(document),
 };
 
 export const DocumentEvents = {

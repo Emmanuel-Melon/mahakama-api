@@ -2,6 +2,9 @@ import { spawn } from "child_process";
 import { glob } from "glob";
 import { logger } from "@/lib/logger";
 
+export const randomElement = <T>(array: T[]): T =>
+  array[Math.floor(Math.random() * array.length)];
+
 async function getSeedFiles(): Promise<string[]> {
   try {
     const files = await glob("src/feature/**/*.seed.ts", {
