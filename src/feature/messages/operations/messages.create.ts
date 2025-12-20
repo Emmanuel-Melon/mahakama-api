@@ -1,15 +1,12 @@
 import { db } from "@/lib/drizzle";
-import {
-  chatsSchema,
-  chatMessages,
-  type ChatMessage,
-} from "@/feature/chats/chats.schema";
+import { chatsSchema } from "@/feature/chats/chats.schema";
+import { chatMessages } from "../messages.schema";
+import { ChatMessage } from "../messages.types";
 import { eq } from "drizzle-orm";
 import { getChatById } from "@/feature/chats/operations/chat.find";
 
 export interface MessageSender {
   id: string;
-  type: "user" | "assistant" | "system";
   displayName?: string;
 }
 
@@ -33,21 +30,32 @@ export const sendMessage = async ({
     throw new Error("Chat not found");
   }
 
+  // Verify the user exists
+  const { usersSchema } = await import("@/feature/users/users.schema");
+  const [user] = await db
+    .select()
+    .from(usersSchema)
+    .where(eq(usersSchema.id, sender.id))
+    .limit(1);
+
+  if (!user) {
+    throw new Error(`User with ID ${sender.id} not found`);
+  }
+
   const [message] = await db
     .insert(chatMessages)
     .values({
       chatId,
       content,
-      senderId: sender.id,
-      senderType: sender.type,
+      userId: sender.id,
       metadata,
       timestamp,
     })
     .returning();
-  await db
-    .update(chatsSchema)
-    .set({ updatedAt: timestamp })
-    .where(eq(chatsSchema.id, chatId));
+  // await db
+  //   .update(chatsSchema)
+  //   .set({ updatedAt: timestamp })
+  //   .where(eq(chatsSchema.id, chatId));
 
   return message;
 };

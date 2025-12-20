@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import { hashPassword } from "@/feature/auth/auth.utils";
 import { randomElement } from "@/lib/drizzle/seed";
 import { Genders } from "../users.types";
-import { getRandomRole } from "../users.utils"
+import { getRandomRole } from "../users.utils";
 
 export async function createUser(userData: CreateUserRequest): Promise<User> {
   const [newUser] = await db
@@ -51,4 +51,4 @@ export const createRandomUser = async (index: number): Promise<NewUser> => {
     createdAt: faker.date.past({ years: 1 }),
     updatedAt: faker.date.recent({ days: 30 }),
   };
-}
+};

@@ -1,5 +1,5 @@
 import { JsonApiResourceConfig } from "@/lib/express/express.types";
-import { ChatMessage } from "../chats/chats.schema";
+import { ChatMessage } from "./messages.types";
 
 export const MessageSerializer: JsonApiResourceConfig<ChatMessage> = {
   type: "message",

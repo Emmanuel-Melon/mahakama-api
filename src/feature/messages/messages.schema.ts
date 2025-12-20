@@ -1,80 +1,39 @@
-import { any, z } from "zod";
-import {
-  pgTable,
-  uuid,
-  text,
-  jsonb,
-  timestamp,
-  foreignKey,
-  pgEnum,
-} from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { createSelectSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
 import { chatsSchema } from "../chats/chats.schema";
 
-// Define sender type enum
-export const SenderType = {
-  USER: "user",
-  ASSISTANT: "assistant",
-  SYSTEM: "system",
-} as const;
-
-export type SenderType = (typeof SenderType)[keyof typeof SenderType];
-
-export const senderTypeEnum = pgEnum(
-  "sender_type",
-  Object.values(SenderType) as [string, ...string[]],
-);
-
 // Chat Messages Table
-export const chatMessages = pgTable(
-  "chat_messages",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    chatId: uuid("chat_id").notNull(),
-    content: text("content").notNull(),
-    senderId: uuid("sender_id"),
-    senderType: senderTypeEnum("sender_type")
-      .notNull()
-      .default(SenderType.USER),
-    timestamp: timestamp("timestamp").defaultNow().notNull(),
-    metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
-  },
-  (table) => ({
-    chatReference: foreignKey({
-      columns: [table.chatId],
-      foreignColumns: [chatsSchema.id],
-      name: "fk_message_chat",
-    }).onDelete("cascade"),
-    senderReference: foreignKey({
-      columns: [table.senderId],
-      foreignColumns: [usersSchema.id],
-      name: "fk_message_sender",
-    })
-      .onDelete("cascade")
-      .onUpdate("cascade"),
-  }),
-);
+export const chatMessages = pgTable("chat_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  chatId: uuid("chat_id")
+    .notNull()
+    .references(() => chatsSchema.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => usersSchema.id, { onDelete: "cascade" }),
+  timestamp: timestamp("timestamp", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  metadata: jsonb("metadata")
+    .notNull()
+    .default({})
+    .$type<Record<string, unknown>>(),
+});
 
 export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
   chat: one(chatsSchema, {
     fields: [chatMessages.chatId],
     references: [chatsSchema.id],
   }),
-  sender: one(usersSchema, {
-    fields: [chatMessages.senderId],
+  user: one(usersSchema, {
+    fields: [chatMessages.userId],
     references: [usersSchema.id],
   }),
 }));
 
-const messageSchema = z.object(any);
-
-// Schema for API responses
-export const chatMessageResponseSchema = createSelectSchema(chatMessages);
-
-export type ChatMessage = typeof chatMessages.$inferSelect;
-export type NewChatMessage = typeof chatMessages.$inferInsert;
-
-export type SendMessageAttrs = z.infer<typeof messageSchema>;
-export type ChatMessageResponse = z.infer<typeof chatMessageResponseSchema>;
+export const combinedMessagesSchema = {
+  chatMessages,
+  chatMessagesRelations,
+};

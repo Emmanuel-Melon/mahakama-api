@@ -14,7 +14,6 @@ export const getChatController = async (
   next: NextFunction,
 ) => {
   try {
-
     const { chatId } = req.params;
     const userId = req.user?.id!;
     const chat = await getChatById(chatId);

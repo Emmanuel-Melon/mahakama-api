@@ -1,5 +1,6 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { chatSessionResponseSchema } from "./chats.schema";
+import { chatSelectSchema } from "../messages/messages.types";
 import { z } from "zod";
 import { HttpStatus } from "@/http-status";
 import {
@@ -26,7 +27,10 @@ const chatsCollectionResponseSchema =
   createJsonApiCollectionResponseSchema(chatResourceSchema);
 
 // Also create message schemas for the messages endpoint
-const messageResourceSchema = createJsonApiResourceSchema("message", z.any()); // We'll use the ChatMessage type
+const messageResourceSchema = createJsonApiResourceSchema(
+  "message",
+  chatSelectSchema,
+);
 const messageSingleResponseSchema = createJsonApiSingleResponseSchema(
   messageResourceSchema,
 );
@@ -44,7 +48,7 @@ chatsRegistry.register(
   "ChatsCollectionResponse",
   chatsCollectionResponseSchema,
 );
-chatsRegistry.register("Message", z.any()); // ChatMessage schema
+chatsRegistry.register("Message", chatSelectSchema);
 chatsRegistry.register("MessageResource", messageResourceSchema);
 chatsRegistry.register("MessageSingleResponse", messageSingleResponseSchema);
 chatsRegistry.register(

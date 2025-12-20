@@ -11,22 +11,28 @@ async function seedLawyers() {
     const lawyers = await Promise.all(
       Array.from({ length: NUMBER_OF_LAWYERS }, () => createRandomLawyer()),
     );
-    const specializationCounts = lawyers.reduce<Record<string, number>>((acc, lawyer) => {
-      const spec = lawyer.specialization;
-      acc[spec] = (acc[spec] || 0) + 1;
-      return acc;
-    }, {});
-    const availableCount = lawyers.filter(l => l.isAvailable).length;
+    const specializationCounts = lawyers.reduce<Record<string, number>>(
+      (acc, lawyer) => {
+        const spec = lawyer.specialization;
+        acc[spec] = (acc[spec] || 0) + 1;
+        return acc;
+      },
+      {},
+    );
+    const availableCount = lawyers.filter((l) => l.isAvailable).length;
     const insertedLawyers = await db
       .insert(lawyersTable)
       .values(lawyers)
       .returning();
     logger.info(`Successfully seeded ${insertedLawyers.length} lawyers`);
-    logger.info({
-      insertedLawyers,
-      availableCount,
-      specializationCounts,
-    }, "Seeded lawyers");
+    logger.info(
+      {
+        insertedLawyers,
+        availableCount,
+        specializationCounts,
+      },
+      "Seeded lawyers",
+    );
   } catch (error) {
     logger.error({ error }, "Error seeding lawyers");
     process.exit(1);
