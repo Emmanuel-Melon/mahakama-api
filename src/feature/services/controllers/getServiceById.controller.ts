@@ -14,7 +14,7 @@ export const getLegalServiceByIdController = async (
 ) => {
   try {
     const { serviceId } = req.params;
-    
+
     if (!serviceId) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.BAD_REQUEST,
@@ -24,7 +24,7 @@ export const getLegalServiceByIdController = async (
     }
 
     const service = await getLegalServiceById(serviceId);
-    
+
     if (!service) {
       return sendErrorResponse(req, res, {
         status: HttpStatus.NOT_FOUND,
@@ -37,7 +37,10 @@ export const getLegalServiceByIdController = async (
       req,
       res,
       {
-        data: { ...service, serviceId: service.id.toString() } as typeof service & { serviceId: string },
+        data: {
+          ...service,
+          serviceId: service.id.toString(),
+        } as typeof service & { serviceId: string },
         type: "single",
         serializerConfig: LegalServiceSerializer,
       },

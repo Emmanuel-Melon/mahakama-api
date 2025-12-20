@@ -1,5 +1,10 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { legalServiceResponseSchema, serviceCategorySchema, categoryIconsSchema, categoryLabelsSchema } from "./services.schema";
+import {
+  legalServiceResponseSchema,
+  serviceCategorySchema,
+  categoryIconsSchema,
+  categoryLabelsSchema,
+} from "./services.schema";
 import { HttpStatus } from "@/http-status";
 import {
   createJsonApiResourceSchema,
@@ -13,8 +18,9 @@ const legalServiceResourceSchema = createJsonApiResourceSchema(
   "legal-service",
   legalServiceResponseSchema,
 );
-const legalServiceSingleResponseSchema =
-  createJsonApiSingleResponseSchema(legalServiceResourceSchema);
+const legalServiceSingleResponseSchema = createJsonApiSingleResponseSchema(
+  legalServiceResourceSchema,
+);
 const legalServicesCollectionResponseSchema =
   createJsonApiCollectionResponseSchema(legalServiceResourceSchema);
 
@@ -39,7 +45,8 @@ servicesRegistry.registerPath({
   method: "get",
   path: "/v1/services",
   summary: "Get all legal services",
-  description: "Returns a list of all available legal services with optional category filtering",
+  description:
+    "Returns a list of all available legal services with optional category filtering",
   tags: ["Services v1"],
   security: [{ bearerAuth: [] }],
   parameters: [
@@ -47,7 +54,10 @@ servicesRegistry.registerPath({
       name: "category",
       in: "query",
       required: false,
-      schema: { type: "string", enum: ["government", "legal-aid", "dispute-resolution", "specialized"] },
+      schema: {
+        type: "string",
+        enum: ["government", "legal-aid", "dispute-resolution", "specialized"],
+      },
       description: "Filter services by category",
     },
   ],

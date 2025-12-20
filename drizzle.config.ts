@@ -16,7 +16,8 @@ const schemaPaths = resolveAbsolutePaths([
   './src/feature/documents/documents.schema.ts',
   './src/feature/chats/chats.schema.ts',
   './src/feature/auth/auth.schema.ts',
-  './src/feature/services/services.schema.ts'
+  './src/feature/services/services.schema.ts',
+  './src/feature/messages/messages.schema.ts'
 ]);
 
 export default defineConfig({

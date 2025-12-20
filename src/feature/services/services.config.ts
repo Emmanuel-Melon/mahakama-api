@@ -3,7 +3,8 @@ import { LegalService, legalServiceResponseSchema } from "./services.schema";
 
 export const LegalServiceSerializer: JsonApiResourceConfig<LegalService> = {
   type: "legal-service",
-  attributes: (service: LegalService) => legalServiceResponseSchema.parse(service),
+  attributes: (service: LegalService) =>
+    legalServiceResponseSchema.parse(service),
 };
 
 export const LegalServiceEvents = {

@@ -13,13 +13,15 @@ export const getLegalServicesController = async (
   next: NextFunction,
 ) => {
   try {
-
     const services = await getLegalServices();
     sendSuccessResponse(
       req,
       res,
       {
-        data: services.map(service => ({ ...service, id: service.id.toString() })) as (typeof services[number] & { id: string })[],
+        data: services.map((service) => ({
+          ...service,
+          id: service.id.toString(),
+        })) as ((typeof services)[number] & { id: string })[],
         type: "collection",
         serializerConfig: LegalServiceSerializer,
       },
