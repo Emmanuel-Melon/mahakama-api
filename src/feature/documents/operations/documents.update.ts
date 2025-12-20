@@ -3,29 +3,28 @@ import {
   documentsTable,
   bookmarksTable,
   downloadsTable,
-  type Bookmark,
-  Document,
 } from "../documents.schema";
+import type { Bookmark, Document } from "../documents.types";
 import { eq, and } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { findDocumentById } from "./document.find";
 
 export interface BookmarkDocumentParams {
-  documentId: number;
+  documentId: string;
   user_id: string;
 }
 
 export interface DownloadDocumentParams {
-  documentId: number;
+  documentId: string;
   user_id: string;
 }
 
 export interface ShareDocumentParams {
-  documentId: number;
+  documentId: string;
 }
 
 export interface DocumentShareInfo {
-  documentId: number;
+  documentId: string;
   title: string;
   shareableLink: string;
   socialLinks: {
@@ -33,6 +32,7 @@ export interface DocumentShareInfo {
     facebook: string;
     linkedin: string;
     whatsapp: string;
+    email: string;
   };
 }
 
@@ -149,6 +149,7 @@ export async function getDocumentShareInfo({
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableLink)}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareableLink)}`,
       whatsapp: `https://wa.me/?text=${encodeURIComponent(`${document.title} - ${shareableLink}`)}`,
+      email: `mailto:?subject=${encodeURIComponent(document.title)}&body=${encodeURIComponent(`Check out this document: ${shareableLink}`)}`,
     },
   };
 }

@@ -3,10 +3,12 @@ import {
   ServerConfigSchema,
   DatabaseConfigSchema,
   LLMConfigSchema,
+  PlatformConfigSchema,
   ServicesConfigSchema,
   IServerConfig,
   IDatabaseConfig,
   ILLMConfig,
+  IPlatformConfig,
   IServicesConfig,
 } from "./config.types";
 dotenv.config();
@@ -66,6 +68,14 @@ export const llmConfig = LLMConfigSchema.parse({
   },
 }) satisfies ILLMConfig;
 
+// Platform Configuration
+export const platformConfig = PlatformConfigSchema.parse({
+  supabase: {
+    url: process.env.SUPABASE_URL || "https://your-project.supabase.co",
+    serviceKey: process.env.SUPABASE_PUBLISHABLE_KEY || "",
+  },
+}) satisfies IPlatformConfig;
+
 // Services Configuration
 export const servicesConfig = ServicesConfigSchema.parse({
   upstash: process.env.UPSTASH_REDIS_REST_URL
@@ -81,6 +91,7 @@ const config = {
   server: serverConfig,
   db: dbConfig,
   llm: llmConfig,
+  platform: platformConfig,
   services: servicesConfig,
 };
 

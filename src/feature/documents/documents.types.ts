@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
-import { bookmarksTable, documentsTable, downloadsTable } from "./documents.schema";
+import {
+  bookmarksTable,
+  documentsTable,
+  downloadsTable,
+} from "./documents.schema";
 
 export const documentSelectSchema = createSelectSchema(documentsTable);
 export const documentInsertSchema = createInsertSchema(documentsTable);

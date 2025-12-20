@@ -53,10 +53,19 @@ export const GeminiConfigSchema = z.object({
   model: z.string().optional(),
 });
 
+export const SupabaseConfigSchema = z.object({
+  url: z.string().url("Supabase URL must be a valid URL"),
+  serviceKey: z.string().min(1, "Supabase service key is required"),
+});
+
 // Grouped Schemas
 export const LLMConfigSchema = z.object({
   ollama: OllamaConfigSchema,
   gemini: GeminiConfigSchema,
+});
+
+export const PlatformConfigSchema = z.object({
+  supabase: SupabaseConfigSchema,
 });
 
 export const DatabaseConfigSchema = z.object({
@@ -78,5 +87,7 @@ export type IUpstashConfig = z.infer<typeof UpstashConfigSchema>;
 export type IChromaConfig = z.infer<typeof ChromaConfigSchema>;
 export type IOllamaConfig = z.infer<typeof OllamaConfigSchema>;
 export type IGeminiConfig = z.infer<typeof GeminiConfigSchema>;
+export type ISupabaseConfig = z.infer<typeof SupabaseConfigSchema>;
 export type ILLMConfig = z.infer<typeof LLMConfigSchema>;
+export type IPlatformConfig = z.infer<typeof PlatformConfigSchema>;
 export type IServicesConfig = z.infer<typeof ServicesConfigSchema>;

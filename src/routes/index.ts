@@ -5,7 +5,13 @@ import documentRoutes, {
 import userRoutes, { USERS_PATH } from "@/feature/users/users.routes";
 import lawyerRoutes, { LAWYERS_PATH } from "@/feature/lawyers/lawyer.routes";
 import chatRoutes, { CHATS_PATH } from "@/feature/chats/chats.routes";
-import { servicesRoutes, SERVICES_PATH } from "@/feature/services/services.routes";
+import {
+  servicesRoutes,
+  SERVICES_PATH,
+} from "@/feature/services/services.routes";
+import messagesRoutes, {
+  MESSAGES_PATH,
+} from "@/feature/messages/messages.routes";
 
 export const AUTH_PATH = "/v1";
 const BASE_PATH = "/api/v1";
@@ -17,6 +23,7 @@ router.use(USERS_PATH, userRoutes);
 router.use(SERVICES_PATH, servicesRoutes);
 router.use(LAWYERS_PATH, lawyerRoutes);
 router.use(CHATS_PATH, chatRoutes);
+router.use(MESSAGES_PATH, messagesRoutes);
 
 export default router;
 
@@ -26,4 +33,5 @@ export const availableRoutes = [
   `${BASE_PATH}${USERS_PATH}`,
   `${BASE_PATH}${LAWYERS_PATH}`,
   `${BASE_PATH}${CHATS_PATH}`,
+  `${BASE_PATH}${MESSAGES_PATH}`,
 ] as const;

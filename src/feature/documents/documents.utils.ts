@@ -1,4 +1,7 @@
-import { DocumentIngestionEvent, documentIngestionEventSchema } from "./documents.types";
+import {
+  DocumentIngestionEvent,
+  documentIngestionEventSchema,
+} from "./documents.types";
 
 export function isDocumentIngestionEvent(
   event: unknown,
@@ -11,4 +14,4 @@ export function isDocumentIngestionEvent(
   }
 }
 
-export const extractPdfMetadata = (file: Express.Multer.File) => {}
+export const extractPdfMetadata = (file: Express.Multer.File) => {};

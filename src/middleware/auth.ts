@@ -11,7 +11,8 @@ export const authenticateToken = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const token = req.cookies?.token || req.headers["authorization"]?.split(" ")[1];
+  const token =
+    req.cookies?.token || req.headers["authorization"]?.split(" ")[1];
   if (!token) {
     sendErrorResponse(req, res, {
       status: HttpStatus.UNAUTHORIZED,
@@ -45,7 +46,7 @@ export const authenticateToken = async (
         description:
           error instanceof Error ? error.message : "Authentication Error",
       });
-      return
+      return;
     }
 
     if (error instanceof jwt.TokenExpiredError) {

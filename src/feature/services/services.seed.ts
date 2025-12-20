@@ -77,5 +77,3 @@ async function main() {
     await seedServices();
     process.exit(0);
 }
-
-main();

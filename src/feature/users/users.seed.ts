@@ -38,5 +38,3 @@ async function main() {
     await seedUsers();
     process.exit(0);
 }
-
-main();

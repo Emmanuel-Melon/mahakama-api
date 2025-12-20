@@ -4,7 +4,7 @@ import { getDocumentsController } from "./controllers/get-documents.controller";
 import { createDocumentHandler } from "./controllers/create-document.controller";
 import { bookmarkDocumentController } from "./controllers/bookmark-document.controller";
 import { downloadDocumentController } from "./controllers/downoad-document.controller";
-// import { ingestDocumentController } from "./controllers/ingest-document.controller";
+import { ingestDocumentController } from "./controllers/ingest-document.controller";
 import { upload } from "@/middleware/multer";
 
 export const DOCUMENTS_PATH = "/v1/documents";
@@ -15,6 +15,6 @@ documentRoutes.get("/:id", getDocumentByIdControlle);
 documentRoutes.post("/", createDocumentHandler);
 documentRoutes.post("/:id/bookmark", bookmarkDocumentController);
 documentRoutes.get("/:id/download", downloadDocumentController);
-// documentRoutes.post("/ingest", upload.single("file"), ingestDocumentController);
+documentRoutes.post("/ingest", upload.single("file"), ingestDocumentController);
 
 export default documentRoutes;

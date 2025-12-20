@@ -12,7 +12,7 @@ async function getSeedFiles(): Promise<string[]> {
     });
     return files.sort();
   } catch (error) {
-    logger.error({error}, "Error finding seed files:");
+    logger.error({ error }, "Error finding seed files:");
     process.exit(1);
   }
 }
@@ -49,7 +49,7 @@ async function main() {
       process.exit(0);
     }
     logger.info(`📋 Found ${seedFiles.length} seed files:`);
-    seedFiles.forEach(file => logger.info(`   - ${file}`));
+    seedFiles.forEach((file) => logger.info(`   - ${file}`));
 
     for (const seedFile of seedFiles) {
       await runSeed(seedFile);
@@ -57,9 +57,7 @@ async function main() {
     logger.info("\n🎉 All seeds completed successfully!");
     process.exit(0);
   } catch (error) {
-    logger.error({error}, "\n💥 Seeding failed:");
+    logger.error({ error }, "\n💥 Seeding failed:");
     process.exit(1);
   }
 }
-
-main();

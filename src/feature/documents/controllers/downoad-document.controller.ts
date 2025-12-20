@@ -9,6 +9,7 @@ import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
 import { findDocumentById } from "../operations/document.find";
 import { HttpStatus } from "@/http-status";
 import { DocumentsSerializer } from "../document.config";
+import { parsePdfFromUrl } from "@/lib/pdf-parse/index";
 
 export const downloadDocumentController = async (
   req: Request,
@@ -23,7 +24,7 @@ export const downloadDocumentController = async (
     requestId: req.requestId,
   };
   try {
-    const documentId = Number(req.params.id);
+    const documentId = req.params.id;
     const userId = req.user?.id;
 
     await downloadDocument({
@@ -31,7 +32,7 @@ export const downloadDocumentController = async (
       user_id: userId!,
     });
 
-    const document = await findDocumentById(documentId);
+    const document = await findDocumentById(req.params.id);
 
     if (!document) {
       return sendErrorResponse(req, res, {
@@ -40,9 +41,7 @@ export const downloadDocumentController = async (
     }
 
     res.on("finish", async () => {
-      // await documentsQueue.enqueue(DocumentsJobType.DocumentDownloaded, {
-      //   ...document,
-      // });
+      parsePdfFromUrl(document.storageUrl);
     });
 
     sendSuccessResponse(
