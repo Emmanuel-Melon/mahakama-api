@@ -12,22 +12,14 @@ import { relations } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
 import { sendMessageSchema } from "./chats.types";
-
-// Define sender type enum
-export const SenderType = {
-  USER: "user",
-  ASSISTANT: "assistant",
-  SYSTEM: "system",
-} as const;
-
-export type SenderType = (typeof SenderType)[keyof typeof SenderType];
+import { chatMessages } from "@/feature/messages/messages.schema";
+import { SenderType } from "./shared.types";
 
 export const senderTypeEnum = pgEnum(
   "sender_type",
   Object.values(SenderType) as [string, ...string[]],
 );
 
-// Chat Sessions Table
 export const chatsSchema = pgTable(
   "chat_sessions",
   {
@@ -48,11 +40,12 @@ export const chatsSchema = pgTable(
 );
 
 // Relations
-export const chatSchemaRelations = relations(chatsSchema, ({ one }) => ({
+export const chatSchemaRelations = relations(chatsSchema, ({ one, many }) => ({
   user: one(usersSchema, {
     fields: [chatsSchema.userId],
     references: [usersSchema.id],
   }),
+  messages: many(chatMessages),
 }));
 
 // Schema for API responses
@@ -60,6 +53,9 @@ export const chatSessionResponseSchema = createSelectSchema(chatsSchema);
 
 export type ChatSession = typeof chatsSchema.$inferSelect;
 export type NewChatSession = typeof chatsSchema.$inferInsert;
+export type ChatSessionWithMessages = ChatSession & {
+  messages: (typeof chatMessages.$inferSelect)[];
+};
 
 export type SendMessageAttrs = z.infer<typeof sendMessageSchema>;
 export type ChatSessionAttrs = z.infer<typeof chatsSchema>;

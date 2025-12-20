@@ -1,5 +1,5 @@
 import { db } from "@/lib/drizzle";
-import { chatsSchema, chatMessages, type ChatSession } from "../chats.schema";
+import { chatsSchema, type ChatSession } from "../chats.schema";
 import { and, eq } from "drizzle-orm";
 
 export interface UpdateChatParams {

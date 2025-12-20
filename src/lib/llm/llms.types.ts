@@ -1,59 +1,77 @@
 import { z } from "zod";
-export enum LLMProviderType {
-  GEMINI = "gemini",
-  OLLAMA = "ollama",
-}
-
-export interface ILLMClient extends ILLMProvider {
-  setProvider(provider: LLMProvider): void;
-  getCurrentProvider(): LLMProvider;
-}
-
-export type LLMProvider = "gemini" | "ollama";
+import {
+  GeminiModel,
+  GeminiAuthType,
+  type LLMProviderName,
+} from "./llm.config";
 
 export type MessageRole = "system" | "user" | "assistant" | "function";
 
-export interface LLMMessage {
+export type LLMOutputType = "text" | "structured";
+
+export interface BaseLLMOutputConfig {
+  responseJsonSchema?: z.ZodTypeAny;
+  schemaName?: string;
+  outputType?: LLMOutputType;
+  provider?: LLMProviderName;
+  model?: string;
+}
+
+export interface GeminiOutputConfig extends BaseLLMOutputConfig {
+  responseMimeType?: string;
+}
+
+export interface GeminiProviderConfig {
+  projectId?: string;
+  location?: string;
+  apiKey?: string;
+  model?: GeminiModel;
+  systemPrompt?: string;
+  authType?: GeminiAuthType;
+}
+
+export interface ILLMProvider<TProvider extends LLMProviderName> {
+  provider: TProvider;
+  model?: string;
+  systemPrompt?: string;
+
+  generateTextContent<T = string>(
+    prompt: string,
+    config?: GeminiOutputConfig,
+  ): Promise<LLMResponse<T>>;
+
+  setSystemPrompt(systemPrompt: string): void;
+  getSystemPrompt(): string | undefined;
+}
+
+export interface IBaseLLMProvider {
+  provider?: LLMProviderName;
+  model?: string;
+  systemPrompt?: string;
+  generateTextContent<T = string>(
+    prompt: string,
+    config?: GeminiOutputConfig,
+  ): Promise<LLMResponse<T>>;
+  setSystemPrompt(systemPrompt: string): void;
+  getSystemPrompt(): string | undefined;
+}
+
+export interface IllmClientProvider extends ILLMProvider<LLMProviderName> {
+  setProvider(provider: LLMProviderName): void;
+}
+
+export interface Message {
   role: MessageRole;
   content: string;
   name?: string;
 }
-
-export interface LLMResponse {
-  content: string;
-  provider: LLMProvider;
+export interface LLMResponse<T = any> {
+  content: T;
+  provider: LLMProviderName;
+  contentType: "text" | "structured";
   usage?: {
     promptTokens: number;
     completionTokens: number;
     totalTokens: number;
   };
-  validation?: {
-    isValid: boolean;
-    errors?: z.ZodError[];
-    parsedData?: any;
-  };
-}
-
-export interface ChatCompletionOptions {
-  model?: string;
-  temperature?: number;
-  maxTokens?: number;
-  topP?: number;
-  topK?: number;
-  frequencyPenalty?: number;
-  presencePenalty?: number;
-  stopSequences?: string[];
-  responseFormat?: "text" | "json";
-  // Schema validation
-  responseSchema?: z.ZodSchema<any>;
-  strictSchemaValidation?: boolean; // Whether to retry on schema failures
-  [key: string]: any;
-}
-
-export interface ILLMProvider {
-  createChatCompletion(
-    chatId: string,
-    systemPrompt?: string,
-    options?: ChatCompletionOptions,
-  ): Promise<LLMResponse>;
 }

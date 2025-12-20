@@ -3,7 +3,7 @@ import { ChatSession, chatSessionResponseSchema } from "./chats.schema";
 
 export const ChatSerializer: JsonApiResourceConfig<ChatSession> = {
   type: "chat",
-  attributes: (chat: ChatSession) => chatSessionResponseSchema.parse(chat),
+  attributes: (chat: ChatSession) => chat,
 };
 
 export const ChatEvents = {

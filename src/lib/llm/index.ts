@@ -1,55 +1,85 @@
-import {
-  LLMMessage,
-  LLMResponse,
-  LLMProvider,
-  LLMProviderType,
-  ILLMClient,
-  ILLMProvider,
-} from "./llms.types";
+import { IBaseLLMProvider } from "./llms.types";
 import { GeminiClient } from "./gemini";
 import { OllamaClient } from "./ollama";
+import { llmConfig } from "@/config";
+import {
+  GeminiModel,
+  OllamaModel,
+  LLM_PROVIDERS,
+  type LLMProviderName,
+} from "./llm.config";
 
-class LLMClientManager {
-  private static instance: LLMClientManager;
-  private providers: Record<LLMProvider, ILLMProvider>;
-  private currentProvider: LLMProvider;
+interface LLMProviderManagerOptions {
+  defaultProvider?: LLMProviderName;
+}
 
-  private constructor() {
-    this.currentProvider = LLMProviderType.OLLAMA;
-    this.providers = {
-      gemini: new GeminiClient(),
-      ollama: OllamaClient.getInstance(),
-    };
+export class LLMProviderManager {
+  private providers: Map<LLMProviderName, IBaseLLMProvider>;
+  private _currentProvider: LLMProviderName;
+
+  constructor(options: LLMProviderManagerOptions = {}) {
+    this._currentProvider =
+      options.defaultProvider || LLM_PROVIDERS.GEMINI.NAME;
+    this.providers = this.initializeProviders(options);
   }
 
-  public static getInstance(): LLMClientManager {
-    if (!LLMClientManager.instance) {
-      LLMClientManager.instance = new LLMClientManager();
+  private initializeProviders(
+    options: LLMProviderManagerOptions,
+  ): Map<LLMProviderName, IBaseLLMProvider> {
+    const providers = new Map<LLMProviderName, IBaseLLMProvider>();
+
+    // Initialize Gemini provider
+    if (process.env.GEMINI_API_KEY) {
+      const geminiModel = (llmConfig.gemini?.model ||
+        LLM_PROVIDERS.GEMINI.DEFAULT_MODEL) as GeminiModel;
+      providers.set(
+        LLM_PROVIDERS.GEMINI.NAME,
+        new GeminiClient({
+          apiKey: process.env.GEMINI_API_KEY,
+          model: geminiModel,
+        }),
+      );
     }
-    return LLMClientManager.instance;
+
+    // Initialize Ollama provider
+    if (llmConfig.ollama?.url) {
+      providers.set(
+        LLM_PROVIDERS.OLLAMA.NAME,
+        OllamaClient.getInstance({
+          host: llmConfig.ollama.url,
+          model: (llmConfig.ollama.model ||
+            LLM_PROVIDERS.OLLAMA.DEFAULT_MODEL) as OllamaModel,
+        }),
+      );
+    }
+
+    return providers;
   }
 
-  public getClient(provider?: LLMProvider): ILLMProvider {
-    const targetProvider = provider || this.currentProvider;
-    const client = this.providers[targetProvider];
+  public getClient(provider?: LLMProviderName): IBaseLLMProvider {
+    const targetProvider = provider || this._currentProvider;
+    const client = this.providers.get(targetProvider);
+
     if (!client) {
-      throw new Error(`Unsupported LLM provider: ${targetProvider}`);
+      throw new Error(`No provider found for ${targetProvider}`);
     }
     return client;
   }
 
-  public setProvider(provider: LLMProvider): void {
-    if (!(provider in this.providers)) {
-      throw new Error(`Unsupported LLM provider: ${provider}`);
+  public setProvider(provider: LLMProviderName): void {
+    if (!this.providers.has(provider)) {
+      throw new Error(`No provider found for ${provider}`);
     }
-    this.currentProvider = provider;
+    this._currentProvider = provider;
   }
 
-  public getCurrentProvider(): LLMProvider {
-    return this.currentProvider;
+  public getCurrentProvider(): LLMProviderName {
+    return this._currentProvider;
   }
 }
 
-const llmClientManager = LLMClientManager.getInstance();
-const llMClient = llmClientManager.getClient();
-export { llmClientManager, llMClient };
+export const llmProviderManager = new LLMProviderManager({
+  defaultProvider: LLM_PROVIDERS.OLLAMA.NAME,
+});
+
+export const llmClientProvider = llmProviderManager.getClient();

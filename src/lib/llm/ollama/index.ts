@@ -1,103 +1,129 @@
 import { Ollama } from "ollama";
 import {
-  LLMMessage,
   LLMResponse,
   ILLMProvider,
-  ChatCompletionOptions,
+  BaseLLMOutputConfig,
+  GeminiOutputConfig,
 } from "../llms.types";
 import { llmConfig } from "@/config";
-import { getMessagesForLLM } from "@/feature/chats/operations/messages.list";
 import { logger } from "@/lib/logger";
-import { formatMessagesForProvider } from "../llm.utils";
+import { z } from "zod";
 
-export class OllamaClient implements ILLMProvider {
+export interface OllamaProviderConfig {
+  model?: string;
+  systemPrompt?: string;
+  host?: string;
+}
+
+export class OllamaClient implements ILLMProvider<"ollama"> {
   private static instance: OllamaClient;
   private client: Ollama;
-  private defaultModel = "gemma3:1b";
-  private defaultOptions: Partial<ChatCompletionOptions> = {
-    temperature: 0.7,
-    maxTokens: 2048,
-    topP: 0.9,
-    responseFormat: "json",
-  };
-  private constructor() {
+  readonly model: string;
+  readonly provider: "ollama";
+  private _systemPrompt: string;
+
+  private constructor(config: OllamaProviderConfig = {}) {
+    this.provider = "ollama";
+    this.model = config.model || "gemma3:1b";
+    this._systemPrompt = config.systemPrompt || "";
+
     const ollamaConfig = {
-      host: llmConfig.ollama.url,
+      host: config.host || llmConfig.ollama.url,
     };
     this.client = new Ollama(ollamaConfig);
   }
 
-  public static getInstance(): OllamaClient {
+  public static getInstance(config: OllamaProviderConfig = {}): OllamaClient {
     if (!OllamaClient.instance) {
-      OllamaClient.instance = new OllamaClient();
+      OllamaClient.instance = new OllamaClient(config);
     }
     return OllamaClient.instance;
   }
 
-  public getClient(): Ollama {
-    return this.client;
+  public get systemPrompt(): string | undefined {
+    return this._systemPrompt || undefined;
   }
 
-  public async createChatCompletion(
-    chatId: string,
-    systemPrompt?: string,
-    options: ChatCompletionOptions = {},
-  ): Promise<LLMResponse> {
-    const modelToUse = options.model || this.defaultModel;
-    const mergedOptions = { ...this.defaultOptions, ...options };
+  public setSystemPrompt(prompt: string): void {
+    this._systemPrompt = prompt;
+  }
 
-    let enhancedSystemPrompt = systemPrompt || "";
-    let responseFormat = mergedOptions.responseFormat;
+  public getSystemPrompt(): string | undefined {
+    return this._systemPrompt || undefined;
+  }
 
-    const messages = await getMessagesForLLM(chatId);
-    logger.info({ messages }, "chat I got fr");
+  public async generateTextContent<T = string>(
+    prompt: string,
+    config: GeminiOutputConfig = {},
+  ): Promise<LLMResponse<T>> {
+    const {
+      responseJsonSchema,
+      schemaName = "response",
+      outputType = "text",
+    } = config;
 
-    const formattedRequest = formatMessagesForProvider(
-      "ollama",
-      messages,
-      mergedOptions,
-    );
-    const chatMessages = enhancedSystemPrompt
-      ? [
-          { role: "system" as const, content: enhancedSystemPrompt },
-          ...messages,
-        ]
-      : messages;
-
-    console.log("requestOptions", mergedOptions);
+    const messages = [
+      ...(this._systemPrompt
+        ? [{ role: "system" as const, content: this._systemPrompt }]
+        : []),
+      { role: "user" as const, content: prompt },
+    ];
 
     const requestOptions: any = {
-      model: modelToUse,
-      messages: formattedRequest.messages,
-      options: mergedOptions,
+      model: this.model,
+      messages,
+      stream: false,
     };
 
-    const response = await this.client.chat(requestOptions);
+    if (outputType === "structured" && responseJsonSchema) {
+      requestOptions.format = "json";
 
-    return {
-      content: response?.message?.content,
-      provider: "ollama",
-      usage: {
-        promptTokens: 0,
-        completionTokens: 0,
-        totalTokens: 0,
-      },
-    };
+      const response = await this.client.chat({
+        model: this.model,
+        messages,
+        stream: false,
+      });
+      const content = response.message?.content;
+
+      if (!content) {
+        throw new Error("Invalid response from Ollama: no content returned");
+      }
+
+      let parsedContent;
+      try {
+        parsedContent = JSON.parse(content);
+      } catch (e) {
+        throw new Error(`Failed to parse JSON response from Ollama: ${e}`);
+      }
+
+      const validatedContent = responseJsonSchema.parse(parsedContent);
+
+      return {
+        content: validatedContent as T,
+        provider: this.provider,
+        contentType: "structured" as const,
+      };
+    } else {
+      console.log("hello");
+      const response = await this.client.chat({
+        model: this.model,
+        messages,
+        stream: false,
+      });
+      console.log("response", response);
+      const content = response.message?.content;
+
+      if (!content) {
+        throw new Error("Invalid response from Ollama: no content returned");
+      }
+
+      return {
+        content: content as T,
+        provider: this.provider,
+        contentType: "text" as const,
+      };
+    }
   }
 }
-
-export const generateEmbedding = async (query: string) => {
-  const response = await ollamaClient.getClient().embed({
-    model: "nomic-embed-text",
-    input: query,
-  });
-
-  return {
-    model: "nomic-embed-text",
-    embeddings: response.embeddings,
-    query,
-    metadata: {},
-  };
-};
 
 export const ollamaClient = OllamaClient.getInstance();

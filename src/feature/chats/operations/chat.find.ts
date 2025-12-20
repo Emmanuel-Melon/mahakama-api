@@ -1,15 +1,17 @@
 import { db } from "@/lib/drizzle";
-import { chatsSchema, type ChatSession } from "../chats.schema";
+import { chatsSchema, type ChatSessionWithMessages } from "../chats.schema";
 import { eq } from "drizzle-orm";
 
 export const getChatById = async (
   chatId: string,
-): Promise<ChatSession | null> => {
-  const [chat] = await db
-    .select()
-    .from(chatsSchema)
-    .where(eq(chatsSchema.id, chatId))
-    .limit(1);
-
+): Promise<ChatSessionWithMessages | null> => {
+  const chat = await db.query.chatsSchema.findFirst({
+    where: eq(chatsSchema.id, chatId),
+    with: {
+      messages: {
+        orderBy: (messages, { asc }) => [asc(messages.timestamp)],
+      },
+    },
+  });
   return chat || null;
 };

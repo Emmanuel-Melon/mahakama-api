@@ -1,14 +1,22 @@
 import { db } from "@/lib/drizzle";
-import { usersSchema } from "../users.schema";
+import { usersSchema, type UserWithChats } from "../users.schema";
 import { eq, ilike } from "drizzle-orm";
 import type { User } from "../users.schema";
+import { chatsSchema } from "@/feature/chats/chats.schema";
 
-export async function findById(id: string): Promise<User> {
-  const [user] = await db
-    .select()
-    .from(usersSchema)
-    .where(eq(usersSchema.id, id))
-    .limit(1);
+export async function findUserById(id: string): Promise<UserWithChats | null> {
+  const user = await db.query.usersSchema.findFirst({
+    where: eq(usersSchema.id, id),
+    with: {
+      chats: true,
+    },
+  });
+  return user || null;
+}
+
+export async function findById(id: string): Promise<UserWithChats | null> {
+  const user = await findUserById(id);
+
   return user;
 }
 

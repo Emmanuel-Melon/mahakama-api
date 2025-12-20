@@ -1,18 +1,10 @@
 import { z } from "zod";
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
-import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { chatMessages } from "./messages.schema";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { SenderType } from "@/feature/chats/shared.types";
 
 extendZodWithOpenApi(z);
-
-// Define sender type enum
-export const SenderType = {
-  USER: "user",
-  ASSISTANT: "assistant",
-  SYSTEM: "system",
-} as const;
-
-export type SenderType = (typeof SenderType)[keyof typeof SenderType];
 
 // Schema for API responses
 export const chatSelectSchema = createSelectSchema(chatMessages).openapi({
@@ -26,6 +18,19 @@ export const chatInsertSchema = createInsertSchema(chatMessages)
     title: "CreateChatMessageRequest",
     description: "Request schema for creating a new chat message",
   });
+
+export const messageInputSchema = z.object({
+  chatId: z.string().uuid(),
+  content: z.string().min(1),
+  senderType: z.enum([
+    SenderType.USER,
+    SenderType.ASSISTANT,
+    SenderType.SYSTEM,
+  ]),
+  userId: z.string().uuid().nullable(),
+});
+
+export type MessageInput = z.infer<typeof messageInputSchema>;
 
 export type ChatMessage = typeof chatMessages.$inferSelect & {
   user?: {

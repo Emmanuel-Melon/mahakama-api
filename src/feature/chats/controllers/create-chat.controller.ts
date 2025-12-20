@@ -1,24 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { createChat } from "../operations/chats.create";
-import { queryProcessor } from "@/feature/rag-pipeline/query/query.processor";
 import { User } from "@/feature/users/users.schema";
-import {
-  findRelevantLaws,
-  getMostRelevantLaw,
-} from "../../rag-pipeline/knowledge/vectorizer";
-import {
-  createSystemPrompt,
-  createChatSessionPayload,
-} from "@/lib/llm/ollama/chat-utils";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { type ControllerMetadata } from "@/lib/express/express.types";
 import { HttpStatus } from "@/http-status";
-import { getChatById } from "../operations/chat.find";
-import { eq } from "drizzle-orm";
 import { ChatSerializer } from "../chats.config";
+import { llmClientProvider, llmProviderManager } from "@/lib/llm";
+import { sendMessage } from "@/feature/messages/operations/messages.create";
+import { UserRoles } from "@/feature/users/users.types";
 
 export const createChatController = async (
   req: Request<{}, {}, any>,
@@ -28,74 +19,35 @@ export const createChatController = async (
   try {
     const { message, metadata: bodyMetadata } = req.body;
     const user = req.user as User;
-    // Create a new chat session
+    const senderType = user.role === UserRoles.USER ? "user" : "assistant";
     const chat = await createChat({
       userId: user.id,
-      title: message, // Use the first message as the title
+      title: message,
       metadata: bodyMetadata,
     });
-
-    // If there's an initial message, process it
-    if (message) {
-      // Process the query and get relevant laws
-      // const query = await queryProcessor.processQuery(message);
-      // const relevantLaws = await findRelevantLaws(query);
-      // const mostRelevantLaw = getMostRelevantLaw(relevantLaws, query);
-      // Send the user's message
-      // await sendMessage({
-      //   chatId: chat.id,
-      //   content: message,
-      //   sender: {
-      //     id: user.id,
-      //     type: "user",
-      //     displayName: user.name || "User",
-      //   },
-      //   metadata: { query, relevantLaws },
-      // });
-      // // Send the initial message to the LLM
-      // const response = await chat(
-      //   createChatSessionPayload([
-      //     {
-      //       role: "system",
-      //       content: createSystemPrompt(mostRelevantLaw, query),
-      //     },
-      //     {
-      //       role: "user",
-      //       content: message,
-      //     },
-      //   ]),
-      // );
-      // Send the AI's response as the first message
-      // await sendMessage({
-      //   chatId: chat.id,
-      //   content: response.message.content,
-      //   sender: {
-      //     id: "system",
-      //     type: "assistant",
-      //     displayName: "Assistant",
-      //   },
-      //   metadata: { relevantLaw: mostRelevantLaw },
-      // });
-    }
-
-    // Send the response with the chat and messages
+    sendMessage({
+      chatId: chat?.id!,
+      content: message,
+      senderType,
+      userId: user.id,
+    });
+    const client = llmProviderManager.getClient();
+    const result = await client.generateTextContent(message);
+    sendMessage({
+      chatId: chat?.id!,
+      content: result.content,
+      senderType,
+      userId: user.id,
+    });
     if (chat) {
-      const createdChat = await getChatById(chat.id);
-
-      if (!createdChat) {
-        return sendErrorResponse(req, res, {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-        });
-      }
-
       return sendSuccessResponse(
         req,
         res,
         {
           data: {
-            ...createdChat,
-            id: createdChat.id.toString(),
-          } as typeof createdChat & { id: string },
+            ...chat,
+            id: chat.id.toString(),
+          } as typeof chat & { id: string },
           type: "single",
           serializerConfig: ChatSerializer,
         },

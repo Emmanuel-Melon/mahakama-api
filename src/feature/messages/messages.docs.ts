@@ -1,5 +1,5 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { chatSelectSchema } from "./messages.types";
+import { chatSelectSchema, messageInputSchema } from "./messages.types";
 import { z } from "zod";
 import { HttpStatus } from "@/http-status";
 import {
@@ -14,14 +14,6 @@ const ErrorResponseRef = { $ref: "#/components/schemas/JsonApiErrorResponse" };
 const messageSenderSchema = z.object({
   id: z.string(),
   displayName: z.string().optional(),
-});
-
-// Define send message request schema
-const sendMessageRequestSchema = z.object({
-  chatId: z.string(),
-  content: z.string(),
-  sender: messageSenderSchema,
-  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const messageResourceSchema = createJsonApiResourceSchema(
@@ -39,13 +31,14 @@ const messagesCollectionResponseSchema = createJsonApiCollectionResponseSchema(
 export const messagesRegistry = new OpenAPIRegistry();
 messagesRegistry.register("Message", chatSelectSchema);
 messagesRegistry.register("MessageSender", messageSenderSchema);
-messagesRegistry.register("SendMessageRequest", sendMessageRequestSchema);
+messagesRegistry.register("SendMessageRequest", messageInputSchema);
 messagesRegistry.register("MessageResource", messageResourceSchema);
 messagesRegistry.register("MessageSingleResponse", messageSingleResponseSchema);
 messagesRegistry.register(
   "MessagesCollectionResponse",
   messagesCollectionResponseSchema,
 );
+messagesRegistry.register("MessageInput", messageInputSchema);
 
 // 1. POST /v1/messages (Send a message)
 messagesRegistry.registerPath({
@@ -60,7 +53,7 @@ messagesRegistry.registerPath({
       required: true,
       content: {
         "application/json": {
-          schema: sendMessageRequestSchema,
+          schema: messageInputSchema,
         },
       },
     },

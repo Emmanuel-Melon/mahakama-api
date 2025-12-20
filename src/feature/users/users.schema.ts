@@ -167,13 +167,18 @@ export const userResponseSchema = baseSchema
 
 // relations
 export const usersRelations = relations(usersSchema, ({ many }) => ({
-  chatsSchema: many(chatsSchema),
+  chats: many(chatsSchema),
 }));
 
 export type User = z.infer<typeof userResponseSchema>;
 export type NewUser = typeof usersSchema.$inferInsert;
 export type CreateUserRequest = z.infer<typeof createUserSchema>;
 export type UserAttrs = z.infer<typeof createUserSchema>;
+
+// Type for user with relations included
+export type UserWithChats = User & {
+  chats: (typeof chatsSchema.$inferSelect)[];
+};
 
 export const combinedUsersSchema = {
   usersSchema,

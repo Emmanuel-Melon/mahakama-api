@@ -1,7 +1,21 @@
-import { pgTable, uuid, text, jsonb, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  jsonb,
+  timestamp,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersSchema } from "@/feature/users/users.schema";
 import { chatsSchema } from "../chats/chats.schema";
+import { SenderType } from "../chats/shared.types";
+
+// Define sender type enum for messages
+const senderTypeEnum = pgEnum(
+  "sender_type",
+  Object.values(SenderType) as [string, ...string[]],
+);
 
 // Chat Messages Table
 export const chatMessages = pgTable("chat_messages", {
@@ -10,9 +24,10 @@ export const chatMessages = pgTable("chat_messages", {
     .notNull()
     .references(() => chatsSchema.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => usersSchema.id, { onDelete: "cascade" }),
+  senderType: senderTypeEnum("sender_type").notNull().default("user"),
+  userId: uuid("user_id").references(() => usersSchema.id, {
+    onDelete: "cascade",
+  }),
   timestamp: timestamp("timestamp", { withTimezone: true })
     .defaultNow()
     .notNull(),

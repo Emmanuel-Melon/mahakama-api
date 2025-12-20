@@ -1,99 +1,109 @@
 import {
-  LLMMessage,
   LLMResponse,
   ILLMProvider,
-  ChatCompletionOptions,
+  GeminiOutputConfig,
+  GeminiProviderConfig,
 } from "../llms.types";
 import { GoogleGenAI } from "@google/genai";
-import { llmConfig } from "@/config";
-import { getMessagesForLLM } from "@/feature/chats/operations/messages.list";
+import { LLM_PROVIDERS, LLMProviderName } from "../llm.config";
 
-export class GeminiClient implements ILLMProvider {
-  protected readonly client: GoogleGenAI;
-  protected readonly GENERATIVE_MODEL_NAME = "gemini-2.0-flash";
-  protected readonly EMBEDDING_MODEL_NAME = "models/embedding-001";
-  private defaultOptions: Partial<ChatCompletionOptions> = {
-    temperature: 0.9,
-    maxTokens: 2048,
-    topP: 0.8,
-    topK: 40,
-  };
+export class GeminiClient implements ILLMProvider<LLMProviderName> {
+  private readonly client: GoogleGenAI;
+  readonly model: string;
+  provider: "gemini";
+  private _systemPrompt: string;
+  constructor(config: GeminiProviderConfig) {
+    this.provider = "gemini";
+    const authType = config.authType || LLM_PROVIDERS.GEMINI.AUTH_TYPES.API_KEY;
+    if (authType === LLM_PROVIDERS.GEMINI.AUTH_TYPES.VERTEX_AI) {
+      this.client = new GoogleGenAI({
+        vertexai: true,
+        project: config.projectId,
+        location: config.location,
+        ...(config.apiKey && { apiKey: config.apiKey }),
+      });
+    } else {
+      this.client = new GoogleGenAI({
+        apiKey: config.apiKey,
+      });
+    }
 
-  constructor() {
-    this.client = new GoogleGenAI({ apiKey: llmConfig.gemini.apiKey });
+    this.model = config.model || LLM_PROVIDERS.GEMINI.DEFAULT_MODEL;
+    this._systemPrompt = config.systemPrompt || "";
   }
 
-  public async createChatCompletion(
-    chatId: string,
-    systemPrompt?: string,
-    options?: ChatCompletionOptions,
-  ): Promise<LLMResponse> {
-    try {
-      const messages = await getMessagesForLLM(chatId);
-      const fullPrompt = systemPrompt
-        ? `${systemPrompt}\n\n${messages}`
-        : messages;
+  public get systemPrompt(): string | undefined {
+    return this._systemPrompt || undefined;
+  }
 
-      const response = await this.client.models.generateContent({
-        model: this.GENERATIVE_MODEL_NAME,
-        contents: fullPrompt,
-        ...this.defaultOptions,
-        ...options,
-      });
+  public setSystemPrompt(prompt: string): void {
+    this._systemPrompt = prompt;
+  }
 
-      if (!response?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        throw new Error("Invalid response from Gemini");
+  public getSystemPrompt(): string | undefined {
+    return this._systemPrompt || undefined;
+  }
+
+  public async generateTextContent<T = any>(
+    prompt: string,
+    config: GeminiOutputConfig = {},
+  ): Promise<LLMResponse<T>> {
+    const {
+      responseJsonSchema,
+      schemaName = "response",
+      outputType = "text",
+    } = config;
+
+    if (outputType === "structured" && responseJsonSchema) {
+      const requestConfig: {
+        model: string;
+        contents: string;
+        config?: {
+          responseMimeType?: string;
+          responseJsonSchema?: any;
+        };
+      } = {
+        model: this.model,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseJsonSchema: responseJsonSchema,
+        },
+      };
+
+      const response = await this.client.models.generateContent(requestConfig);
+      const content = response?.candidates?.[0]?.content;
+      if (!content?.parts?.[0]?.text) {
+        throw new Error("Invalid response from Gemini: no content returned");
       }
+      const textContent = content.parts[0].text;
+      const parsedJson = JSON.parse(textContent);
+      const validatedContent = responseJsonSchema.parse(parsedJson);
 
       return {
-        content: response.candidates[0].content.parts[0].text,
-        provider: "gemini",
+        content: validatedContent as T,
+        provider: this.provider,
+        contentType: "structured" as const,
       };
-    } catch (error) {
-      console.error("Error in GeminiClient.createChatCompletion:", error);
-      throw error instanceof Error ? error : new Error(String(error));
-    }
-  }
-
-  protected extractMessages(messages: LLMMessage[]): {
-    systemMessage?: string;
-    userMessage: string;
-  } {
-    const systemMsg = messages.find((msg) => msg.role === "system");
-    const userMsg = messages.find((msg) => msg.role === "user");
-
-    if (!userMsg) {
-      throw new Error("User message is required");
-    }
-
-    return {
-      systemMessage: systemMsg?.content,
-      userMessage: userMsg.content,
-    };
-  }
-}
-
-export class GeminiEmbeddingClient extends GeminiClient {
-  public async generateEmbedding(text: string): Promise<number[]> {
-    try {
-      const response = await this.client.models.embedContent({
-        model: this.EMBEDDING_MODEL_NAME,
-        contents: text,
-        config: {
-          taskType: "RETRIEVAL_DOCUMENT",
-        },
-      });
-
-      const embedding = response.embeddings?.[0]?.values;
-
-      if (!embedding || embedding.length === 0) {
-        throw new Error("Embedding generation failed or returned empty vector");
+    } else {
+      const requestConfig: {
+        model: string;
+        contents: string;
+      } = {
+        model: this.model,
+        contents: prompt,
+      };
+      const response = await this.client.models.generateContent(requestConfig);
+      const content = response?.candidates?.[0]?.content;
+      if (!content?.parts?.[0]?.text) {
+        throw new Error("Invalid response from Gemini: no content returned");
       }
-
-      return embedding;
-    } catch (error) {
-      console.error("Error in GeminiEmbeddingClient.generateEmbedding:", error);
-      throw error;
+      const textContent = content.parts[0].text;
+      return {
+        content: textContent as T,
+        provider: this.provider,
+        contentType: "text" as const,
+      };
     }
   }
 }

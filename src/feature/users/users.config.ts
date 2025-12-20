@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const SerializedUser: JsonApiResourceConfig<User> = {
   type: "user",
-  attributes: (user: User) => userResponseSchema.parse(user),
+  attributes: (user: User) => user,
 };
 
 export const UserEvents = {
