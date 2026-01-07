@@ -50,7 +50,7 @@ export function initializeMiddlewares(app: Application): void {
   console.log("Registering auth router at /auth/v1");
   app.use("/auth/v1", authRouter);
 
-  app.use("/api", authenticateToken, mahakamaRouter);
+  app.use("/api", mahakamaRouter);
 
   // ERROR HANDLERS
   app.use(notFoundHandler);

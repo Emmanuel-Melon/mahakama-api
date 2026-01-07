@@ -63,3 +63,53 @@ export const authenticateToken = async (
     });
   }
 };
+
+
+export const optionalAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const token =
+    req.cookies?.token || req.headers["authorization"]?.split(" ")[1];
+
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const verified = jwt.verify(token, serverConfig.jwtSecret!) as JwtPayload;
+    const user = await findById(verified.id);
+
+    if (user) {
+      req.user = user;
+    } else {
+      req.user = null;
+    }
+
+    next();
+  } catch (error) {
+    logger.debug(
+      { 
+        path: req.path, 
+        error: error instanceof Error ? error.message : "Unknown" 
+      },
+      "Invalid token in optional auth, proceeding as guest"
+    );
+    req.user = null;
+    next();
+  }
+};
+
+export const methodBasedAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const method = req.method.toUpperCase();
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
+    return optionalAuth(req, res, next);
+  }
+  return authenticateToken(req, res, next);
+};

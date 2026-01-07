@@ -1,17 +1,5 @@
-import { servicesConfig } from "@/config";
+import { config } from "@/config";
 import { JobOptions, BullWorkerOptions } from "./bullmq.types";
-
-export const stripUpstashUrl = (
-  url: string,
-): { host: string; port: number } => {
-  const parsedUrl = new URL(url);
-  const host = parsedUrl.hostname;
-  const port = parseInt(parsedUrl.port) || 6379;
-  return { host, port };
-};
-
-const { host, port } = stripUpstashUrl(servicesConfig.upstash?.restUrl!);
-const upStashPassword = servicesConfig.upstash?.restPassword;
 
 export enum QueueName {
   Auth = "auth",
@@ -31,13 +19,7 @@ export const WorkerEvents = {
   JOB_STALLED: "[Worker] Job stalled",
 } as const;
 
-export const defaultWorkerOptions: BullWorkerOptions = {
-  connection: {
-    host,
-    port,
-    password: upStashPassword!,
-    tls: {},
-  },
+export const defaultWorkerOptions: Omit<BullWorkerOptions, 'connection'> = {
   concurrency: 5, // Process 5 jobs in parallel
   removeOnComplete: { count: 100 }, // Keep last 100 completed jobs
   removeOnFail: { count: 200 }, // Keep last 200 failed jobs

@@ -45,6 +45,7 @@ export const dbConfig = DatabaseConfigSchema.parse({
     ? {
         url: process.env.REDIS_URL,
         port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
+        host: process.env.REDIS_HOST || "localhost",
       }
     : undefined,
   chroma: process.env.CHROMA_API_KEY

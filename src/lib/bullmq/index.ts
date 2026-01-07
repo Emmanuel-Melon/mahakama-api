@@ -15,9 +15,12 @@ export class QueueManager {
   private queues: Map<QueueName, QueueInstance> = new Map();
   private defaultConfig: QueueConfig;
 
+  private queueOptions = setQueueOptions();
+
   private constructor() {
+    console.log("queueOptions", this.queueOptions);
     this.defaultConfig = {
-      ...setQueueOptions(),
+      ...this.queueOptions,
     };
   }
 
@@ -49,6 +52,8 @@ export class QueueManager {
           ...customConfig?.connection,
         },
       };
+
+      console.log("config", config);
 
       const queue = new Queue(name, config as QueueOptions);
 

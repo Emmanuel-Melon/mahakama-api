@@ -12,10 +12,10 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { userResponseSchema } from "@/feature/users/users.schema";
 import { HttpStatus } from "@/http-status";
-import { type AuthJobType, AuthEvents } from "../auth.config";
 import { SerializedUser } from "@/feature/users/users.config";
+import { AuthEvents, AuthJobType } from "../auth.config";
+// import { redisClient } from "@/lib/redis";
 
 export const loginUserController = async (
   req: Request<{}, {}, LoginUserAttrs>,
@@ -52,11 +52,17 @@ export const loginUserController = async (
 
     const { ...userWithoutPassword } = user;
 
-    return sendSuccessResponse(req, res, {
+    sendSuccessResponse(req, res, {
       data: userWithoutPassword,
       serializerConfig: SerializedUser,
       type: "single",
     });
+
+    res.on("finish", async () => {
+      authQueue.enqueue(AuthEvents.Login.jobName, {
+        user: userWithoutPassword
+      });
+    })
   } catch (error: unknown) {
     next(error);
   }

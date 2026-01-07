@@ -7,13 +7,12 @@ import {
 } from "../auth.utils";
 import { registerUser } from "../operations/auth.create";
 import { findUserByEmail } from "../operations/auth.find";
-import { authQueue } from "../workers/auth.queue";
+// import { authQueue } from "../workers/auth.queue";
 import { RegisterResponse } from "../auth.types";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { userResponseSchema } from "../../users/users.schema";
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "@/feature/users/users.config";
 

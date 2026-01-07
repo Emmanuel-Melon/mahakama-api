@@ -21,7 +21,7 @@ declare global {
       validatedHeaders?: any;
       validatedData?: UserAttrs;
       fingerprint?: RequestFingerprint;
-      user?: User;
+      user?: User | null;
       userIP?: string;
       token?: string;
       requestId: string;

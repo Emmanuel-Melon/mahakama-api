@@ -1,43 +1,23 @@
 import Redis, { Cluster, RedisOptions } from "ioredis";
 import { IRedisClient, IORedisConfig } from "./redis.types";
-import { config } from "@/config";
+import { servicesConfig, dbConfig } from "@/config";
 import { logger } from "@/lib/logger";
 
 export class IORedisClient implements IRedisClient {
-  private client: Redis | Cluster;
+  private client: Redis;
 
-  constructor(config: IORedisConfig) {
-    if (config.mode === "cluster") {
-      if (!config.cluster) {
-        throw new Error("Cluster configuration is required for cluster mode");
-      }
+  constructor() {
+    const options: RedisOptions = {
+      host: dbConfig.redis?.url || "localhost",
+      port: dbConfig.redis?.port || 6379,
+      retryStrategy: (times) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+    };
 
-      this.client = new Redis.Cluster(config.cluster.nodes, {
-        redisOptions: {
-          // Default options for all nodes
-          enableReadyCheck: true,
-          maxRetriesPerRequest: 3,
-        },
-        ...config.cluster.options,
-      });
-
-      logger.info(
-        `🔗 Redis Cluster initialized with ${config.cluster.nodes.length} nodes`,
-      );
-    } else {
-      const options: RedisOptions = {
-        host: config.standalone?.host || "localhost",
-        port: config.standalone?.port || 6379,
-        password: config.standalone?.password,
-        retryStrategy: (times) => {
-          const delay = Math.min(times * 50, 2000);
-          return delay;
-        },
-      };
-
-      this.client = new Redis(options);
-      logger.info(`📍 Redis Standalone: ${options.host}:${options.port}`);
-    }
+    this.client = new Redis(options);
+    logger.info(`📍 Redis Standalone: ${options.host}:${options.port}`);
 
     this.client.on("error", (err) => logger.error("Redis Error:", err));
     this.client.on("connect", () => logger.info("✅ Redis connected"));
@@ -83,7 +63,7 @@ export class IORedisClient implements IRedisClient {
     await this.client.quit();
   }
 
-  getRawClient(): Redis | Cluster {
+  getRawClient(): Redis {
     return this.client;
   }
 }

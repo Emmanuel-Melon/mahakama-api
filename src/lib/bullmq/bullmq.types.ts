@@ -1,4 +1,5 @@
 import { JobsOptions, Queue } from "bullmq";
+import Redis from "ioredis";
 
 export type QueueInstance = {
   queue: Queue;
@@ -19,7 +20,7 @@ export type ConnectionOptions = {
 };
 
 export type QueueConfig = {
-  connection: ConnectionOptions;
+  connection: ConnectionOptions | Redis;
 };
 
 export type BullWorkerOptions = QueueConfig & {

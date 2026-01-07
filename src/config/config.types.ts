@@ -29,6 +29,7 @@ export const PostgresConfigSchema = z.object({
 export const RedisConfigSchema = z.object({
   url: z.string().url().optional(),
   port: z.number().int().min(1).max(65535).optional(),
+  host: z.string().optional(),
 });
 
 export const UpstashConfigSchema = z.object({

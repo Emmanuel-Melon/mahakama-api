@@ -4,20 +4,11 @@ import { UpstashClient } from "./upstash";
 import { dbConfig, serverConfig } from "@/config";
 
 export class RedisClient {
-  static getClient(): IRedisClient | UpstashClient {
-    switch (serverConfig.env) {
-      case "production":
-        return new UpstashClient();
-      case "development":
-      default:
-        return new IORedisClient({
-          mode: "standalone",
-          standalone: {
-            host: dbConfig.redis?.url,
-            port: dbConfig.redis?.port,
-          },
-        });
-    }
+  static getClient(): IRedisClient {
+    const redisConfig = dbConfig.redis;
+
+    // Use individual connection 
+    return new IORedisClient();
   }
 }
 
