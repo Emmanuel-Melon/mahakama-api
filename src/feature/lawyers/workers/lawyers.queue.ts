@@ -2,7 +2,7 @@ import { queueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
 import { QueueInstance } from "@/lib/bullmq/bullmq.types";
 import { setQueueJobOptions } from "@/lib/bullmq/bullmq.utils";
-import { Lawyer } from "../lawyers.schema";
+import { Lawyer } from "../lawyers.types";
 import { QueueName } from "@/lib/bullmq/bullmq.config";
 
 export enum LawyersJobType {

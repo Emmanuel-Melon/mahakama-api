@@ -15,7 +15,6 @@ import {
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "@/feature/users/users.config";
 import { AuthEvents, AuthJobType } from "../auth.config";
-// import { redisClient } from "@/lib/redis";
 
 export const loginUserController = async (
   req: Request<{}, {}, LoginUserAttrs>,

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "@/lib/drizzle";
 import { createLawyer } from "../operations/lawyers.create";
-import { lawyersTable, lawyerResponseSchema } from "../lawyers.schema";
+import { lawyersTable } from "../lawyers.schema";
 import { eq } from "drizzle-orm";
 import {
   sendErrorResponse,

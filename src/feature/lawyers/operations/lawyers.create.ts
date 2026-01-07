@@ -1,7 +1,6 @@
 import { db } from "@/lib/drizzle";
 import { lawyersTable } from "../lawyers.schema";
-import type { CreateLawyerInput, NewLawyer } from "../lawyers.schema";
-import type { Lawyer } from "../lawyers.schema";
+import type { Lawyer, NewLawyer } from "../lawyers.types";
 import { faker } from "@faker-js/faker";
 import { randomElement } from "@/lib/drizzle/seed";
 import {
@@ -9,9 +8,10 @@ import {
   legalSpecializations,
   commonLanguages,
 } from "../lawyers.config";
+import { v4 as uuid4 } from "uuid";
 
 export async function createLawyer(
-  lawyerData: CreateLawyerInput,
+  lawyerData: NewLawyer,
 ): Promise<Lawyer | null> {
   const insertData = {
     ...lawyerData,

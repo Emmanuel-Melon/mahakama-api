@@ -43,3 +43,5 @@ async function main() {
   await seedLawyers();
   process.exit(0);
 }
+
+// main();

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { findById } from "../operations/lawyers.find";
-import { lawyerResponseSchema } from "../lawyers.schema";
 import { AppError } from "@/middleware/errors";
 import {
   sendErrorResponse,
@@ -15,7 +14,7 @@ export const getLawyerByIdController = async (
   next: NextFunction,
 ) => {
   try {
-    const lawyerId = parseInt(req.params.id);
+    const lawyerId = req.params.id;
     const lawyer = await findById(lawyerId);
     if (!lawyer) {
       return sendErrorResponse(req, res, {
