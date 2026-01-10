@@ -40,6 +40,7 @@ export const sortableFields = [
   "name",
   "email",
 ] as const;
+
 export const searchableFields = ["name", "email"] as const;
 export type SearchableField = (typeof searchableFields)[number];
 export type SortableField = (typeof sortableFields)[number];

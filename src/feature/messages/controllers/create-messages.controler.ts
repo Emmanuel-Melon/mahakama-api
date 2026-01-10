@@ -35,7 +35,7 @@ export const sendMessageController = async (
     const aiMessage = await sendMessage({
       chatId,
       content: result.content,
-      senderType,
+      senderType: "assistant",
       userId: user.id,
     });
 
