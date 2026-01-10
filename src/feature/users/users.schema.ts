@@ -63,12 +63,15 @@ export const createUserSchema = createInsertSchema(usersSchema).openapi({
   title: "CreateUserRequest",
   description: "Request schema for creating a new user",
 });
-export const selectUserSchema = createSelectSchema(usersSchema).omit({
-  password: true,
-}).openapi({
-  title: "User",
-  description: "User response schema (excluding sensitive fields like password)",
-});
+export const selectUserSchema = createSelectSchema(usersSchema)
+  .omit({
+    password: true,
+  })
+  .openapi({
+    title: "User",
+    description:
+      "User response schema (excluding sensitive fields like password)",
+  });
 
 // relations
 export const usersRelations = relations(usersSchema, ({ many }) => ({

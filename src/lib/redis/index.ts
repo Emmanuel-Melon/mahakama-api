@@ -7,7 +7,7 @@ export class RedisClient {
   static getClient(): IRedisClient {
     const redisConfig = dbConfig.redis;
 
-    // Use individual connection 
+    // Use individual connection
     return new IORedisClient();
   }
 }

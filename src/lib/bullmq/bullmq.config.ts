@@ -19,7 +19,7 @@ export const WorkerEvents = {
   JOB_STALLED: "[Worker] Job stalled",
 } as const;
 
-export const defaultWorkerOptions: Omit<BullWorkerOptions, 'connection'> = {
+export const defaultWorkerOptions: Omit<BullWorkerOptions, "connection"> = {
   concurrency: 5, // Process 5 jobs in parallel
   removeOnComplete: { count: 100 }, // Keep last 100 completed jobs
   removeOnFail: { count: 200 }, // Keep last 200 failed jobs

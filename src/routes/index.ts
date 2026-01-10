@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { authenticateToken, optionalAuth, methodBasedAuth } from "@/middleware/auth";
+import {
+  authenticateToken,
+  optionalAuth,
+  methodBasedAuth,
+} from "@/middleware/auth";
 import documentRoutes, {
   DOCUMENTS_PATH,
 } from "@/feature/documents/documents.routes";

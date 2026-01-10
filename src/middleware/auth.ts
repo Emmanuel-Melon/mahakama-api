@@ -64,7 +64,6 @@ export const authenticateToken = async (
   }
 };
 
-
 export const optionalAuth = async (
   req: Request,
   res: Response,
@@ -91,11 +90,11 @@ export const optionalAuth = async (
     next();
   } catch (error) {
     logger.debug(
-      { 
-        path: req.path, 
-        error: error instanceof Error ? error.message : "Unknown" 
+      {
+        path: req.path,
+        error: error instanceof Error ? error.message : "Unknown",
       },
-      "Invalid token in optional auth, proceeding as guest"
+      "Invalid token in optional auth, proceeding as guest",
     );
     req.user = null;
     next();

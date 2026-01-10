@@ -59,9 +59,9 @@ export const loginUserController = async (
 
     res.on("finish", async () => {
       authQueue.enqueue(AuthEvents.Login.jobName, {
-        user: userWithoutPassword
+        user: userWithoutPassword,
       });
-    })
+    });
   } catch (error: unknown) {
     next(error);
   }
