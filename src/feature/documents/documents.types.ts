@@ -62,7 +62,7 @@ export type NewDownload = typeof downloadsTable.$inferInsert;
 export type Document = z.infer<typeof documentSelectSchema>;
 export type NewDocument = z.infer<typeof documentInsertSchema>;
 
-export type EventType =
+export type DocumentEventType =
   | "started"
   | "progress"
   | "content"
@@ -71,7 +71,7 @@ export type EventType =
 
 export type DocumentIngestionEvent = Extract<
   {
-    [K in EventType]: {
+    [K in DocumentEventType]: {
       type: K;
       data: K extends "started"
         ? {
@@ -107,6 +107,6 @@ export type DocumentIngestionEvent = Extract<
                   }
                 : never;
     };
-  }[EventType],
+  }[DocumentEventType],
   { type: string; data: any }
 >;

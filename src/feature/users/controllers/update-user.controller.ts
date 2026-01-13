@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { updateUser } from "../operations/users.update";
-import { User, type UserAttrs, type UserRole } from "../users.schema";
+import { type UserRole } from "../users.schema";
+import  type { User, NewUser } from "../users.types";
 import { findById } from "../operations/users.find";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { type JsonApiResponse } from "@/lib/express/express.types";
-import { GetUsersParams, UserRoles } from "../users.types";
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "../users.config";
 

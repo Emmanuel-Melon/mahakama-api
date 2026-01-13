@@ -4,10 +4,7 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { GetUsersParams } from "../users.types";
 import { HttpStatus } from "@/http-status";
-import { JsonApiResponse } from "@/lib/express/express.types";
-import { UserResponse } from "../users.types";
 import { SerializedUser } from "../users.config";
 
 export const getUserController = async (
