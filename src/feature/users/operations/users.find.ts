@@ -1,7 +1,7 @@
 import { db } from "@/lib/drizzle";
-import { usersSchema, type UserWithChats } from "../users.schema";
+import { usersSchema } from "../users.schema";
 import { eq, ilike } from "drizzle-orm";
-import type { User } from "../users.schema";
+import type { User, UserWithChats } from "../users.types";
 import { chatsSchema } from "@/feature/chats/chats.schema";
 
 export async function findUserById(id: string): Promise<UserWithChats | null> {
@@ -58,7 +58,7 @@ export const findOrCreateUser = async ({
   if (existingUser) {
     return existingUser;
   }
-  // Create new user if not found
+
   const [newUser] = await db
     .insert(usersSchema)
     .values({

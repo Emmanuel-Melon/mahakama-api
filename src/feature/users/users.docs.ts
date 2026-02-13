@@ -1,5 +1,5 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { selectUserSchema, createUserSchema } from "./users.schema";
+import { userSelectSchema, userInsertSchema } from "./users.types";
 import { HttpStatus } from "@/http-status";
 import {
   createJsonApiResourceSchema,
@@ -10,7 +10,7 @@ import {
 const ErrorResponseRef = { $ref: "#/components/schemas/JsonApiErrorResponse" };
 const userResourceSchema = createJsonApiResourceSchema(
   "user",
-  selectUserSchema,
+  userSelectSchema,
 );
 const userSingleResponseSchema =
   createJsonApiSingleResponseSchema(userResourceSchema);
@@ -19,8 +19,8 @@ const usersCollectionResponseSchema =
 
 // Create registry and register schemas
 export const usersRegistry = new OpenAPIRegistry();
-usersRegistry.register("User", selectUserSchema);
-usersRegistry.register("CreateUser", createUserSchema);
+usersRegistry.register("User", userSelectSchema);
+usersRegistry.register("CreateUser", userInsertSchema);
 usersRegistry.register("UserResource", userResourceSchema);
 usersRegistry.register("UserSingleResponse", userSingleResponseSchema);
 usersRegistry.register(
@@ -159,7 +159,7 @@ usersRegistry.registerPath({
       required: true,
       content: {
         "application/json": {
-          schema: createUserSchema,
+          schema: userInsertSchema,
         },
       },
     },

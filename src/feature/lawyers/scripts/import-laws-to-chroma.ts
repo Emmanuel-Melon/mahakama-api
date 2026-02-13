@@ -1,13 +1,13 @@
-import { chromaClient } from "../src/lib/chroma";
-import { laws } from "../src/rag-pipeline/dataset/laws.dataset";
-import { config } from "../src/config";
+import { chromaClient } from "@/lib/chroma";
 
 const COLLECTION_NAME = "legal_questions";
+
+const laws: any[] = [];
 
 async function importLawsToChroma() {
   try {
     console.log("Starting import of laws to ChromaDB...");
-    
+
     // Prepare documents and metadata
     const documents: string[] = [];
     const metadatas: any[] = [];
@@ -17,7 +17,7 @@ async function importLawsToChroma() {
     for (const law of laws) {
       // Create a meaningful document string that includes both title and content
       const document = `${law.title}. ${law.content}`;
-      
+
       // Create metadata object
       const metadata = {
         id: law.id.toString(),
@@ -45,7 +45,7 @@ async function importLawsToChroma() {
       const batchIds = ids.slice(i, i + BATCH_SIZE);
 
       console.log(`Importing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(documents.length / BATCH_SIZE)}...`);
-      
+
       await chromaClient.addDocuments({
         collectionName: COLLECTION_NAME,
         documents: batchDocs,
@@ -59,7 +59,7 @@ async function importLawsToChroma() {
 
     console.log("\n✅ Successfully imported all laws to ChromaDB!");
     console.log(`Total documents imported: ${documents.length}`);
-    
+
     // Verify the import
     const collectionCount = await chromaClient.countCollection(COLLECTION_NAME);
     console.log(`Total documents in collection '${COLLECTION_NAME}': ${collectionCount}`);

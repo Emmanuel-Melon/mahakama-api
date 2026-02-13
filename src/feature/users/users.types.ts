@@ -1,9 +1,6 @@
 import { z } from "zod";
 import {
-  User,
-  NewUser,
-  CreateUserRequest,
-  UserAttrs,
+  usersSchema,
   genderSchema,
   userRoleSchema,
 } from "./users.schema";
@@ -12,8 +9,32 @@ import {
   JsonApiResponse,
   JsonApiErrorResponse,
 } from "@/lib/express/express.types";
+import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import { chatsSchema } from "@/feature/chats/chats.schema";
+
+export const userInsertSchema = createInsertSchema(usersSchema).openapi({
+  title: "NewUser",
+  description: "Request schema for creating a new user",
+});
+export const userSelectSchema = createSelectSchema(usersSchema)
+  .omit({
+    password: true,
+  })
+  .openapi({
+    title: "User",
+    description:
+      "User response schema (excluding sensitive fields like password)",
+  });
 
 // Use inferred types from schemas
+export type User = z.infer<typeof userSelectSchema>;
+export type NewUser = z.infer<typeof userInsertSchema>;
+
+// Type for user with relations included
+export type UserWithChats = User & {
+  chats: (typeof chatsSchema.$inferSelect)[];
+};
+
 export type UserSuccessResponse = JsonApiResponse<User>;
 export type UserErrorResponse = JsonApiErrorResponse;
 export type UserResponse = UserSuccessResponse | UserErrorResponse;

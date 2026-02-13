@@ -29,6 +29,21 @@ export async function findAll(options?: GetUsersQuery): Promise<{
     maxLimit: 100,
     defaultLimit: 10,
   });
+
+  const baseQuery = db.select().from(usersSchema);
+  const users = await baseQuery.limit(limit).offset(offset);
+
+  return {
+    users,
+    total: users.length,
+    page,
+    limit,
+    pages: Math.ceil(users.length / limit) || 1,
+    hasNext: page * limit < users.length,
+    hasPrevious: page > 1,
+  };
+}
+
   // const conditions = [];
 
   // if (options?.role && checkUserRole(options.role)) {
@@ -74,18 +89,3 @@ export async function findAll(options?: GetUsersQuery): Promise<{
   //   schema: usersSchema
   // });
   // console.log("myUsers", myUsers);
-
-  const baseQuery = db.select().from(usersSchema);
-
-  const users = await baseQuery.limit(limit).offset(offset);
-
-  return {
-    users,
-    total: users.length,
-    page,
-    limit,
-    pages: Math.ceil(users.length / limit) || 1,
-    hasNext: page * limit < users.length,
-    hasPrevious: page > 1,
-  };
-}
