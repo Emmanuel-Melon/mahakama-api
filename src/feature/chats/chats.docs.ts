@@ -1,6 +1,5 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { chatSessionResponseSchema } from "./chats.schema";
-import { chatSelectSchema } from "../messages/messages.types";
+import { chatSelectSchema } from "./chats.types";
 import { z } from "zod";
 import { HttpStatus } from "@/http-status";
 import {
@@ -19,7 +18,7 @@ const createChatRequestSchema = z.object({
 
 const chatResourceSchema = createJsonApiResourceSchema(
   "chat",
-  chatSessionResponseSchema,
+  chatSelectSchema,
 );
 const chatSingleResponseSchema =
   createJsonApiSingleResponseSchema(chatResourceSchema);
@@ -40,7 +39,7 @@ const messagesCollectionResponseSchema = createJsonApiCollectionResponseSchema(
 
 // Create registry and register schemas
 export const chatsRegistry = new OpenAPIRegistry();
-chatsRegistry.register("Chat", chatSessionResponseSchema);
+chatsRegistry.register("Chat", chatSelectSchema);
 chatsRegistry.register("CreateChatRequest", createChatRequestSchema);
 chatsRegistry.register("ChatResource", chatResourceSchema);
 chatsRegistry.register("ChatSingleResponse", chatSingleResponseSchema);

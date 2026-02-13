@@ -150,14 +150,14 @@ Middleware files contain validation logic using Zod schemas, ensuring data integ
 **Example** (`users/user.middleware.ts`):
 ```typescript
 import { Request, Response, NextFunction } from "express";
-import { createUserSchema, CreateUserRequest } from "./user.schema";
+import { usersInsertSchema, CreateUserRequest } from "./user.schema";
 
 export const validateCreateUser = (
   req: Request<{}, {}, CreateUserRequest>,
   res: Response,
   next: NextFunction,
 ) => {
-  const result = createUserSchema.safeParse(req.body);
+  const result = usersInsertSchema.safeParse(req.body);
   if (!result.success) {
     return res.status(400).json({
       error: "Validation Error",

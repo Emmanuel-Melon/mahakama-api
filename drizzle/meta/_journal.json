@@ -8,6 +8,13 @@
       "when": 1766008538264,
       "tag": "0000_old_warhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769881946308,
+      "tag": "0001_nice_omega_red",
+      "breakpoints": true
     }
   ]
 }

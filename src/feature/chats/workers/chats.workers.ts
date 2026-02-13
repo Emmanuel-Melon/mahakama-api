@@ -1,6 +1,5 @@
 import { Worker } from "bullmq";
 import { QueueName } from "@/lib/bullmq/bullmq.config";
-import { config } from "@/config";
 import { setWorkerOptions } from "@/lib/bullmq/bullmq.utils";
 import { ChatsJobType } from "./chats.queue";
 import { logger } from "@/lib/logger";
@@ -8,7 +7,7 @@ import { logger } from "@/lib/logger";
 const chatsWorker = new Worker(
   QueueName.Auth,
   async (job) => {
-    console.log(
+    logger.info(
       `Processing job ${job.id} of type ${job.name === ChatsJobType.ChatCreatd}!!!`,
     );
     if (job.name === ChatsJobType.ChatCreatd) {

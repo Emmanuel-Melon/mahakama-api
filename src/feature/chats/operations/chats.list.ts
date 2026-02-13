@@ -1,8 +1,8 @@
 import { db } from "@/lib/drizzle";
-import { chatsSchema } from "../chats.schema";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
-import type { ChatSession } from "../chats.schema";
+import { eq, desc, sql, inArray } from "drizzle-orm";
 import { chatMessages } from "@/feature/messages/messages.schema";
+import { chatsSchema } from "../chats.schema";
+import { type ChatSession } from "../chats.types";
 
 export interface ListChatsParams {
   userId: string;

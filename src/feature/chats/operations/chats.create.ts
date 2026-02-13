@@ -1,5 +1,6 @@
 import { db } from "@/lib/drizzle";
-import { chatsSchema, type ChatSession } from "../chats.schema";
+import { chatsSchema } from "../chats.schema";
+import { type ChatSession } from "../chats.types";
 
 export interface CreateChatParams {
   userId: string;
