@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { createUser as createUserOperation } from "../operations/users.create";
 import type { NewUser, User } from "../users.types";
 import { findById, findByFingerprint } from "../operations/users.find";
@@ -9,7 +9,6 @@ import {
 } from "@/lib/express/express.response";
 import { usersQueue } from "../workers/users.queue";
 import { HttpStatus } from "@/http-status";
-import { logger } from "@/lib/logger";
 import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
 import { SerializedUser, UserEvents } from "../users.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";

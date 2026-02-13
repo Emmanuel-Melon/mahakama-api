@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { bookmarkDocument } from "../operations/documents.update";
 import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
@@ -8,12 +8,9 @@ import {
   sendSuccessResponse,
 } from "@/lib/express/express.response";
 import { DocumentsSerializer } from "../document.config";
+import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
-export const bookmarkDocumentController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const bookmarkDocumentController = asyncHandler(async (req: Request, res: Response) => {
   const metadata: ControllerMetadata = {
     route: req.path,
     name: "bookmarkDocumentController",
@@ -21,36 +18,32 @@ export const bookmarkDocumentController = async (
     resourceType: "document",
     requestId: req.requestId,
   };
-  try {
-    const documentId = Number(req.params.id);
-    const userId = req.user?.id;
+  const documentId = Number(req.params.id);
+  const userId = req.user?.id;
 
-    const document = await bookmarkDocument({
-      documentId,
-      user_id: userId!,
-    });
+  const document = await bookmarkDocument({
+    documentId,
+    user_id: userId!,
+  });
 
-    // res.on("finish", async () => {
-    //   await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
-    //     ...document,
-    //   });
-    // });
+  // res.on("finish", async () => {
+  //   await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
+  //     ...document,
+  //   });
+  // });
 
-    sendSuccessResponse(
-      req,
-      res,
-      {
-        data: { ...document, id: document.id.toString() } as typeof document & {
-          id: string;
-        },
-        type: "single",
-        serializerConfig: DocumentsSerializer,
+  sendSuccessResponse(
+    req,
+    res,
+    {
+      data: { ...document, id: document.id.toString() } as typeof document & {
+        id: string;
       },
-      {
-        status: HttpStatus.CREATED,
-      },
-    );
-  } catch (error) {
-    next(error);
-  }
-};
+      type: "single",
+      serializerConfig: DocumentsSerializer,
+    },
+    {
+      status: HttpStatus.CREATED,
+    },
+  );
+});

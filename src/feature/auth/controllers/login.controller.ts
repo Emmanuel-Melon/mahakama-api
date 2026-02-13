@@ -23,14 +23,6 @@ export const loginUserController = asyncHandler(async (req: Request, res: Respon
       status: HttpStatus.UNAUTHORIZED,
       description: "Invalid email or password",
     });
-
-    res.on("finish", async () => {
-      authQueue.enqueue(AuthEvents.Login.jobName, {
-        user: userWithoutPassword,
-      });
-    });
-  } catch (error: unknown) {
-    next(error);
   }
   if (!user.password) {
     return sendErrorResponse(req, res, {
