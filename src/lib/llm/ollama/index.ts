@@ -126,6 +126,4 @@ export class OllamaClient implements ILLMProvider<"ollama"> {
   }
 }
 
-
 export const ollamaClient = OllamaClient.getInstance();
-

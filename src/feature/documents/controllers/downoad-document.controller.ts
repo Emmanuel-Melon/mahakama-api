@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { downloadDocument } from "../operations/documents.update";
 import {
   sendErrorResponse,
@@ -10,12 +10,9 @@ import { findDocumentById } from "../operations/document.find";
 import { HttpStatus } from "@/http-status";
 import { DocumentsSerializer } from "../document.config";
 import { parsePdfFromUrl } from "@/lib/pdf-parse/index";
+import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
-export const downloadDocumentController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const downloadDocumentController = asyncHandler(async (req: Request, res: Response) => {
   const metadata: ControllerMetadata = {
     name: "downloadDocumentController",
     resourceType: "document",
@@ -23,42 +20,38 @@ export const downloadDocumentController = async (
     operation: "download",
     requestId: req.requestId,
   };
-  try {
-    const documentId = req.params.id;
-    const userId = req.user?.id;
+  const documentId = req.params.id;
+  const userId = req.user?.id;
 
-    await downloadDocument({
-      documentId,
-      user_id: userId!,
+  await downloadDocument({
+    documentId,
+    user_id: userId!,
+  });
+
+  const document = await findDocumentById(req.params.id);
+
+  if (!document) {
+    return sendErrorResponse(req, res, {
+      status: HttpStatus.NOT_FOUND,
     });
-
-    const document = await findDocumentById(req.params.id);
-
-    if (!document) {
-      return sendErrorResponse(req, res, {
-        status: HttpStatus.NOT_FOUND,
-      });
-    }
-
-    res.on("finish", async () => {
-      parsePdfFromUrl(document.storageUrl);
-    });
-
-    sendSuccessResponse(
-      req,
-      res,
-      {
-        data: { ...document, id: document.id.toString() } as typeof document & {
-          id: string;
-        },
-        type: "single",
-        serializerConfig: DocumentsSerializer,
-      },
-      {
-        status: HttpStatus.SUCCESS,
-      },
-    );
-  } catch (error) {
-    next(error);
   }
-};
+
+  res.on("finish", async () => {
+    parsePdfFromUrl(document.storageUrl);
+  });
+
+  sendSuccessResponse(
+    req,
+    res,
+    {
+      data: { ...document, id: document.id.toString() } as typeof document & {
+        id: string;
+      },
+      type: "single",
+      serializerConfig: DocumentsSerializer,
+    },
+    {
+      status: HttpStatus.SUCCESS,
+    },
+  );
+});

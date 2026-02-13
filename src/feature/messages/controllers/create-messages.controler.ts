@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { sendMessage } from "../operations/messages.create";
 import {
   sendErrorResponse,
@@ -10,53 +10,46 @@ import { llmClientProvider, llmProviderManager } from "@/lib/llm";
 import { getChatById } from "../../chats/operations/chat.find";
 import { User } from "@/feature/users/users.schema";
 import { UserRoles } from "@/feature/users/users.types";
+import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
-export const sendMessageController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { chatId, content, userId, metadata } = req.body;
-    const user = req.user as User;
-    const senderType = user.role === UserRoles.USER ? "user" : "assistant";
+export const sendMessageController = asyncHandler(async (req: Request, res: Response) => {
+  const { chatId, content, userId, metadata } = req.body;
+  const user = req.user as User;
+  const senderType = user.role === UserRoles.USER ? "user" : "assistant";
 
-    const userMessage = await sendMessage({
-      chatId,
-      content,
-      senderType,
-      userId,
-    });
-    const client = llmProviderManager.getClient();
-    const result = await client.generateTextContent(content);
+  const userMessage = await sendMessage({
+    chatId,
+    content,
+    senderType,
+    userId,
+  });
+  const client = llmProviderManager.getClient();
+  const result = await client.generateTextContent(content);
 
-    // const previousMessages = await getChatById(chatId);
-    // console.log(previousMessages);
-    const aiMessage = await sendMessage({
-      chatId,
-      content: result.content,
-      senderType,
-      userId: user.id,
-    });
+  // const previousMessages = await getChatById(chatId);
+  // console.log(previousMessages);
+  const aiMessage = await sendMessage({
+    chatId,
+    content: result.content,
+    senderType: "assistant",
+    userId: user.id,
+  });
 
-    sendSuccessResponse(
-      req,
-      res,
-      {
-        data: {
-          ...userMessage,
-          id: userMessage.id.toString(),
-        } as typeof userMessage & {
-          id: string;
-        },
-        type: "single",
-        serializerConfig: MessageSerializer,
+  sendSuccessResponse(
+    req,
+    res,
+    {
+      data: {
+        ...userMessage,
+        id: userMessage.id.toString(),
+      } as typeof userMessage & {
+        id: string;
       },
-      {
-        status: HttpStatus.CREATED,
-      },
-    );
-  } catch (error) {
-    next(error);
-  }
-};
+      type: "single",
+      serializerConfig: MessageSerializer,
+    },
+    {
+      status: HttpStatus.CREATED,
+    },
+  );
+});

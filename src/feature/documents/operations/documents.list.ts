@@ -13,12 +13,10 @@ export async function listDocuments({
   offset = 0,
   type,
 }: ListDocumentsOptions = {}) {
-  // First get the count
   const [count] = await db
     .select({ count: sql<number>`count(*)` })
     .from(documentsTable);
 
-  // Then get the paginated data
   const query = db.select().from(documentsTable).$dynamic();
 
   if (type) {

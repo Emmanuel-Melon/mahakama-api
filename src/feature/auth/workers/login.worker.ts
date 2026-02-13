@@ -2,18 +2,20 @@ import { Job } from "bullmq";
 import { Resend } from "resend";
 import { logger } from "@/lib/logger";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "re_YAtG5w6z_JjajdDfuejzdjaxvPM2ZvgAU");
+const resend = new Resend(
+  process.env.RESEND_API_KEY || "re_YAtG5w6z_JjajdDfuejzdjaxvPM2ZvgAU",
+);
 
 export const loginWorker = async (job: Job) => {
-    try {
-        const user = job.data.user;
-        console.log("Processing login for user:", user.email);
-        
-        const { data, error } = await resend.emails.send({
-            from: "Mahakama <emmanuelgatwech@gmail.com>",
-            to: [user.email],
-            subject: `Welcome back to Mahakama, ${user.name}!`,
-            html: `
+  try {
+    const user = job.data.user;
+    console.log("Processing login for user:", user.email);
+
+    const { data, error } = await resend.emails.send({
+      from: "Mahakama <emmanuelgatwech@gmail.com>",
+      to: [user.email],
+      subject: `Welcome back to Mahakama, ${user.name}!`,
+      html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #2c3e50;">Welcome Back to Mahakama!</h2>
                     <p>Hello ${user.name},</p>
@@ -39,18 +41,20 @@ export const loginWorker = async (job: Job) => {
                     </div>
                 </div>
             `,
-        });
+    });
 
-        if (error) {
-            logger.error({ error, userId: user.id }, "Failed to send welcome email");
-            throw error;
-        }
-
-        logger.info({ userId: user.id, emailId: data?.id }, "Welcome email sent successfully");
-        return data;
-        
-    } catch (error) {
-        logger.error({ error, jobData: job.data }, "Login worker failed");
-        throw error;
+    if (error) {
+      logger.error({ error, userId: user.id }, "Failed to send welcome email");
+      throw error;
     }
+
+    logger.info(
+      { userId: user.id, emailId: data?.id },
+      "Welcome email sent successfully",
+    );
+    return data;
+  } catch (error) {
+    logger.error({ error, jobData: job.data }, "Login worker failed");
+    throw error;
+  }
 };

@@ -10,7 +10,6 @@ export const lawyersListResponseSchema = z.array(lawyerSelectSchema);
 export type NewLawyer = z.infer<typeof createLawyerSchema>;
 export type Lawyer = z.infer<typeof lawyerSelectSchema>;
 
-
 export type LawyerFilters = {
   specialization?: string;
   location?: string;

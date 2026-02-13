@@ -10,8 +10,8 @@ let redisConnection: Redis | null = null;
 export const getRedisConnection = (): Redis => {
   if (!redisConnection) {
     const redisConfig = config.db.redis;
-    
-    if (redisConfig?.url && !redisConfig.url.startsWith('redis://')) {
+
+    if (redisConfig?.url && !redisConfig.url.startsWith("redis://")) {
       // If URL is not a proper redis:// URL, treat it as host
       redisConnection = new Redis({
         host: redisConfig.url,
@@ -50,7 +50,7 @@ export const setQueueJobOptions = (options?: JobsOptions) => {
 
 export const setWorkerOptions = (options?: WorkerOptions) => {
   const connection = getRedisConnection();
-  
+
   return {
     ...defaultWorkerOptions,
     connection,
@@ -60,7 +60,7 @@ export const setWorkerOptions = (options?: WorkerOptions) => {
 
 export const setQueueOptions = (options?: QueueConfig): QueueConfig => {
   const connection = getRedisConnection();
-  
+
   return {
     connection,
     ...options,

@@ -48,3 +48,5 @@ async function main() {
   await seedDocuments();
   process.exit(0);
 }
+
+// main();
