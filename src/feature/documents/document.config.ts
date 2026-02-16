@@ -6,6 +6,12 @@ export const DocumentsSerializer: JsonApiResourceConfig<Document> = {
   attributes: (document: Document) => documentSelectSchema.parse(document),
 };
 
+export const DocumentRagCollections = {
+  DocumentSummaries: {
+    label: 'summary'
+  }
+}
+
 export const DocumentEvents = {
   DocumentCreated: {
     label: "created",

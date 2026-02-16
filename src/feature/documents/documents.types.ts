@@ -110,3 +110,12 @@ export type DocumentIngestionEvent = Extract<
   }[DocumentEventType],
   { type: string; data: any }
 >;
+
+export interface LegalDocumentChunk {
+  id: string;
+  title: string;
+  category: string;
+  source: string;
+  content: string;
+  similarity?: number;
+}

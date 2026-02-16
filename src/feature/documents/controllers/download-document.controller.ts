@@ -4,7 +4,6 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
 import { findDocumentById } from "../operations/document.find";
 import { HttpStatus } from "@/http-status";
@@ -13,14 +12,7 @@ import { parsePdfFromUrl } from "@/lib/pdf-parse/index";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
 export const downloadDocumentController = asyncHandler(async (req: Request, res: Response) => {
-  const metadata: ControllerMetadata = {
-    name: "downloadDocumentController",
-    resourceType: "document",
-    route: req.path,
-    operation: "download",
-    requestId: req.requestId,
-  };
-  const documentId = req.params.id;
+  const { documentId } = req.validatedParams;
   const userId = req.user?.id;
 
   await downloadDocument({
@@ -28,17 +20,13 @@ export const downloadDocumentController = asyncHandler(async (req: Request, res:
     user_id: userId!,
   });
 
-  const document = await findDocumentById(req.params.id);
+  const document = await findDocumentById(documentId);
 
   if (!document) {
     return sendErrorResponse(req, res, {
       status: HttpStatus.NOT_FOUND,
     });
   }
-
-  res.on("finish", async () => {
-    parsePdfFromUrl(document.storageUrl);
-  });
 
   sendSuccessResponse(
     req,
@@ -54,4 +42,11 @@ export const downloadDocumentController = asyncHandler(async (req: Request, res:
       status: HttpStatus.SUCCESS,
     },
   );
+
+  res.on("finish", async () => {
+    parsePdfFromUrl(document.storageUrl);
+    await documentsQueue.enqueue(DocumentsJobType.DocumentDownloaded, {
+      ...document,
+    });
+  });
 });

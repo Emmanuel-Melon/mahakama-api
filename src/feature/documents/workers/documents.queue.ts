@@ -1,6 +1,6 @@
 import { queueManager, QueueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
-import { Document } from "../documents.schema";
+import type { Document } from "../documents.types";
 import { QueueInstance } from "@/lib/bullmq/bullmq.types";
 import { setQueueJobOptions } from "@/lib/bullmq/bullmq.utils";
 import { QueueName } from "@/lib/bullmq/bullmq.config";
