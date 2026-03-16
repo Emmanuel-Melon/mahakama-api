@@ -42,7 +42,11 @@ export async function bookmarkDocument({
 }: BookmarkDocumentParams): Promise<Document> {
   const document = await findDocumentById(documentId);
 
+  // I wanna be able to catch specific errors like these and then respond accordingly in my API layer.
   if (!document) {
+    //     Quick question regarding controllers and operations!
+    // Let’s say I call getUserController with an invalid user id. The getUserController handles the HTTP layer, it calls findUserById which interacts with the db and returns the actual user details if found. Say the ID is invalid, what’s the best location to handle this error?
+    // Should I have findUserById throw an error when it fails to find the user and then have its caller handle the response i.e the caller (getUserController) can send an HTTP 404 (Not Found) response to the client. 
     throw new Error("Document not found");
   }
 

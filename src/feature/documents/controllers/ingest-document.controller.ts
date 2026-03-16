@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import { createDocument } from "../operations/documents.create";
-import {
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { DocumentsSerializer } from "../document.config";
 import { uploadFileToBucket } from "@/lib/supabase/storage";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "@/lib/express/express.response";
 
 export const ingestDocumentController = asyncHandler(async (req: Request, res: Response) => {
   const file = req.file;
@@ -41,6 +42,13 @@ export const ingestDocumentController = asyncHandler(async (req: Request, res: R
     storageUrl: uploadResult.publicUrl,
   });
 
+  if (!document) {
+    return sendErrorResponse(req, res, {
+      status: HttpStatus.SERVICE_UNAVAILABLE,
+      description: "Unable to ingest document at the moment. Please try again later."
+    });
+  }
+
   sendSuccessResponse(
     req,
     res,
@@ -55,4 +63,10 @@ export const ingestDocumentController = asyncHandler(async (req: Request, res: R
       status: HttpStatus.CREATED,
     },
   );
+
+  res.on("finish", async () => {
+    await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
+      ...document,
+    });
+  });
 });

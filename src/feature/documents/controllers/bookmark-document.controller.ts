@@ -1,24 +1,16 @@
 import { Request, Response } from "express";
 import { bookmarkDocument } from "../operations/documents.update";
-import { type ControllerMetadata } from "@/lib/express/express.types";
 import { documentsQueue, DocumentsJobType } from "../workers/documents.queue";
 import { HttpStatus } from "@/http-status";
+import { DocumentsSerializer } from "../document.config";
+import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import {
   sendErrorResponse,
   sendSuccessResponse,
 } from "@/lib/express/express.response";
-import { DocumentsSerializer } from "../document.config";
-import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
 export const bookmarkDocumentController = asyncHandler(async (req: Request, res: Response) => {
-  const metadata: ControllerMetadata = {
-    route: req.path,
-    name: "bookmarkDocumentController",
-    operation: req.method === "POST" ? "create" : "delete",
-    resourceType: "document",
-    requestId: req.requestId,
-  };
-  const documentId = Number(req.params.id);
+  const { documentId } = req.validatedParams;
   const userId = req.user?.id;
 
   const document = await bookmarkDocument({
@@ -26,11 +18,12 @@ export const bookmarkDocumentController = asyncHandler(async (req: Request, res:
     user_id: userId!,
   });
 
-  // res.on("finish", async () => {
-  //   await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
-  //     ...document,
-  //   });
-  // });
+  if (!document) {
+    return sendErrorResponse(req, res, {
+      status: HttpStatus.SERVICE_UNAVAILABLE,
+      description: "Unable to bookmark document at the moment. Please try again later."
+    });
+  }
 
   sendSuccessResponse(
     req,
@@ -46,4 +39,10 @@ export const bookmarkDocumentController = asyncHandler(async (req: Request, res:
       status: HttpStatus.CREATED,
     },
   );
+
+  res.on("finish", async () => {
+    await documentsQueue.enqueue(DocumentsJobType.DocumentBookmarked, {
+      ...document,
+    });
+  });
 });

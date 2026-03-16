@@ -9,8 +9,8 @@ import { DocumentsSerializer } from "../document.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
 export const getDocumentByIdControlle = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const document = await findDocumentById(id);
+  const { documentId } = req.validatedParams;
+  const document = await findDocumentById(documentId);
   if (!document) {
     return sendErrorResponse(req, res, {
       status: HttpStatus.NOT_FOUND,
