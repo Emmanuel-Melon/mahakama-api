@@ -1,6 +1,6 @@
 import { queueManager, QueueManager } from "@/lib/bullmq";
 import { Queue, JobsOptions } from "bullmq";
-import { ChatSessionResponse } from "../chats.schema";
+import { ChatSessionResponse } from "../chats.types";
 import { QueueInstance } from "@/lib/bullmq/bullmq.types";
 import { setQueueJobOptions } from "@/lib/bullmq/bullmq.utils";
 import { QueueName } from "@/lib/bullmq/bullmq.config";

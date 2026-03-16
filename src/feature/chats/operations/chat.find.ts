@@ -1,6 +1,7 @@
 import { db } from "@/lib/drizzle";
-import { chatsSchema, type ChatSessionWithMessages } from "../chats.schema";
 import { eq } from "drizzle-orm";
+import { chatsSchema } from "../chats.schema";
+import { type ChatSessionWithMessages } from "../chats.types";
 
 export const getChatById = async (
   chatId: string,

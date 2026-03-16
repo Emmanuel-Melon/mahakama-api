@@ -9,8 +9,6 @@ const resend = new Resend(
 export const loginWorker = async (job: Job) => {
   try {
     const user = job.data.user;
-    console.log("Processing login for user:", user.email);
-
     const { data, error } = await resend.emails.send({
       from: "Mahakama <emmanuelgatwech@gmail.com>",
       to: [user.email],

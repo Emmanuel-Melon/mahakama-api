@@ -10,7 +10,6 @@ import { HttpStatus } from "@/http-status";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
 export const deleteChatController = asyncHandler(async (req: Request, res: Response) => {
-  console.log("deleteChatController");
   const { chatId } = req.params;
   const user = req.user as User;
 

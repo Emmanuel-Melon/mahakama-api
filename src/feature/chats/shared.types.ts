@@ -1,4 +1,3 @@
-// Define sender type enum - shared between chats and messages
 export const SenderType = {
   USER: "user",
   ASSISTANT: "assistant",

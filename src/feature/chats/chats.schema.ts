@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   pgTable,
   uuid,
@@ -9,9 +8,7 @@ import {
   foreignKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { createSelectSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
-import { sendMessageSchema } from "./chats.types";
 import { chatMessages } from "@/feature/messages/messages.schema";
 import { SenderType } from "./shared.types";
 
@@ -39,7 +36,6 @@ export const chatsSchema = pgTable(
   }),
 );
 
-// Relations
 export const chatSchemaRelations = relations(chatsSchema, ({ one, many }) => ({
   user: one(usersSchema, {
     fields: [chatsSchema.userId],
@@ -48,15 +44,7 @@ export const chatSchemaRelations = relations(chatsSchema, ({ one, many }) => ({
   messages: many(chatMessages),
 }));
 
-// Schema for API responses
-export const chatSessionResponseSchema = createSelectSchema(chatsSchema);
-
-export type ChatSession = typeof chatsSchema.$inferSelect;
-export type NewChatSession = typeof chatsSchema.$inferInsert;
-export type ChatSessionWithMessages = ChatSession & {
-  messages: (typeof chatMessages.$inferSelect)[];
+export const combinedChatsSchema = {
+  usersSchema,
+  chatSchemaRelations,
 };
-
-export type SendMessageAttrs = z.infer<typeof sendMessageSchema>;
-export type ChatSessionAttrs = z.infer<typeof chatsSchema>;
-export type ChatSessionResponse = z.infer<typeof chatSessionResponseSchema>;

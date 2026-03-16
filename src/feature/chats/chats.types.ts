@@ -1,21 +1,16 @@
 import { z } from "zod";
-import { SenderType } from "./chats.schema";
+import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import { chatsSchema } from "./chats.schema";
+import { chatMessages } from "@/feature/messages/messages.schema";
 
-// Schema for creating a new chat
-export const createchatsSchemachema = z.object({
-  message: z.string().optional(),
-  metadata: z.record(z.string(), z.any()).optional(),
-});
+export const chatSelectSchema = createSelectSchema(chatsSchema);
+export const chatInsertSchema = createInsertSchema(chatsSchema);
 
-// Schema for sending a message
-export const sendMessageSchema = z.object({
-  content: z.string().min(1, "Message content is required"),
-  metadata: z.record(z.string(), z.any()).optional(),
-});
+export type ChatSession = z.infer<typeof chatSelectSchema>;
+export type NewChatSession = z.infer<typeof chatInsertSchema>;
+export type ChatSessionWithMessages = ChatSession & {
+  messages: (typeof chatMessages.$inferSelect)[];
+};
 
-// Schema for chat ID in params
-export const chatIdSchema = z.object({
-  params: z.object({
-    chatId: z.string().min(1, "Chat ID is required"),
-  }),
-});
+export type ChatSessionAttrs = z.infer<typeof chatsSchema>;
+export type ChatSessionResponse = z.infer<typeof chatSelectSchema>;

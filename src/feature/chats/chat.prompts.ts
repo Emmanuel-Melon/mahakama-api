@@ -1,4 +1,3 @@
-// Create system prompt for legal context with instructions for generating structured data
 export const systemPrompt = `You are a helpful legal assistant for the South Sudanese and Ugandan legal system. 
     Provide clear, accurate, and concise answers to legal questions. 
     If you're unsure about any information, state that clearly. 
