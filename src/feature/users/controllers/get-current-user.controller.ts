@@ -5,17 +5,13 @@ import {
 } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "../users.config";
-import { findById } from "../operations/users.find";
+import { findUserById } from "../operations/users.find";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { unwrap } from "@/lib/drizzle/drizzle.utils";
+import { HttpError } from "@/lib/http/http.error";
 
 export const getCurrentUserController = asyncHandler(async (req: Request, res: Response) => {
-  const user = await findById(req?.user?.id || "");
-  if (!user) {
-    return sendErrorResponse(req, res, {
-      status: HttpStatus.NOT_FOUND,
-      description: "The requested user profile doesn't exist on this serve.",
-    });
-  }
+  const user = unwrap(await findUserById(req?.user?.id || ""), new HttpError(HttpStatus.NOT_FOUND, "User not found"));
   return sendSuccessResponse(
     req,
     res,

@@ -7,24 +7,22 @@ import { hashPassword } from "@/feature/auth/auth.utils";
 import { randomElement } from "@/lib/drizzle/seed";
 import { Genders } from "../users.types";
 import { getRandomRole } from "../users.utils";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbResult } from "@/lib/drizzle/drizzle.types";
 
-export async function createUser(userData: NewUser): Promise<User> {
+export async function createUser(userData: NewUser): Promise<DbResult<User>> {
   const [user] = await db
     .insert(usersSchema)
     .values({
       id: uuid(),
-      name: userData.name || null,
-      email: userData.email || null,
-      password: userData.password || null,
-      fingerprint: userData.fingerprint || null,
-      userAgent: userData.userAgent || null,
-      lastIp: userData.lastIp || null,
-      isAnonymous: userData.isAnonymous ?? true,
+      name: userData.name ?? null,
+      email: userData.email ?? null,
+      password: userData.password ?? null,
     })
     .returning();
 
-  return user;
-}
+  return toResult(user);
+} 
 
 export const createRandomUser = async (index: number): Promise<NewUser> => {
   const gender = randomElement(Object.values(Genders));

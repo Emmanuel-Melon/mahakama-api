@@ -1,28 +1,12 @@
 import { db } from "@/lib/drizzle";
 import { usersSchema } from "../users.schema";
-import { User } from "../users.schema";
+import type { User } from "../users.types";
 import { GetUsersQuery } from "../users.types";
-import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { BaseSortParams, BaseFilterParams } from "@/lib/express/express.types";
-import { getPaginationParams, getSortConfig } from "@/lib/express/pagination";
-import { checkUserRole } from "@/feature/auth/auth.utils";
-import { applySearchConditions } from "@/lib/express/pagination";
-import { sortableFields, searchableFields } from "../users.config";
-import {
-  buildQueryWithConditions,
-  countResults,
-  sortConditionalQueryResults,
-} from "@/lib/drizzle/drizzle.utils";
+import { getPaginationParams } from "@/lib/express/pagination";
+import { toManyResult } from "@/lib/drizzle/drizzle.utils";
+import { DbManyResult } from "@/lib/drizzle/drizzle.types";
 
-export async function findAll(options?: GetUsersQuery): Promise<{
-  users: User[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-}> {
+export async function findAll(options?: GetUsersQuery): Promise<DbManyResult<User>> {
   const { page, limit, offset } = getPaginationParams({
     page: options?.page,
     limit: options?.limit,
@@ -33,15 +17,7 @@ export async function findAll(options?: GetUsersQuery): Promise<{
   const baseQuery = db.select().from(usersSchema);
   const users = await baseQuery.limit(limit).offset(offset);
 
-  return {
-    users,
-    total: users.length,
-    page,
-    limit,
-    pages: Math.ceil(users.length / limit) || 1,
-    hasNext: page * limit < users.length,
-    hasPrevious: page > 1,
-  };
+  return toManyResult(users);
 }
 
   // const conditions = [];

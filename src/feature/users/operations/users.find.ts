@@ -1,72 +1,31 @@
 import { db } from "@/lib/drizzle";
+import { User } from "../users.types";
 import { usersSchema } from "../users.schema";
-import { eq, ilike } from "drizzle-orm";
-import type { User, UserWithChats } from "../users.types";
-import { chatsSchema } from "@/feature/chats/chats.schema";
+import { eq } from "drizzle-orm";
+import { toSingleResult, toManyResult } from "@/lib/drizzle/drizzle.utils";
+import { DbSingleResult, DbManyResult } from "@/lib/drizzle/drizzle.types";
 
-export async function findUserById(id: string): Promise<UserWithChats | null> {
-  const user = await db.query.usersSchema.findFirst({
+export const findUsers = async (): Promise<DbManyResult<User>> => {
+  const result = await db.query.usersSchema.findMany();
+  return toManyResult(result);
+};
+
+export const findUserById = async (
+  id: string,
+): Promise<DbSingleResult<User>> => {
+  const result = await db.query.usersSchema.findFirst({
     where: eq(usersSchema.id, id),
-    with: {
-      chats: true,
-    },
   });
-  return user || null;
-}
+  return toSingleResult(result);
+};
 
-export async function findById(id: string): Promise<UserWithChats | null> {
-  const user = await findUserById(id);
-
-  return user;
-}
-
-export async function findByEmail(email: string): Promise<User> {
+export const findUserByEmail = async (
+  email: string,
+): Promise<DbSingleResult<User>> => {
   const [user] = await db
     .select()
     .from(usersSchema)
-    .where(ilike(usersSchema.email, email))
+    .where(eq(usersSchema.email, email))
     .limit(1);
-
-  return user;
-}
-
-export async function findByFingerprint(fingerprint: string): Promise<User> {
-  const user = await db
-    .select()
-    .from(usersSchema)
-    .where(eq(usersSchema.fingerprint, fingerprint));
-  return user[0];
-}
-
-interface FindOrCreateUserParams {
-  fingerprint: string;
-  userAgent?: string;
-  ip?: string;
-}
-
-export const findOrCreateUser = async ({
-  fingerprint,
-  userAgent,
-  ip,
-}: FindOrCreateUserParams) => {
-  const [existingUser] = await db
-    .select()
-    .from(usersSchema)
-    .where(eq(usersSchema.fingerprint, fingerprint))
-    .limit(1);
-
-  if (existingUser) {
-    return existingUser;
-  }
-
-  const [newUser] = await db
-    .insert(usersSchema)
-    .values({
-      fingerprint,
-      userAgent,
-      lastIp: ip,
-      isAnonymous: true,
-    })
-    .returning();
-  return newUser;
+  return toSingleResult(user);
 };

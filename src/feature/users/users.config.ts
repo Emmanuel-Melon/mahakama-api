@@ -1,6 +1,5 @@
 import { JsonApiResourceConfig } from "@/lib/express/express.types";
-import { userResponseSchema, type User } from "./users.schema";
-import { z } from "zod";
+import { type User } from "./users.types";
 
 export const SerializedUser: JsonApiResourceConfig<User> = {
   type: "user",
