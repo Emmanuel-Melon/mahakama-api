@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { createUser as createUserOperation } from "../operations/users.create";
-import { UserAttrs, User } from "../users.schema";
+import type { NewUser, User } from "../users.types";
 import { findById, findByFingerprint } from "../operations/users.find";
 import { v4 as uuid } from "uuid";
 import {
@@ -13,8 +13,9 @@ import { BaseJobPayload } from "@/lib/bullmq/bullmq.types";
 import { SerializedUser, UserEvents } from "../users.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
-export const createUserController = asyncHandler(async (req: Request<{}, {}, UserAttrs>, res: Response<any>) => {
-  const { name, email } = req.body ?? {};
+
+export const createUserController = asyncHandler(async (req: Request, res: Response) => {
+  const { name, email } = req.body ?? {} as NewUser;
   const userId = req.user?.id || "";
 
   const [userById, userByFingerprint] = await Promise.all([

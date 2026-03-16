@@ -8,7 +8,7 @@ import {
   integer,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+
 import { relations } from "drizzle-orm";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { chatsSchema } from "@/feature/chats/chats.schema";
@@ -59,34 +59,10 @@ export const usersSchema = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const createUserSchema = createInsertSchema(usersSchema).openapi({
-  title: "CreateUserRequest",
-  description: "Request schema for creating a new user",
-});
-export const selectUserSchema = createSelectSchema(usersSchema)
-  .omit({
-    password: true,
-  })
-  .openapi({
-    title: "User",
-    description:
-      "User response schema (excluding sensitive fields like password)",
-  });
-
 // relations
 export const usersRelations = relations(usersSchema, ({ many }) => ({
   chats: many(chatsSchema),
 }));
-
-export type User = z.infer<typeof selectUserSchema>;
-export type NewUser = typeof usersSchema.$inferInsert;
-export type CreateUserRequest = z.infer<typeof createUserSchema>;
-export type UserAttrs = z.infer<typeof createUserSchema>;
-
-// Type for user with relations included
-export type UserWithChats = User & {
-  chats: (typeof chatsSchema.$inferSelect)[];
-};
 
 export const combinedUsersSchema = {
   usersSchema,

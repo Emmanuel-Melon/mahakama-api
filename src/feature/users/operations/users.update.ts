@@ -1,15 +1,15 @@
 import { db } from "@/lib/drizzle";
-import { usersSchema } from "../users.schema";
-import { UserAttrs, type UserRole, type User } from "../users.schema";
+import { usersSchema, type UserRole } from "../users.schema";
+import type { NewUser, User } from "../users.types";
 import { eq } from "drizzle-orm";
 import { findById } from "./users.find";
 
 export async function updateUser(
   userId: string,
-  userAttrs: User,
+  userAttrs: NewUser,
 ): Promise<User | null> {
   const userExists = await findById(userId);
-  const [updatedUser] = await db
+  const [user] = await db
     .update(usersSchema)
     .set({
       ...userAttrs,
@@ -18,5 +18,5 @@ export async function updateUser(
     })
     .where(eq(usersSchema.id, userId))
     .returning();
-  return updatedUser;
+  return user;
 }

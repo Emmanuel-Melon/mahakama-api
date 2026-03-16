@@ -1,6 +1,6 @@
 import { db } from "@/lib/drizzle";
-import { NewUser, usersSchema } from "../users.schema";
-import { CreateUserRequest, User } from "../users.schema";
+import { usersSchema } from "../users.schema";
+import { User, NewUser } from "../users.types";
 import { faker } from "@faker-js/faker";
 import { v4 as uuid } from "uuid";
 import { hashPassword } from "@/feature/auth/auth.utils";
@@ -8,8 +8,8 @@ import { randomElement } from "@/lib/drizzle/seed";
 import { Genders } from "../users.types";
 import { getRandomRole } from "../users.utils";
 
-export async function createUser(userData: CreateUserRequest): Promise<User> {
-  const [newUser] = await db
+export async function createUser(userData: NewUser): Promise<User> {
+  const [user] = await db
     .insert(usersSchema)
     .values({
       id: uuid(),
@@ -23,7 +23,7 @@ export async function createUser(userData: CreateUserRequest): Promise<User> {
     })
     .returning();
 
-  return newUser;
+  return user;
 }
 
 export const createRandomUser = async (index: number): Promise<NewUser> => {
