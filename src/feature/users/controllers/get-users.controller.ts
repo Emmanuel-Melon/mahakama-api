@@ -6,7 +6,7 @@ import { SerializedUser } from "../users.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
 export const getUsersController = asyncHandler(async (req: Request, res: Response) => {
-  const { users: data, total } = await findAll({
+  const { data, count } = await findAll({
     ...req.query,
     limit: req.pagination.limit,
     page: req.pagination.page,
@@ -15,14 +15,14 @@ export const getUsersController = asyncHandler(async (req: Request, res: Respons
     req,
     res,
     {
-      data: data,
+      data,
       serializerConfig: SerializedUser,
       type: "collection",
     },
     {
       status: HttpStatus.SUCCESS,
       additionalMeta: {
-        total,
+        total: count,
       },
     },
   );

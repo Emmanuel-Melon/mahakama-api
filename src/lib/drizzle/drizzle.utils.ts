@@ -1,44 +1,23 @@
-import { db } from ".";
-import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { DbSingleResult, DbManyResult, DbResult } from "./drizzle.types";
 
-export type ConditionalQuery = {
-  conditions: readonly string[];
-  schema: any;
-};
+export const toSingleResult = <T>(
+  data: T | undefined | null,
+): DbSingleResult<T> =>
+  data == null ? { data: null, ok: false } : { data, ok: true };
 
-export const buildQueryWithConditions = ({
-  conditions,
-  schema,
-}: ConditionalQuery) => {
-  const baseQuery = db.select().from(schema);
-  const queryWithConditions =
-    conditions.length > 0 ? baseQuery.where(and(...conditions)) : baseQuery;
-  return queryWithConditions;
-};
+export const toResult = <T>(data: T | null | undefined): DbResult<T> =>
+  data == null ? { ok: false, data: null } : { ok: true, data };
 
-export const countResults = async ({
-  conditions,
-  schema,
-}: ConditionalQuery) => {
-  const countResult = await (conditions.length > 0
-    ? db
-        .select({ count: sql<number>`count(*)` })
-        .from(schema)
-        .where(and(...conditions))
-    : db.select({ count: sql<number>`count(*)` }).from(schema));
-  return Number(countResult[0]?.count || 0);
-};
+export const toManyResult = <T>(data: T[]): DbManyResult<T> => ({
+  data,
+  count: data.length,
+  isEmpty: data.length === 0,
+});
 
-export const sortConditionalQueryResults = (
-  queryWithConditions,
-  { sortDirection, sortField, schema, limit, offset },
-) => {
-  queryWithConditions
-    .orderBy(
-      sortDirection === "asc"
-        ? asc(schema[sortField])
-        : desc(schema[sortField]),
-    )
-    .limit(limit)
-    .offset(offset);
-};
+export function unwrap<T>(result: DbResult<T>, error?: Error): T {
+  if (!result.ok) {
+    throw error ?? new Error("Database result was not OK");
+  }
+
+  return result.data;
+}
