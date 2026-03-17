@@ -1,5 +1,5 @@
 import { SimilarityResult } from "./rag.types";
-import type { EmbeddingResult} from "@/services/embedding-service/embeddings.types";
+import type { EmbeddingResult } from "@/services/embedding-service/embeddings.types";
 
 export async function measureLawSimilarity(
   queryEmbedding: number[],

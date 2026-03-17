@@ -6,27 +6,29 @@ import { sendSuccessResponse } from "@/lib/express/express.response";
 import { LawyersSerializer } from "../lawyers.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
-export const getLawyersController = asyncHandler(async (req: Request, res: Response) => {
-  const { specialization, location, available, q } = req.query;
-  const result = await findAll({
-    specialization: specialization as string,
-    location: location as string,
-    isAvailable: available === "true",
-    q: q as string,
-  });
-  return sendSuccessResponse(
-    req,
-    res,
-    {
-      data: result.map((lawyer) => ({
-        ...lawyer,
-        id: lawyer.id.toString(),
-      })) as ((typeof result)[number] & { id: string })[],
-      type: "collection",
-      serializerConfig: LawyersSerializer,
-    },
-    {
-      status: HttpStatus.SUCCESS,
-    },
-  );
-});
+export const getLawyersController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { specialization, location, available, q } = req.query;
+    const result = await findAll({
+      specialization: specialization as string,
+      location: location as string,
+      isAvailable: available === "true",
+      q: q as string,
+    });
+    return sendSuccessResponse(
+      req,
+      res,
+      {
+        data: result.map((lawyer) => ({
+          ...lawyer,
+          id: lawyer.id.toString(),
+        })) as ((typeof result)[number] & { id: string })[],
+        type: "collection",
+        serializerConfig: LawyersSerializer,
+      },
+      {
+        status: HttpStatus.SUCCESS,
+      },
+    );
+  },
+);

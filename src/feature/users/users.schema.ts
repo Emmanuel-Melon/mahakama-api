@@ -12,7 +12,7 @@ import { z } from "zod";
 import { relations } from "drizzle-orm";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { chatsSchema } from "@/feature/chats/chats.schema";
-import { UserRoles, UserRoleValues, GenderValues } from "./users.types";
+import { UserRoleValues, GenderValues } from "./users.types";
 
 extendZodWithOpenApi(z);
 

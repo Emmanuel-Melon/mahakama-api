@@ -6,7 +6,9 @@ import { getPaginationParams } from "@/lib/express/pagination";
 import { toManyResult } from "@/lib/drizzle/drizzle.utils";
 import { DbManyResult } from "@/lib/drizzle/drizzle.types";
 
-export async function findAll(options?: GetUsersQuery): Promise<DbManyResult<User>> {
+export async function findAll(
+  options?: GetUsersQuery,
+): Promise<DbManyResult<User>> {
   const { page, limit, offset } = getPaginationParams({
     page: options?.page,
     limit: options?.limit,
@@ -20,48 +22,48 @@ export async function findAll(options?: GetUsersQuery): Promise<DbManyResult<Use
   return toManyResult(users);
 }
 
-  // const conditions = [];
+// const conditions = [];
 
-  // if (options?.role && checkUserRole(options.role)) {
-  //   conditions.push(eq(usersSchema.role, options.role));
-  // }
-  // const searchConditions = applySearchConditions(options, {
-  //   schema: usersSchema,
-  //   searchQuery: (options as BaseFilterParams)?.search,
-  //   fields: searchableFields
-  // });
-  // if (searchConditions) {
-  //   conditions.push(searchConditions);
-  // }
-  // const myConditionalQuery = buildQueryWithConditions({ conditions, schema: usersSchema });
-  // console.log("myConditionalQuery", myConditionalQuery);
+// if (options?.role && checkUserRole(options.role)) {
+//   conditions.push(eq(usersSchema.role, options.role));
+// }
+// const searchConditions = applySearchConditions(options, {
+//   schema: usersSchema,
+//   searchQuery: (options as BaseFilterParams)?.search,
+//   fields: searchableFields
+// });
+// if (searchConditions) {
+//   conditions.push(searchConditions);
+// }
+// const myConditionalQuery = buildQueryWithConditions({ conditions, schema: usersSchema });
+// console.log("myConditionalQuery", myConditionalQuery);
 
-  // const baseQuery = db.select().from(usersSchema);
-  // const queryWithConditions = conditions.length > 0
-  //   ? baseQuery.where(and(...conditions))
-  //   : baseQuery;
+// const baseQuery = db.select().from(usersSchema);
+// const queryWithConditions = conditions.length > 0
+//   ? baseQuery.where(and(...conditions))
+//   : baseQuery;
 
-  // const countResult = await (conditions.length > 0
-  //   ? db.select({ count: sql<number>`count(*)` }).from(usersSchema).where(and(...conditions))
-  //   : db.select({ count: sql<number>`count(*)` }).from(usersSchema));
-  // const total = Number(countResult[0]?.count || 0);
+// const countResult = await (conditions.length > 0
+//   ? db.select({ count: sql<number>`count(*)` }).from(usersSchema).where(and(...conditions))
+//   : db.select({ count: sql<number>`count(*)` }).from(usersSchema));
+// const total = Number(countResult[0]?.count || 0);
 
-  // const countedtotal = countResults({ conditions, schema: usersSchema });
-  // console.log(countedtotal);
+// const countedtotal = countResults({ conditions, schema: usersSchema });
+// console.log(countedtotal);
 
-  // const { field: sortField, direction: sortDirection } = getSortConfig({
-  //   sortBy: options?.sortBy,
-  //   order: (options as BaseSortParams)?.order,
-  //   validFields: sortableFields,
-  //   defaultField: 'createdAt',
-  //   defaultDirection: 'desc'
-  // });
+// const { field: sortField, direction: sortDirection } = getSortConfig({
+//   sortBy: options?.sortBy,
+//   order: (options as BaseSortParams)?.order,
+//   validFields: sortableFields,
+//   defaultField: 'createdAt',
+//   defaultDirection: 'desc'
+// });
 
-  // const myUsers = sortConditionalQueryResults(queryWithConditions, {
-  //   limit,
-  //   offset,
-  //   sortDirection,
-  //   sortField,
-  //   schema: usersSchema
-  // });
-  // console.log("myUsers", myUsers);
+// const myUsers = sortConditionalQueryResults(queryWithConditions, {
+//   limit,
+//   offset,
+//   sortDirection,
+//   sortField,
+//   schema: usersSchema
+// });
+// console.log("myUsers", myUsers);

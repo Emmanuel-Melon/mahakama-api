@@ -1,13 +1,16 @@
 export type FileContent = {
-    documentId: string;
-    text: string;
-}
+  documentId: string;
+  text: string;
+};
 
 type ChunkingOptions = {
-    chunkSize: number; // tokens
-    overlapSize: number;
-}
+  chunkSize: number; // tokens
+  overlapSize: number;
+};
 
-export const chunkDocument = (document: FileContent, options: ChunkingOptions) => {
-    return [];
-}
+export const chunkDocument = (
+  document: FileContent,
+  options: ChunkingOptions,
+) => {
+  return [];
+};

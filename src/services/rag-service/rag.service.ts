@@ -1,17 +1,17 @@
-import { type RAGContext, type RetrievalOptions, ragQuerySchema } from "./rag.types";
+import {
+  type RAGContext,
+  type RetrievalOptions,
+  ragQuerySchema,
+} from "./rag.types";
 import { generateTextEmbedding } from "@/services/embedding-service/embeddings.generate";
 import { searchEmbedding } from "@/services/embedding-service/embeddings.search";
 
 export class RAGService {
   async retrieveContext(
     question: string,
-    options: RetrievalOptions
+    options: RetrievalOptions,
   ): Promise<RAGContext> {
-    const {
-      topK = 5,
-      minSimilarity = 0.7,
-      documentTypes = [],
-    } = options;
+    const { topK = 5, minSimilarity = 0.7, documentTypes = [] } = options;
 
     // 1. Generate embedding for question
     const { query } =
@@ -19,14 +19,13 @@ export class RAGService {
         ? ragQuerySchema.parse({ queryString: question })
         : ragQuerySchema.parse(question);
     const questionEmbedding = await generateTextEmbedding(question, {
-      collectionName: options.collectionName
+      collectionName: options.collectionName,
     });
 
     // 2. Search for similar chunks
     const results = await searchEmbedding(query, {
-      collectionName: options.collectionName
-    })
-
+      collectionName: options.collectionName,
+    });
 
     // // 3. Format results
     // const chunks = results.map((r) => ({

@@ -11,36 +11,38 @@ import { HttpStatus } from "@/http-status";
 import { LawyersSerializer } from "../lawyers.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
-export const createLawyerController = asyncHandler(async (req: Request, res: Response) => {
-  const lawyerAttrs = req.body;
-  const [existingLawyer] = await db
-    .select()
-    .from(lawyersTable)
-    .where(eq(lawyersTable.email, lawyerAttrs.email))
-    .limit(1);
-  if (existingLawyer) {
-    return sendErrorResponse(req, res, {
-      status: HttpStatus.CONFLICT,
-    });
-  }
-  const lawyer = await createLawyer(lawyerAttrs);
-  if (!lawyer) {
-    return sendErrorResponse(req, res, {
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-    });
-  }
-  return sendSuccessResponse(
-    req,
-    res,
-    {
-      data: { ...lawyer, id: lawyer.id.toString() } as typeof lawyer & {
-        id: string;
+export const createLawyerController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const lawyerAttrs = req.body;
+    const [existingLawyer] = await db
+      .select()
+      .from(lawyersTable)
+      .where(eq(lawyersTable.email, lawyerAttrs.email))
+      .limit(1);
+    if (existingLawyer) {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.CONFLICT,
+      });
+    }
+    const lawyer = await createLawyer(lawyerAttrs);
+    if (!lawyer) {
+      return sendErrorResponse(req, res, {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+    return sendSuccessResponse(
+      req,
+      res,
+      {
+        data: { ...lawyer, id: lawyer.id.toString() } as typeof lawyer & {
+          id: string;
+        },
+        type: "single",
+        serializerConfig: LawyersSerializer,
       },
-      type: "single",
-      serializerConfig: LawyersSerializer,
-    },
-    {
-      status: HttpStatus.CREATED,
-    },
-  );
-});
+      {
+        status: HttpStatus.CREATED,
+      },
+    );
+  },
+);

@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  usersSchema,
-  genderSchema,
-  userRoleSchema,
-} from "./users.schema";
+import { usersSchema, genderSchema, userRoleSchema } from "./users.schema";
 import { GetRequestQuery } from "@/lib/express/express.types";
 import {
   JsonApiResponse,
@@ -16,15 +12,11 @@ export const userInsertSchema = createInsertSchema(usersSchema).openapi({
   title: "NewUser",
   description: "Request schema for creating a new user",
 });
-export const userSelectSchema = createSelectSchema(usersSchema)
-  .omit({
-    password: true,
-  })
-  .openapi({
-    title: "User",
-    description:
-      "User response schema (excluding sensitive fields like password)",
-  });
+export const userSelectSchema = createSelectSchema(usersSchema).openapi({
+  title: "User",
+  description:
+    "User response schema (excluding sensitive fields like password)",
+});
 
 // Use inferred types from schemas
 export type User = z.infer<typeof userSelectSchema>;

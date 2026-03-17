@@ -9,7 +9,6 @@ import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import { unwrap } from "@/lib/drizzle/drizzle.utils";
 import { HttpError } from "@/lib/http/http.error";
 
-
 export const deleteChatController = asyncHandler(async (req: Request, res: Response) => {
   const chatId = req.params.chatId as string;
   const user = req.user as User;

@@ -24,11 +24,7 @@ export const ragSystemPrompt = `You are a helpful legal assistant for the South 
     <<<LAWS>>>
     [the JSON array of relevant laws]`;
 
-
-export const generateResponsePrompt = (
-  query: string,
-  mostRelevantLaw: any,
-) => {
+export const generateResponsePrompt = (query: string, mostRelevantLaw: any) => {
   const prompt = `You are a legal assistant. You MUST respond in the exact format specified below.
 
 LAW TO CITE (MUST BE USED VERBATIM):
@@ -61,7 +57,10 @@ Now provide your response in the required format:
 /**
  * Build prompt with context for LLM
  */
-export const buildPromptWithContext = (question: string, context: RAGContext): string => {
+export const buildPromptWithContext = (
+  question: string,
+  context: RAGContext,
+): string => {
   const contextText = context.chunks
     .map((chunk, i) => {
       const citation = chunk.section
@@ -89,7 +88,7 @@ INSTRUCTIONS:
 5. Be empathetic and supportive
 
 ANSWER:`;
-}
+};
 
 function buildSystemPrompt(ragContext: RAGContext): string {
   const contextText = ragContext.chunks

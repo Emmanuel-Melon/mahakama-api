@@ -22,7 +22,7 @@ export async function createUser(userData: NewUser): Promise<DbResult<User>> {
     .returning();
 
   return toResult(user);
-} 
+}
 
 export const createRandomUser = async (index: number): Promise<NewUser> => {
   const gender = randomElement(Object.values(Genders));

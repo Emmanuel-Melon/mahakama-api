@@ -1,5 +1,8 @@
 import { chat } from "@/lib/llm/ollama/ollama.chat";
-import { findRelevantDocuments, getMostRelevantDocument } from "./rag.retrieval";
+import {
+  findRelevantDocuments,
+  getMostRelevantDocument,
+} from "./rag.retrieval";
 import { generateResponsePrompt } from "./rag.prompts";
 import { laws as lawsDataset } from "./dataset/laws.dataset";
 import type { QueryEmbedding } from "@/services/embedding-service/embeddings.types";

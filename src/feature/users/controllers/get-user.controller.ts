@@ -10,21 +10,26 @@ import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import { unwrap } from "@/lib/drizzle/drizzle.utils";
 import { HttpError } from "@/lib/http/http.error";
 
-export const getUserController = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.params.id as string;
-  const user = unwrap(await findUserById(userId), new HttpError(HttpStatus.NOT_FOUND, "User not found"));
-  return sendSuccessResponse(
-    req,
-    res,
-    {
-      data: {
-        ...user,
+export const getUserController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.params.id as string;
+    const user = unwrap(
+      await findUserById(userId),
+      new HttpError(HttpStatus.NOT_FOUND, "User not found"),
+    );
+    return sendSuccessResponse(
+      req,
+      res,
+      {
+        data: {
+          ...user,
+        },
+        serializerConfig: SerializedUser,
+        type: "single",
       },
-      serializerConfig: SerializedUser,
-      type: "single",
-    },
-    {
-      status: HttpStatus.SUCCESS,
-    },
-  );
-});
+      {
+        status: HttpStatus.SUCCESS,
+      },
+    );
+  },
+);

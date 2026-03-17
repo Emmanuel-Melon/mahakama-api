@@ -11,7 +11,10 @@ interface LawDocument {
   similarity?: number;
 }
 
-async function retrieveLaws(query: string, limit: number = 5): Promise<LawDocument[]> {
+async function retrieveLaws(
+  query: string,
+  limit: number = 5,
+): Promise<LawDocument[]> {
   try {
     console.log(`Searching for laws related to: "${query}"`);
 
@@ -19,7 +22,7 @@ async function retrieveLaws(query: string, limit: number = 5): Promise<LawDocume
     const results = await chromaClient.query({
       collectionName: COLLECTION_NAME,
       queryTexts: query,
-      nResults: limit
+      nResults: limit,
     });
 
     if (!results?.ids?.[0]?.length) {
@@ -41,22 +44,22 @@ async function retrieveLaws(query: string, limit: number = 5): Promise<LawDocume
 
       // Ensure document is a string
       const docString = String(document);
-      const title = String(metadata?.title || '');
+      const title = String(metadata?.title || "");
 
       // Extract content (remove title if it was prepended)
       let content = docString;
       if (title && docString.startsWith(title)) {
         content = docString.substring(title.length).trim();
-        if (content.startsWith('. ')) content = content.substring(1).trim();
+        if (content.startsWith(". ")) content = content.substring(1).trim();
       }
 
       laws.push({
         id: String(id),
         title: String(metadata?.title || `Law ${i + 1}`),
-        category: String(metadata?.category || 'Uncategorized'),
-        source: String(metadata?.source || 'Unknown'),
+        category: String(metadata?.category || "Uncategorized"),
+        source: String(metadata?.source || "Unknown"),
         content: content,
-        similarity: parseFloat(similarity.toFixed(4))
+        similarity: parseFloat(similarity.toFixed(4)),
       });
     }
 
@@ -64,7 +67,6 @@ async function retrieveLaws(query: string, limit: number = 5): Promise<LawDocume
     laws.sort((a, b) => (b.similarity || 0) - (a.similarity || 0));
 
     return laws;
-
   } catch (error) {
     console.error("❌ Error retrieving laws from ChromaDB:", error);
     throw error;
@@ -90,12 +92,15 @@ async function main() {
 
     // Display results
     laws.forEach((law, index) => {
-      console.log(`📌 ${index + 1}. ${law.title} (Similarity: ${(law.similarity! * 100).toFixed(1)}%)`);
+      console.log(
+        `📌 ${index + 1}. ${law.title} (Similarity: ${(law.similarity! * 100).toFixed(1)}%)`,
+      );
       console.log(`   📚 Category: ${law.category}`);
       console.log(`   📜 Source: ${law.source}`);
-      console.log(`   📝 ${law.content.substring(0, 150)}${law.content.length > 150 ? '...' : ''}\n`);
+      console.log(
+        `   📝 ${law.content.substring(0, 150)}${law.content.length > 150 ? "..." : ""}\n`,
+      );
     });
-
   } catch (error) {
     console.error("❌ An error occurred:", error);
     process.exit(1);
