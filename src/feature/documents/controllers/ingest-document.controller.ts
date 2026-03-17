@@ -4,10 +4,11 @@ import { HttpStatus } from "@/http-status";
 import { DocumentsSerializer } from "../document.config";
 import { uploadFileToBucket } from "@/lib/supabase/storage";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
-import { documentsQueue, DocumentsJobType } from "../jobs/documents.queue";
+import { documentsQueue } from "../jobs/documents.queue";
 import { sendSuccessResponse } from "@/lib/express/express.response";
 import { unwrap } from "@/lib/drizzle/drizzle.utils";
 import { HttpError } from "@/lib/http/http.error";
+import { DocumentJobs } from "../document.config";
 
 export const ingestDocumentController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -43,10 +44,10 @@ export const ingestDocumentController = asyncHandler(
           lastUpdated: new Date().getFullYear().toString(),
           storageUrl: uploadResult.publicUrl,
         },
-        new HttpError(
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          "Failed to create document",
-        ),
+      ),
+      new HttpError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to create document",
       ),
     );
 
@@ -65,7 +66,7 @@ export const ingestDocumentController = asyncHandler(
       },
     );
 
-    await documentsQueue.add(DocumentsJobType.DocumentBookmarked, {
+    await documentsQueue.add(DocumentJobs.DocumentUploaded.jobName, {
       ...document,
     });
   },

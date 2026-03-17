@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { bookmarkDocument } from "../operations/documents.update";
-import { documentsQueue, DocumentsJobType } from "../jobs/documents.queue";
 import { HttpStatus } from "@/http-status";
 import { DocumentsSerializer } from "../document.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
@@ -38,9 +37,5 @@ export const bookmarkDocumentController = asyncHandler(
         status: HttpStatus.CREATED,
       },
     );
-
-    await documentsQueue.add(DocumentsJobType.DocumentBookmarked, {
-      ...document,
-    });
   },
 );
