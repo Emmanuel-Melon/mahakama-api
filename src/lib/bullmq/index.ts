@@ -1,305 +1,78 @@
-import { Queue, QueueOptions } from "bullmq";
-import {
-  QueueInstance,
-  QueueConfig,
-  JobOptions,
-  QueueHealth,
-  QueueStatus,
-} from "./bullmq.types";
-import { setQueueOptions } from "./bullmq.utils";
-import { QueueName, defaultBullJobOptions } from "./bullmq.config";
-import { logger } from "@/lib/logger";
+import { Queue, Worker, ConnectionOptions, Job } from "bullmq";
+import { defaultWorkerOptions, QueueName } from "./bullmq.config";
+import { getRedisConnection } from "@/lib/redis";
+import { defaultBullJobOptions } from "./bullmq.config";
+import { logger } from "../logger";
+import { JobHandlerMap } from "./bullmq.types";
+import { processBullJob } from "./bullmq.utils";
 
 export class QueueManager {
   private static instance: QueueManager;
-  private queues: Map<QueueName, QueueInstance> = new Map();
-  private defaultConfig: QueueConfig;
+  private queues: Map<string, Queue> = new Map();
 
-  private queueOptions = setQueueOptions();
-
-  private constructor() {
-    console.log("queueOptions", this.queueOptions);
-    this.defaultConfig = {
-      ...this.queueOptions,
-    };
-  }
+  private constructor() {}
 
   public static getInstance(): QueueManager {
-    if (!QueueManager.instance) {
-      QueueManager.instance = new QueueManager();
-    }
+    if (!QueueManager.instance) QueueManager.instance = new QueueManager();
     return QueueManager.instance;
   }
 
-  public getQueue(
-    name: QueueName,
-    customConfig?: Partial<QueueConfig>,
-  ): QueueInstance {
-    try {
-      if (this.queues.has(name)) {
-        const queueInstance = this.queues.get(name);
-        if (!queueInstance) {
-          throw new Error(`Queue ${name} was not properly initialized`);
-        }
-        return queueInstance;
-      }
-
-      const config = {
-        ...this.defaultConfig,
-        ...customConfig,
-        connection: {
-          ...this.defaultConfig.connection,
-          ...customConfig?.connection,
-        },
-      };
-
-      console.log("config", config);
-
-      const queue = new Queue(name, config as QueueOptions);
-
-      // Add error handler for the queue
-      queue.on("error", (error: Error) => {
-        logger.error(
-          {
-            error: {
-              name: error.name,
-              message: error.message,
-              stack: error.stack,
-              queue: name,
-            },
-          },
-          `[Queue:${name}] Failed to process job: ${error.message}`,
-        );
+  public getQueue<T = any>(name: QueueName): Queue<T> {
+    if (!this.queues.has(name)) {
+      const queue = new Queue(name, {
+        connection: getRedisConnection() as ConnectionOptions,
+        defaultJobOptions: defaultBullJobOptions,
       });
-
-      const instance: QueueInstance = {
-        queue,
-        enqueue: async <T>(data: T, options: JobOptions = {}) => {
-          try {
-            // Check queue health before enqueuing
-            const health = await instance.getHealth();
-            if (!health.isHealthy) {
-              throw new Error(
-                `Queue ${name} is not healthy: ${health.error || "Unknown error"}`,
-              );
-            }
-
-            // Create a new object with default values
-            const jobOptions: JobOptions = {
-              ...defaultBullJobOptions,
-              ...options,
-            };
-
-            // Handle backoff separately to ensure type safety
-            if (options.backoff) {
-              jobOptions.backoff = {
-                ...defaultBullJobOptions.backoff!,
-                ...options.backoff,
-              };
-            }
-
-            if (!queue) {
-              throw new Error(`Queue ${name} is not properly initialized`);
-            }
-
-            const job = await queue.add(name, data, jobOptions as any);
-            return job;
-          } catch (error) {
-            const errorMessage =
-              error instanceof Error ? error.message : "Unknown error";
-            logger.error(error, `Failed to enqueue job to ${name}:`);
-            throw new Error(`Failed to enqueue job: ${errorMessage}`);
-          }
-        },
-
-        getHealth: async (): Promise<QueueHealth> => {
-          try {
-            const [counts, isPaused] = await Promise.all([
-              queue.getJobCounts(),
-              queue.isPaused(),
-            ]);
-
-            const health: QueueHealth = {
-              waiting: counts.wait || 0,
-              active: counts.active || 0,
-              completed: counts.completed || 0,
-              failed: counts.failed || 0,
-              delayed: counts.delayed || 0,
-              paused: counts.paused || 0,
-              isHealthy: !isPaused,
-              lastChecked: new Date(),
-            };
-
-            // Check for excessive failures
-            if (health.failed > 100 && health.failed > health.completed * 0.1) {
-              health.isHealthy = false;
-              health.error = `High failure rate: ${health.failed} failed jobs`;
-            }
-
-            // Check for queue size limits
-            const totalJobs = health.waiting + health.active + health.delayed;
-            if (totalJobs > 1000) {
-              health.isHealthy = false;
-              health.error = `Queue size too large: ${totalJobs} jobs`;
-            }
-
-            return health;
-          } catch (error) {
-            const errorMessage =
-              error instanceof Error ? error.message : "Unknown error";
-            return {
-              waiting: 0,
-              active: 0,
-              completed: 0,
-              failed: 0,
-              delayed: 0,
-              paused: 0,
-              isHealthy: false,
-              lastChecked: new Date(),
-              error: `Health check failed: ${errorMessage}`,
-            };
-          }
-        },
-
-        getStatus: async (): Promise<QueueStatus> => {
-          const health = await instance.getHealth();
-          const isPaused = await queue.isPaused();
-          const workers = await queue.getWorkers();
-
-          return {
-            ...health,
-            name,
-            isPaused,
-            workerCount: workers.length,
-          };
-        },
-
-        isHealthy: async (): Promise<boolean> => {
-          try {
-            const health = await instance.getHealth();
-            return health.isHealthy;
-          } catch {
-            return false;
-          }
-        },
-      };
-
-      this.queues.set(name, instance);
-      return instance;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      logger.error(error, `Failed to get queue ${name}:`);
-      throw new Error(`Queue initialization failed: ${errorMessage}`);
+      this.queues.set(name, queue);
     }
+    return this.queues.get(name) as Queue<T>;
   }
 
-  public async getQueueHealth(name: QueueName): Promise<QueueHealth> {
-    try {
-      const queue = this.queues.get(name);
-      if (!queue) {
-        throw new Error(`Queue ${name} not found`);
-      }
-      return queue.getHealth();
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      logger.error(error, `Failed to get health for queue ${name}:`);
-      throw new Error(`Failed to get queue health: ${errorMessage}`);
-    }
-  }
-
-  public async getQueueStatus(name: QueueName): Promise<QueueStatus> {
-    try {
-      const queue = this.queues.get(name);
-      if (!queue) {
-        throw new Error(`Queue ${name} not found`);
-      }
-      return queue.getStatus();
-    } catch (error) {
-      logger.error(error, `Failed to get status for queue ${name}:`);
-      throw new Error(`Failed to get queue status: ${error}`);
-    }
-  }
-
-  public async isQueueHealthy(name: QueueName): Promise<boolean> {
-    try {
-      const queue = this.queues.get(name);
-      if (!queue) {
-        throw new Error(`Queue ${name} not found`);
-      }
-      return queue.isHealthy();
-    } catch (error) {
-      logger.error(error, `Health check failed for queue ${name}:`);
-      return false;
-    }
-  }
-
-  public async getQueuesHealth(): Promise<Record<string, QueueHealth>> {
-    const health: Record<string, QueueHealth> = {};
-
-    for (const [name, queue] of this.queues.entries()) {
-      try {
-        health[name] = await queue.getHealth();
-      } catch (error) {
-        health[name] = {
-          waiting: 0,
-          active: 0,
-          completed: 0,
-          failed: 0,
-          delayed: 0,
-          paused: 0,
-          isHealthy: false,
-          lastChecked: new Date(),
-          error: `Failed to get health: ${error instanceof Error ? error.message : "Unknown error"}`,
-        };
-      }
-    }
-
-    return health;
-  }
-  public async closeAll(): Promise<void> {
-    try {
-      if (this.queues.size === 0) {
-        logger.warn("No queues to close");
-        return;
-      }
-
-      const closePromises = Array.from(this.queues.values()).map(
-        async ({ queue }) => {
-          try {
-            await queue.close();
-            logger.info(`Successfully closed queue: ${queue.name}`);
-            return { success: true, name: queue.name };
-          } catch (error) {
-            logger.error(error, `Error closing queue ${queue.name}:`);
-            return { success: false, name: queue.name, error };
-          }
-        },
-      );
-
-      const results = await Promise.allSettled(closePromises);
-
-      // Log summary of queue closures
-      const closed = results.filter(
-        (r) => r.status === "fulfilled" && r.value.success,
-      ).length;
-      const failed = results.length - closed;
-
-      if (failed > 0) {
-        logger.warn(
-          `Closed ${closed} queues, failed to close ${failed} queues`,
-        );
-      } else {
-        logger.info(`Successfully closed all ${closed} queues`);
-      }
-
-      this.queues.clear();
-    } catch (error) {
-      logger.error(error, "Error during queue cleanup:");
-      throw new Error(`Failed to close all queues: ${error}`);
-    }
+  public async closeAll() {
+    // Note: We don't close the redisConnection here because
+    // it might be shared with other parts of the app.
+    // We just close the queues.
+    await Promise.all(Array.from(this.queues.values()).map((q) => q.close()));
+    this.queues.clear();
   }
 }
 
+export const createBullWorker = <TMap>(
+  queueName: string,
+  handlers: JobHandlerMap<TMap>,
+  options?: Partial<WorkerOptions>,
+) => {
+  const worker = new Worker(
+    queueName,
+    async (job: Job) => {
+      const handler = handlers[job.name as keyof TMap];
+
+      if (!handler) {
+        logger.warn(
+          { jobName: job.name, queueName },
+          "No handler found for job",
+        );
+        return;
+      }
+
+      return await processBullJob(`${queueName}:${job.name}`, job, () =>
+        handler(job.data as TMap[keyof TMap], job),
+      );
+    },
+    {
+      connection: getRedisConnection() as ConnectionOptions,
+      ...defaultWorkerOptions,
+      ...options,
+    },
+  );
+
+  registerWorker(worker);
+  return worker;
+};
+
 export const queueManager = QueueManager.getInstance();
+
+export const workers: Worker[] = [];
+
+export const registerWorker = (worker: Worker) => workers.push(worker);
+export const getActiveWorkers = () => workers;

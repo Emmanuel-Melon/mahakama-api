@@ -1,4 +1,3 @@
-import { config } from "@/config";
 import { JobOptions, BullWorkerOptions } from "./bullmq.types";
 
 export enum QueueName {

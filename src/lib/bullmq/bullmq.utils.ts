@@ -1,68 +1,38 @@
-import { JobsOptions, WorkerOptions } from "bullmq";
-import Redis from "ioredis";
-import { defaultWorkerOptions, defaultBullJobOptions } from "./bullmq.config";
-import { QueueConfig, ConnectionOptions } from "./bullmq.types";
-import { config } from "@/config";
+import { Queue, Job } from "bullmq";
+import { logger } from "../logger";
+import { JobError } from "./bullmq.error";
 
-// Shared Redis connection instance
-let redisConnection: Redis | null = null;
+export const getQueueStats = async (queue: Queue) => {
+  const counts = await queue.getJobCounts();
+  return {
+    counts,
+    isEmpty: counts.waiting + counts.active + counts.delayed === 0,
+  };
+};
 
-export const getRedisConnection = (): Redis => {
-  if (!redisConnection) {
-    const redisConfig = config.db.redis;
-
-    if (redisConfig?.url && !redisConfig.url.startsWith("redis://")) {
-      // If URL is not a proper redis:// URL, treat it as host
-      redisConnection = new Redis({
-        host: redisConfig.url,
-        port: redisConfig?.port || 6379,
-        retryStrategy: (times) => {
-          const delay = Math.min(times * 50, 2000);
-          return delay;
-        },
-        maxRetriesPerRequest: null, // Required by BullMQ
-      });
-    } else if (redisConfig?.url) {
-      redisConnection = new Redis(redisConfig.url, {
-        maxRetriesPerRequest: null, // Required by BullMQ
-      });
-    } else {
-      redisConnection = new Redis({
-        host: redisConfig?.host || "localhost",
-        port: redisConfig?.port || 6379,
-        retryStrategy: (times) => {
-          const delay = Math.min(times * 50, 2000);
-          return delay;
-        },
-        maxRetriesPerRequest: null, // Required by BullMQ
-      });
+export async function processBullJob<T>(
+  label: string,
+  job: Job,
+  action: () => Promise<T>,
+) {
+  try {
+    return await action();
+  } catch (error) {
+    if (error instanceof JobError && !error.shouldRetry) {
+      // Logic to move to "failed" without retrying further
+      await job.discard();
+      logger.error({ label }, `❌ Job discarded: ${error.message}`);
     }
+    throw error; // Standard BullMQ retry behavior
   }
-  return redisConnection;
-};
+}
 
-export const setQueueJobOptions = (options?: JobsOptions) => {
-  return {
-    ...defaultBullJobOptions,
-    ...options, // Allow overriding defaults
-  };
-};
-
-export const setWorkerOptions = (options?: WorkerOptions) => {
-  const connection = getRedisConnection();
-
-  return {
-    ...defaultWorkerOptions,
-    connection,
-    ...options,
-  };
-};
-
-export const setQueueOptions = (options?: QueueConfig): QueueConfig => {
-  const connection = getRedisConnection();
-
-  return {
-    connection,
-    ...options,
-  };
-};
+export function unwrapJobResult<T>(
+  result: T | null | undefined,
+  options: { message: string; shouldRetry?: boolean },
+): T {
+  if (!result) {
+    throw new JobError(options.message, options.shouldRetry ?? true);
+  }
+  return result;
+}

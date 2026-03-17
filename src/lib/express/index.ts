@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { logger } from "@/lib/logger";
 import { serverConfig } from "@/config";
 import { sendErrorResponse, sendSuccessResponse } from "./express.response";
 import { HttpStatus } from "../../http-status";
@@ -8,23 +7,6 @@ import {
   HealthCheckSerializerConfig,
   WelcomeResponseSerializerConfig,
 } from "./express.config";
-import { queueManager } from "@/lib/bullmq";
-
-export const shutdownExpressServer = async (server: any) => {
-  logger.warn("SIGTERM received. Shutting down gracefully...");
-  server.close(() => {
-    logger.fatal("Process terminated");
-    queueManager.closeAll();
-    process.exit(0);
-  });
-
-  // Force close server after timeout
-  setTimeout(() => {
-    logger.error("Forcing shutdown after timeout");
-    queueManager.closeAll();
-    process.exit(1);
-  }, serverConfig.shutdownTimeout);
-};
 
 export const testServerHealth = (): Promise<HealthCheckResponse> => {
   return Promise.resolve({
