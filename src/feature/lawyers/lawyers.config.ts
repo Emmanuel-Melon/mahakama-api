@@ -6,7 +6,7 @@ export const LawyersSerializer: JsonApiResourceConfig<Lawyer> = {
   attributes: (lawyer: Lawyer) => lawyer,
 };
 
-export const LawyersEvents = {
+export const LawyerJobs = {
   LawyerOnboarded: {
     label: "onboarded",
     jobName: "lawyer-onboarded",
@@ -56,4 +56,4 @@ export const locations = [
 ];
 
 export type LawyersJobType =
-  (typeof LawyersEvents)[keyof typeof LawyersEvents]["jobName"];
+  (typeof LawyerJobs)[keyof typeof LawyerJobs]["jobName"];

@@ -1,39 +1,27 @@
-import { and, eq, ilike, or } from "drizzle-orm";
-import { db } from "@/lib/drizzle";
 import { lawyersTable } from "../lawyers.schema";
-import type { Lawyer } from "../lawyers.types";
-import type { LawyerFilters } from "../lawyers.types";
+import { paginate } from "@/lib/drizzle/drizzle.paginate";
+import { Lawyer, LawyerFilters } from "../lawyers.types";
+import { eq } from "drizzle-orm";
+import { DbManyResult } from "@/lib/drizzle/drizzle.types";
+import { toManyResult } from "@/lib/drizzle/drizzle.utils";
 
-export async function findAll(filters?: LawyerFilters): Promise<Lawyer[]> {
-  const conditions = [];
+export async function findAll(
+  query: LawyerFilters,
+): Promise<DbManyResult<Lawyer>> {
+  const filters = [];
 
-  if (filters?.specialization) {
-    conditions.push(eq(lawyersTable.specialization, filters.specialization));
+  if (query.specialization) {
+    filters.push(eq(lawyersTable.specialization, query.specialization));
   }
 
-  if (filters?.location) {
-    conditions.push(eq(lawyersTable.location, filters.location));
-  }
+  const result = await paginate<"lawyers", Lawyer>("lawyers", lawyersTable, {
+    ...query,
+    filters,
+    search: {
+      q: query.q,
+      columns: [lawyersTable.name, lawyersTable.location],
+    },
+  });
 
-  if (filters?.isAvailable !== undefined) {
-    conditions.push(eq(lawyersTable.isAvailable, filters.isAvailable));
-  }
-
-  if (filters?.q) {
-    const search = `%${filters.q}%`;
-
-    conditions.push(
-      or(
-        ilike(lawyersTable.name, search),
-        ilike(lawyersTable.specialization, search),
-        ilike(lawyersTable.location, search),
-        ilike(lawyersTable.email, search),
-      ),
-    );
-  }
-
-  return db
-    .select()
-    .from(lawyersTable)
-    .where(conditions.length ? and(...conditions) : undefined);
+  return toManyResult(result);
 }
