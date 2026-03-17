@@ -1,6 +1,9 @@
 import { db } from "@/lib/drizzle";
 import { documentsTable } from "../documents.schema";
 import { desc, eq, sql } from "drizzle-orm";
+import { toManyResult } from "@/lib/drizzle/drizzle.utils";
+import { DbManyResult } from "@/lib/drizzle/drizzle.types";
+import { Document } from "../documents.types";
 
 type ListDocumentsOptions = {
   limit?: number;
@@ -12,11 +15,7 @@ export async function listDocuments({
   limit = 10,
   offset = 0,
   type,
-}: ListDocumentsOptions = {}) {
-  const [count] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(documentsTable);
-
+}: ListDocumentsOptions = {}): Promise<DbManyResult<Document>> {
   const query = db.select().from(documentsTable).$dynamic();
 
   if (type) {
@@ -28,8 +27,5 @@ export async function listDocuments({
     .limit(limit)
     .offset(offset);
 
-  return {
-    data: documents,
-    total: Number(count?.count) || 0,
-  };
+  return toManyResult(documents);
 }

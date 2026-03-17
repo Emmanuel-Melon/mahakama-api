@@ -5,6 +5,7 @@ import {
   documentsTable,
   downloadsTable,
 } from "./documents.schema";
+import { DocumentJobs } from "./document.config";
 
 export const documentSelectSchema = createSelectSchema(documentsTable);
 export const documentInsertSchema = createInsertSchema(documentsTable);
@@ -118,4 +119,38 @@ export interface LegalDocumentChunk {
   source: string;
   content: string;
   similarity?: number;
+}
+
+export interface DocumentJobTypes {
+  [DocumentJobs.DocumentUploaded.jobName]: {
+    documentId: string;
+    userId: string;
+  };
+}
+
+export interface BookmarkDocumentParams {
+  documentId: string;
+  user_id: string;
+}
+
+export interface DownloadDocumentParams {
+  documentId: string;
+  user_id: string;
+}
+
+export interface ShareDocumentParams {
+  documentId: string;
+}
+
+export interface DocumentShareInfo {
+  documentId: string;
+  title: string;
+  shareableLink: string;
+  socialLinks: {
+    twitter: string;
+    facebook: string;
+    linkedin: string;
+    whatsapp: string;
+    email: string;
+  };
 }

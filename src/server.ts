@@ -1,24 +1,11 @@
 import { serverConfig, isDev } from "@/config";
 import app from "@/app";
 import { logger } from "@/lib/logger";
-import { shutdownExpressServer } from "@/lib/express";
-
-const createClickableLink = (url: string, text: string): string => {
-  return `\x1B]8;;${url}\x1B\\${text}\x1B]8;;\x1B\\`;
-};
-
-const { endpoints } = serverConfig;
-const formattedEndpoints = {
-  "🌐 API": createClickableLink(endpoints.api, endpoints.api),
-  "📚 Documentation": createClickableLink(endpoints.docs, endpoints.docs),
-  "📄 OpenAPI Spec": createClickableLink(endpoints.openApiSpec, "View Spec"),
-  "💓 Health Check": createClickableLink(
-    `${endpoints.api}${endpoints.health}`,
-    "Check Health",
-  ),
-};
+import { gracefulShutdown } from "@/lib/express/express.server";
+import { initAllWorkers } from "@/lib/bullmq/bullmq.init";
 
 if (require.main === module) {
+  initAllWorkers();
   const server = app.listen(serverConfig.port, serverConfig.hostname, () => {
     const baseUrl = `${serverConfig.protocol}://${serverConfig.hostname}:${serverConfig.port}`;
     if (isDev) {
@@ -33,8 +20,8 @@ if (require.main === module) {
     }
   });
 
-  process.on("SIGTERM", () => shutdownExpressServer(server));
-  process.on("SIGINT", () => shutdownExpressServer(server));
+  process.on("SIGTERM", gracefulShutdown);
+  process.on("SIGINT", gracefulShutdown);
 }
 
 export default app;
