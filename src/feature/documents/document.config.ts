@@ -8,35 +8,19 @@ export const DocumentsSerializer: JsonApiResourceConfig<Document> = {
 
 export const DocumentRagCollections = {
   DocumentSummaries: {
-    label: 'summary'
-  }
-}
+    label: "summary",
+  },
+};
 
-export const DocumentEvents = {
-  DocumentCreated: {
-    label: "created",
-    jobName: "document-created",
-  },
-  DocumentUpdated: {
-    label: "updated",
-    jobName: "document-updated",
-  },
-  DocumentDeleted: {
-    label: "deleted",
-    jobName: "document-deleted",
-  },
-  DocumentDownloaded: {
-    label: "downloaded",
-    jobName: "document-downloaded",
-  },
-  DocumentBookmarked: {
-    label: "bookmarked",
-    jobName: "document-bookmarked",
+export const DocumentJobs = {
+  DocumentUploaded: {
+    label: "uploaded",
+    jobName: "document-uploaded",
   },
 } as const;
 
 export type DocumentsJobType =
-  (typeof DocumentEvents)[keyof typeof DocumentEvents]["jobName"];
+  (typeof DocumentJobs)[keyof typeof DocumentJobs]["jobName"];
 
 // for pagination and route queries
 export const sortableFields = [

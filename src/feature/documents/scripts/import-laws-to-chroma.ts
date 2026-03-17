@@ -1,6 +1,6 @@
 import { chromaClient } from "@/lib/chroma";
 import { logger } from "@/lib/logger";
-import { LegalDocumentChunk } from "../documents.types"
+import { LegalDocumentChunk } from "../documents.types";
 
 const COLLECTION_NAME = "legal_questions";
 
@@ -42,7 +42,9 @@ async function importLawsToChroma(laws: LegalDocumentChunk[]) {
       const batchMetadatas = metadatas.slice(i, i + BATCH_SIZE);
       const batchIds = ids.slice(i, i + BATCH_SIZE);
 
-      logger.info(`Importing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(documents.length / BATCH_SIZE)}...`);
+      logger.info(
+        `Importing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(documents.length / BATCH_SIZE)}...`,
+      );
 
       await chromaClient.addDocuments({
         collectionName: COLLECTION_NAME,
@@ -60,8 +62,9 @@ async function importLawsToChroma(laws: LegalDocumentChunk[]) {
 
     // Verify the import
     const collectionCount = await chromaClient.countCollection(COLLECTION_NAME);
-    logger.info(`Total documents in collection '${COLLECTION_NAME}': ${collectionCount}`);
-
+    logger.info(
+      `Total documents in collection '${COLLECTION_NAME}': ${collectionCount}`,
+    );
   } catch (error) {
     logger.error({ error }, "❌ Error importing laws to ChromaDB:");
     process.exit(1);
@@ -69,5 +72,3 @@ async function importLawsToChroma(laws: LegalDocumentChunk[]) {
     process.exit(0);
   }
 }
-
-

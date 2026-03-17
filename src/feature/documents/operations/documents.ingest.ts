@@ -9,12 +9,16 @@ import {
 } from "@/lib/supabase/storage";
 import { logger } from "@/lib/logger";
 import { NewDocument } from "../documents.types";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbResult } from "@/lib/drizzle/drizzle.types";
 
 const LOCAL_FOLDER = "./import-queue";
 const CONCURRENCY_LIMIT = 10;
 const limit = pLimit(CONCURRENCY_LIMIT);
 
-export async function ingestDocument(file: Express.Multer.File) {
+export async function ingestDocument(
+  file: Express.Multer.File,
+): Promise<DbResult<Document>> {
   const uploadResult = await uploadPublicDocument(
     file.buffer,
     file.originalname,
@@ -33,7 +37,7 @@ export async function ingestDocument(file: Express.Multer.File) {
     })
     .returning();
 
-  return document;
+  return toResult(document);
 }
 
 async function uploadAndRegisterLocalFile(filePath: string) {

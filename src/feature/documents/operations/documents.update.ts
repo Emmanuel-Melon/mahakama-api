@@ -4,76 +4,48 @@ import {
   bookmarksTable,
   downloadsTable,
 } from "../documents.schema";
-import type { Bookmark, Document } from "../documents.types";
-import { eq, and } from "drizzle-orm";
-import { sql } from "drizzle-orm";
-import { findDocumentById } from "./document.find";
+import type {
+  BookmarkDocumentParams,
+  Document,
+  DownloadDocumentParams,
+  NewDocument,
+} from "../documents.types";
+import { eq } from "drizzle-orm";
+import { findDocumentById, findBookmarkById } from "./document.find";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbResult } from "@/lib/drizzle/drizzle.types";
+import { removeBookmark } from "./documents.remove";
 
-export interface BookmarkDocumentParams {
-  documentId: string;
-  user_id: string;
-}
-
-export interface DownloadDocumentParams {
-  documentId: string;
-  user_id: string;
-}
-
-export interface ShareDocumentParams {
-  documentId: string;
-}
-
-export interface DocumentShareInfo {
-  documentId: string;
-  title: string;
-  shareableLink: string;
-  socialLinks: {
-    twitter: string;
-    facebook: string;
-    linkedin: string;
-    whatsapp: string;
-    email: string;
-  };
+export async function updateDocument(
+  documentId: string,
+  updateData: Partial<NewDocument>,
+): Promise<DbResult<Document>> {
+  const [document] = await db
+    .update(documentsTable)
+    .set({
+      ...updateData,
+      updatedAt: new Date(),
+    })
+    .where(eq(documentsTable.id, documentId))
+    .returning();
+  return toResult(document);
 }
 
 export async function bookmarkDocument({
   documentId,
   user_id,
-}: BookmarkDocumentParams): Promise<Document> {
-  const document = await findDocumentById(documentId);
-
-  // I wanna be able to catch specific errors like these and then respond accordingly in my API layer.
-  if (!document) {
-    //     Quick question regarding controllers and operations!
-    // Let’s say I call getUserController with an invalid user id. The getUserController handles the HTTP layer, it calls findUserById which interacts with the db and returns the actual user details if found. Say the ID is invalid, what’s the best location to handle this error?
-    // Should I have findUserById throw an error when it fails to find the user and then have its caller handle the response i.e the caller (getUserController) can send an HTTP 404 (Not Found) response to the client. 
-    throw new Error("Document not found");
-  }
-
-  const [existingBookmark] = await db
-    .select()
-    .from(bookmarksTable)
-    .where(
-      and(
-        eq(bookmarksTable.user_id, user_id),
-        eq(bookmarksTable.documentId, documentId),
-      ),
-    )
-    .limit(1);
+}: BookmarkDocumentParams): Promise<DbResult<Document>> {
+  const documentResult = await findDocumentById(documentId);
+  const bookmarkResult = await findBookmarkById(documentId, user_id);
 
   let bookmarked: boolean;
 
-  if (existingBookmark) {
-    await db
-      .delete(bookmarksTable)
-      .where(
-        and(
-          eq(bookmarksTable.user_id, user_id),
-          eq(bookmarksTable.documentId, documentId),
-        ),
-      );
+  if (bookmarkResult.ok) {
+    // Bookmark exists, remove it
+    await removeBookmark(documentId, user_id);
     bookmarked = false;
   } else {
+    // Bookmark doesn't exist, create it
     await db
       .insert(bookmarksTable)
       .values({
@@ -84,13 +56,13 @@ export async function bookmarkDocument({
     bookmarked = true;
   }
 
-  return document;
+  return documentResult;
 }
 
 export async function downloadDocument({
   documentId,
   user_id,
-}: DownloadDocumentParams) {
+}: DownloadDocumentParams): Promise<DbResult<Document>> {
   return db.transaction(async (tx) => {
     const [document] = await tx
       .select({
@@ -103,7 +75,7 @@ export async function downloadDocument({
       .limit(1);
 
     if (!document) {
-      throw new Error("Document not found");
+      return toResult(null);
     }
 
     await tx.insert(downloadsTable).values({
@@ -111,49 +83,8 @@ export async function downloadDocument({
       document_id: documentId,
     });
 
-    const [updatedDocument] = await tx
-      .update(documentsTable)
-      .set({
-        downloadCount: document.downloadCount + 1,
-        updatedAt: new Date(),
-      })
-      .where(eq(documentsTable.id, documentId))
-      .returning({ downloadCount: documentsTable.downloadCount });
-
-    return updatedDocument;
+    return await updateDocument(documentId, {
+      downloadCount: document.downloadCount + 1,
+    });
   });
-}
-
-export async function getDocumentShareInfo({
-  documentId,
-}: ShareDocumentParams): Promise<DocumentShareInfo> {
-  const [document] = await db
-    .select({
-      id: documentsTable.id,
-      title: documentsTable.title,
-      description: documentsTable.description,
-      type: documentsTable.type,
-    })
-    .from(documentsTable)
-    .where(eq(documentsTable.id, documentId))
-    .limit(1);
-
-  if (!document) {
-    throw new Error("Document not found");
-  }
-
-  const shareableLink = `https://mahakama.app/documents/${documentId}`;
-
-  return {
-    documentId,
-    title: document.title,
-    shareableLink,
-    socialLinks: {
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareableLink)}&text=${encodeURIComponent(document.title)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableLink)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareableLink)}`,
-      whatsapp: `https://wa.me/?text=${encodeURIComponent(`${document.title} - ${shareableLink}`)}`,
-      email: `mailto:?subject=${encodeURIComponent(document.title)}&body=${encodeURIComponent(`Check out this document: ${shareableLink}`)}`,
-    },
-  };
 }
