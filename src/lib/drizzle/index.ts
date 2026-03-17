@@ -7,6 +7,7 @@ import { combinedDocumentsSchema } from "@/feature/documents/documents.schema";
 import { combinedMessagesSchema } from "@/feature/messages/messages.schema";
 import { lawyersTable } from "@/feature/lawyers/lawyers.schema";
 import { combinedNotificationsSchema } from "@/feature/notifications/notifications.schema";
+import { combinedLawyersSchema } from "@/feature/lawyers/lawyers.schema";
 
 const pool = new Pool({
   connectionString: dbConfig.postgres.url,
@@ -20,6 +21,7 @@ export const db = drizzle(pool, {
     ...lawyersTable,
     ...combinedNotificationsSchema,
     ...combinedUsersSchema,
+    ...combinedLawyersSchema,
   },
   logger: process.env.NODE_ENV !== "production",
 });

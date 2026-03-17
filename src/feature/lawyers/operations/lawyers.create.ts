@@ -8,11 +8,12 @@ import {
   legalSpecializations,
   commonLanguages,
 } from "../lawyers.config";
-import { v4 as uuid4 } from "uuid";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbResult } from "@/lib/drizzle/drizzle.types";
 
 export async function createLawyer(
   lawyerData: NewLawyer,
-): Promise<Lawyer | null> {
+): Promise<DbResult<Lawyer>> {
   const insertData = {
     ...lawyerData,
     casesHandled: lawyerData.casesHandled ?? 0,
@@ -23,7 +24,7 @@ export async function createLawyer(
     .insert(lawyersTable)
     .values(insertData)
     .returning();
-  return newLawyer;
+  return toResult(newLawyer);
 }
 
 export const createRandomLawyer = (): Omit<

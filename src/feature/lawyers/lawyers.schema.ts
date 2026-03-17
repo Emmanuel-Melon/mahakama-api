@@ -1,6 +1,5 @@
 import {
   pgTable,
-  serial,
   varchar,
   integer,
   boolean,
@@ -23,3 +22,7 @@ export const lawyersTable = pgTable("lawyers", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const combinedLawyersSchema = {
+  lawyers: lawyersTable,
+};
