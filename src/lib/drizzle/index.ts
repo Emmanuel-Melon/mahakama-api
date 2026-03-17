@@ -6,6 +6,7 @@ import * as chatsSchema from "@/feature/chats/chats.schema";
 import { combinedDocumentsSchema } from "@/feature/documents/documents.schema";
 import { combinedMessagesSchema } from "@/feature/messages/messages.schema";
 import { lawyersTable } from "@/feature/lawyers/lawyers.schema";
+import { combinedNotificationsSchema } from "@/feature/notifications/notifications.schema";
 
 const pool = new Pool({
   connectionString: dbConfig.postgres.url,
@@ -13,11 +14,12 @@ const pool = new Pool({
 
 export const db = drizzle(pool, {
   schema: {
-    ...combinedUsersSchema,
     ...chatsSchema,
     ...combinedDocumentsSchema,
     ...combinedMessagesSchema,
     ...lawyersTable,
+    ...combinedNotificationsSchema,
+    ...combinedUsersSchema,
   },
   logger: process.env.NODE_ENV !== "production",
 });

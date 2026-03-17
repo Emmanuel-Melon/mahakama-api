@@ -1,4 +1,4 @@
-import { JobsOptions, Queue } from "bullmq";
+import { WorkerOptions, QueueOptions, JobsOptions, Queue, Job } from "bullmq";
 import Redis from "ioredis";
 
 export type QueueInstance = {
@@ -8,8 +8,6 @@ export type QueueInstance = {
     options?: JobOptions,
   ) => Promise<import("bullmq").Job<T>>;
   getHealth: () => Promise<QueueHealth>;
-  getStatus: () => Promise<QueueStatus>;
-  isHealthy: () => Promise<boolean>;
 };
 
 export type ConnectionOptions = {
@@ -71,3 +69,13 @@ export interface BaseJobPayload<T> {
   payload: T;
   metadata: JobMetadata;
 }
+
+export interface EnqueueOptions extends JobsOptions {
+  // BullMQ natively supports delay, priority, and attempts
+}
+
+export type JobHandler<T> = (data: T) => Promise<void>;
+
+export type JobHandlerMap<TJobMap> = {
+  [K in keyof TJobMap]: (data: TJobMap[K], job: Job) => Promise<any>;
+};
