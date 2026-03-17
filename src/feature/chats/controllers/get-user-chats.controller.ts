@@ -11,10 +11,10 @@ export const getUserChatsController = asyncHandler(async (req: Request, res: Res
     req,
     res,
     {
-      data: chats.map((chat) => ({
+      data: chats.data.map((chat) => ({
         ...chat,
         id: chat.id.toString(),
-      })) as ((typeof chats)[number] & { id: string })[],
+      })) as ((typeof chats.data)[number] & { id: string })[],
       type: "collection",
       serializerConfig: ChatSerializer,
     },

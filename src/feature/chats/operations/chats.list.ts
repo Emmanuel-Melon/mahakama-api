@@ -2,21 +2,7 @@ import { db } from "@/lib/drizzle";
 import { eq, desc, sql, inArray } from "drizzle-orm";
 import { chatMessages } from "@/feature/messages/messages.schema";
 import { chatsSchema } from "../chats.schema";
-import { type ChatSession } from "../chats.types";
-
-export interface ListChatsParams {
-  userId: string;
-  limit?: number;
-  offset?: number;
-}
-
-export interface ChatListEntry extends Omit<ChatSession, "userId"> {
-  lastMessage?: {
-    content: string;
-    timestamp: Date;
-  };
-  messageCount: number;
-}
+import { ChatListEntry, ListChatsParams, type ChatSession } from "../chats.types";
 
 export async function listUserChats({
   userId,
