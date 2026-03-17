@@ -1,4 +1,4 @@
-export const AuthEvents = {
+export const AuthJobs = {
   Login: {
     label: "login",
     jobName: "auth:login",
@@ -13,5 +13,4 @@ export const AuthEvents = {
   },
 } as const;
 
-export type AuthJobType =
-  (typeof AuthEvents)[keyof typeof AuthEvents]["jobName"];
+export type AuthJobType = (typeof AuthJobs)[keyof typeof AuthJobs]["jobName"];

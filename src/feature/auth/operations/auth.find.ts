@@ -1,32 +1,29 @@
 import { db } from "@/lib/drizzle";
-import { usersSchema, type User } from "@/feature/users/users.schema";
+import { authEventsSchema } from "../auth.schema";
 import { eq } from "drizzle-orm";
+import { toSingleResult, toManyResult } from "@/lib/drizzle/drizzle.utils";
+import { DbSingleResult, DbManyResult } from "@/lib/drizzle/drizzle.types";
+import { AuthEvent } from "../auth.types";
 
-export type UserWithPassword = User & {
-  id: any;
-  email: any;
-  password: string | null;
+export const findAllAuthEvents = async (): Promise<DbManyResult<AuthEvent>> => {
+  const result = await db.query.authEventsSchema.findMany();
+  return toManyResult(result);
 };
 
-export const findUserByEmail = async (
-  email: string,
-): Promise<UserWithPassword | null> => {
-  const [user] = await db
-    .select()
-    .from(usersSchema)
-    .where(eq(usersSchema.email, email))
-    .limit(1);
-
-  return user || null;
+export const findAuthEventById = async (
+  id: string,
+): Promise<DbSingleResult<AuthEvent>> => {
+  const result = await db.query.authEventsSchema.findFirst({
+    where: eq(authEventsSchema.id, id),
+  });
+  return toSingleResult(result);
 };
 
-export const findUserById = async (userId: string): Promise<User | null> => {
-  if (!userId) return null;
-  const [user] = await db
-    .select()
-    .from(usersSchema)
-    .where(eq(usersSchema.id, userId))
-    .limit(1);
-
-  return user || null;
+export const findAuthEventsByUserId = async (
+  userId: string,
+): Promise<DbManyResult<AuthEvent>> => {
+  const result = await db.query.authEventsSchema.findMany({
+    where: eq(authEventsSchema.userId, userId),
+  });
+  return toManyResult(result);
 };

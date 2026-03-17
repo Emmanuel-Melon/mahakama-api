@@ -4,50 +4,43 @@ import {
   getCookieOptions,
   comparePasswords,
 } from "../auth.utils";
-import { findUserByEmail } from "../operations/auth.find";
-import { authQueue } from "../workers/auth.queue";
-import {
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "@/lib/express/express.response";
+import { findUserByEmail } from "@/feature/users/operations/users.find";
+import { authQueue } from "../jobs/auth.queue";
+import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "@/feature/users/users.config";
-import { AuthEvents } from "../auth.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { AuthJobs } from "../auth.config";
+import { unwrap } from "@/lib/drizzle/drizzle.utils";
+import { HttpError } from "@/lib/http/http.error";
 
-export const loginUserController = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body ?? {};
-  const user = await findUserByEmail(email);
-  if (!user) {
-    return sendErrorResponse(req, res, {
-      status: HttpStatus.UNAUTHORIZED,
-      description: "Invalid email or password",
+export const loginUserController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email, password } = req.body ?? {};
+    const user = unwrap(
+      await findUserByEmail(email),
+      new HttpError(HttpStatus.NOT_FOUND, "User not found"),
+    );
+
+    const isPasswordValid = await comparePasswords(password, user.password!);
+    if (!isPasswordValid) {
+      throw new HttpError(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+    }
+    const token = generateAuthToken(user);
+    res.cookie("token", token, getCookieOptions());
+    const { ...userWithoutPassword } = user;
+    sendSuccessResponse(req, res, {
+      data: userWithoutPassword,
+      serializerConfig: SerializedUser,
+      type: "single",
     });
-  }
-  if (!user.password) {
-    return sendErrorResponse(req, res, {
-      status: HttpStatus.UNAUTHORIZED,
-      description: "Account not properly set up. Please reset your password.",
+
+    authQueue.add(AuthJobs.Login.jobName, {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      timestamp: Date.now(),
+      userAgent: req.headers["user-agent"],
     });
-  }
-  const isPasswordValid = await comparePasswords(password, user.password);
-  if (!isPasswordValid) {
-    return sendErrorResponse(req, res, {
-      status: HttpStatus.UNAUTHORIZED,
-      description: "Invalid email or password",
-    });
-  }
-  const token = generateAuthToken(user);
-  res.cookie("token", token, getCookieOptions());
-  const { ...userWithoutPassword } = user;
-  sendSuccessResponse(req, res, {
-    data: userWithoutPassword,
-    serializerConfig: SerializedUser,
-    type: "single",
-  });
-  res.on("finish", async () => {
-    authQueue.enqueue(AuthEvents.Login.jobName, {
-      user: userWithoutPassword,
-    });
-  });
-});
+  },
+);

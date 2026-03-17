@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { AuthEvents } from "../auth.config";
+import { AuthJobs } from "../auth.config";
 
 type LogoutParams = {
   userId: string;
@@ -16,7 +16,7 @@ export const logoutUser = async ({
 }: LogoutParams) => {
   try {
     logger.info({
-      event: AuthEvents.Logout,
+      event: AuthJobs.Logout,
       userId,
       userAgent,
       ip,
@@ -26,7 +26,7 @@ export const logoutUser = async ({
     return { success: true };
   } catch (error) {
     logger.error({
-      event: AuthEvents.Logout,
+      event: AuthJobs.Logout,
       userId,
       error: error instanceof Error ? error.message : "Unknown error",
       message: "Failed to logout user",
