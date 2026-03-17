@@ -1,16 +1,13 @@
 import { Request, Response } from "express";
 import { getMessagesByChatId } from "../operations/messages.list";
-import {
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "@/lib/express/express.response";
+import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { MessageSerializer } from "../messages.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
 export const getMessagesByChatIdController = asyncHandler(
   async (req: Request, res: Response) => {
-    const { chatId } = req.params;
+    const chatId = req.params.chatId as string;
 
     const messages = await getMessagesByChatId(chatId);
 
@@ -18,7 +15,7 @@ export const getMessagesByChatIdController = asyncHandler(
       req,
       res,
       {
-        data: messages.map((message) => ({
+        data: messages.data.map((message) => ({
           ...message,
           id: message.id.toString(),
         })),

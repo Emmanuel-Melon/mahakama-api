@@ -3,6 +3,7 @@ import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { chatMessages } from "./messages.schema";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { SenderType } from "@/feature/chats/shared.types";
+import { MessageJobs } from "./messages.config";
 
 extendZodWithOpenApi(z);
 
@@ -42,3 +43,10 @@ export type ChatMessage = typeof chatMessages.$inferSelect & {
 };
 export type NewChatMessage = typeof chatMessages.$inferInsert;
 export type ChatMessageResponse = z.infer<typeof chatSelectSchema>;
+
+export interface MessageJobTypes {
+  [MessageJobs.MessageSent.jobName]: {
+    messageId: string;
+    userId: string;
+  };
+}

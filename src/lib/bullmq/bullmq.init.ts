@@ -3,6 +3,7 @@ import { initAuthWorker } from "@/feature/auth/jobs/auth.worker";
 import { initChatsWorker } from "@/feature/chats/jobs/chats.worker";
 import { initDocumentsWorker } from "@/feature/documents/jobs/documents.worker";
 import { initLawyersWorker } from "@/feature/lawyers/jobs/lawyers.worker";
+import { initMessagesWorker } from "@/feature/messages/jobs/messages.worker";
 
 export const initAllWorkers = () => {
   logger.info("👷 Initializing background workers...");
@@ -10,4 +11,5 @@ export const initAllWorkers = () => {
   initDocumentsWorker();
   initChatsWorker();
   initLawyersWorker();
+  initMessagesWorker();
 };
