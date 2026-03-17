@@ -1,16 +1,12 @@
 import { db } from "@/lib/drizzle";
 import { chatsSchema } from "../chats.schema";
-import { type ChatSession } from "../chats.types";
-
-export interface CreateChatParams {
-  userId: string;
-  title?: string | null;
-  metadata?: Record<string, unknown> | null;
-}
+import { CreateChatParams, type ChatSession } from "../chats.types";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbResult } from "@/lib/drizzle/drizzle.types";
 
 export const createChat = async (
   params: CreateChatParams,
-): Promise<ChatSession | null> => {
+): Promise<DbResult<ChatSession>> => {
   const [newChat] = await db
     .insert(chatsSchema)
     .values({
@@ -19,5 +15,5 @@ export const createChat = async (
       metadata: params.metadata || {},
     })
     .returning();
-  return newChat;
+  return toResult(newChat);
 };

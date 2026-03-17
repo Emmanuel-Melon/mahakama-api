@@ -17,7 +17,7 @@ export const getVectorizedLaws = async (
     // Query ChromaDB for similar documents
     const embeddings = await searchEmbedding(queryString, {
       collectionName: COLLECTION_NAME,
-      limit: 10
+      limit: 10,
     });
 
     if (!embeddings?.ids?.[0]?.length) {
@@ -103,7 +103,9 @@ export const findRelevantDocuments = async (
   }
 };
 
-export const getMostRelevantDocument = <T extends { similarityCosineScore: number }>(
+export const getMostRelevantDocument = <
+  T extends { similarityCosineScore: number },
+>(
   laws: T[],
 ): T | null => {
   if (!laws.length) return null;

@@ -5,10 +5,12 @@ import { ChatMessage, MessageInput } from "../messages.types";
 import { eq } from "drizzle-orm";
 import { getChatById } from "@/feature/chats/operations/chat.find";
 import { SenderType } from "@/feature/chats/shared.types";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbResult } from "@/lib/drizzle/drizzle.types";
 
 export const sendMessage = async (
   input: MessageInput,
-): Promise<ChatMessage> => {
+): Promise<DbResult<ChatMessage>> => {
   const { chatId, content, senderType, userId } = input;
   const timestamp = new Date();
 
@@ -42,5 +44,5 @@ export const sendMessage = async (
     })
     .returning();
 
-  return message;
+  return toResult(message);
 };

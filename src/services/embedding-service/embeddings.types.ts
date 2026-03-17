@@ -1,14 +1,14 @@
 export interface QueryEmbedding {
-    model: string;
-    embedding: number[][];
-    query: string;
-    metadata?: Record<string, string>;
+  model: string;
+  embedding: number[][];
+  query: string;
+  metadata?: Record<string, string>;
 }
 
 export type QueryEmbeddingOptions = {
-    collectionName: string;
-    limit?: number;
-}
+  collectionName: string;
+  limit?: number;
+};
 
 export interface DocumentChunk {
   id: string;

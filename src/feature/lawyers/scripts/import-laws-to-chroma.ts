@@ -44,7 +44,9 @@ async function importLawsToChroma() {
       const batchMetadatas = metadatas.slice(i, i + BATCH_SIZE);
       const batchIds = ids.slice(i, i + BATCH_SIZE);
 
-      console.log(`Importing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(documents.length / BATCH_SIZE)}...`);
+      console.log(
+        `Importing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(documents.length / BATCH_SIZE)}...`,
+      );
 
       await chromaClient.addDocuments({
         collectionName: COLLECTION_NAME,
@@ -62,8 +64,9 @@ async function importLawsToChroma() {
 
     // Verify the import
     const collectionCount = await chromaClient.countCollection(COLLECTION_NAME);
-    console.log(`Total documents in collection '${COLLECTION_NAME}': ${collectionCount}`);
-
+    console.log(
+      `Total documents in collection '${COLLECTION_NAME}': ${collectionCount}`,
+    );
   } catch (error) {
     console.error("❌ Error importing laws to ChromaDB:", error);
     process.exit(1);

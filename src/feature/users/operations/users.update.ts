@@ -11,7 +11,7 @@ export async function updateUser(
   userAttrs: NewUser,
 ): Promise<DbResult<User>> {
   const existingUser = await findUserById(userId);
-  
+
   const [user] = await db
     .update(usersSchema)
     .set({
@@ -21,6 +21,6 @@ export async function updateUser(
     })
     .where(eq(usersSchema.id, userId))
     .returning();
-    
+
   return toResult(user);
 }

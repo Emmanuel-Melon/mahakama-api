@@ -5,25 +5,27 @@ import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "../users.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 
-export const getUsersController = asyncHandler(async (req: Request, res: Response) => {
-  const { data, count } = await findAll({
-    ...req.query,
-    limit: req.pagination.limit,
-    page: req.pagination.page,
-  });
-  return sendSuccessResponse(
-    req,
-    res,
-    {
-      data,
-      serializerConfig: SerializedUser,
-      type: "collection",
-    },
-    {
-      status: HttpStatus.SUCCESS,
-      additionalMeta: {
-        total: count,
+export const getUsersController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { data, count } = await findAll({
+      ...req.query,
+      limit: req.pagination.limit,
+      page: req.pagination.page,
+    });
+    return sendSuccessResponse(
+      req,
+      res,
+      {
+        data,
+        serializerConfig: SerializedUser,
+        type: "collection",
       },
-    },
-  );
-});
+      {
+        status: HttpStatus.SUCCESS,
+        additionalMeta: {
+          total: count,
+        },
+      },
+    );
+  },
+);

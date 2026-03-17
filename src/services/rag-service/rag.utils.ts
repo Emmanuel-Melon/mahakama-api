@@ -8,4 +8,4 @@ export const toSimilarityResult = (
     id: parseInt(chromaResult.id, 10) || 0,
     embeddingLength: chromaResult.embedding.length,
   };
-}
+};

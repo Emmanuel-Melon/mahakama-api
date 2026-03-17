@@ -36,15 +36,15 @@ export const chatsSchema = pgTable(
   }),
 );
 
-export const chatSchemaRelations = relations(chatsSchema, ({ one, many }) => ({
-  user: one(usersSchema, {
-    fields: [chatsSchema.userId],
-    references: [usersSchema.id],
-  }),
-  messages: many(chatMessages),
-}));
+// export const chatSchemaRelations = relations(chatsSchema, ({ one, many }) => ({
+//   user: one(usersSchema, {
+//     fields: [chatsSchema.userId],
+//     references: [usersSchema.id],
+//   }),
+//   messages: many(chatMessages),
+// }));
 
 export const combinedChatsSchema = {
   usersSchema,
-  chatSchemaRelations,
+  //chatSchemaRelations,
 };

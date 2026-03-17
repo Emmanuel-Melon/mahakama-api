@@ -6,19 +6,7 @@ export const ChatSerializer: JsonApiResourceConfig<ChatSession> = {
   attributes: (chat: ChatSession) => chat,
 };
 
-export const ChatEvents = {
-  ChatCreated: {
-    label: "created",
-    jobName: "chat-created",
-  },
-  ChatUpdated: {
-    label: "updated",
-    jobName: "chat-updated",
-  },
-  ChatDeleted: {
-    label: "deleted",
-    jobName: "chat-deleted",
-  },
+export const ChatsJobs = {
   MessageSent: {
     label: "message-sent",
     jobName: "message-sent",
@@ -26,4 +14,4 @@ export const ChatEvents = {
 } as const;
 
 export type ChatsJobType =
-  (typeof ChatEvents)[keyof typeof ChatEvents]["jobName"];
+  (typeof ChatsJobs)[keyof typeof ChatsJobs]["jobName"];

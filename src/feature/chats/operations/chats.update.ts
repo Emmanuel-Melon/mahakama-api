@@ -1,21 +1,16 @@
 import { db } from "@/lib/drizzle";
 import { chatsSchema } from "../chats.schema";
 import { and, eq } from "drizzle-orm";
-import { type ChatSession } from "../chats.types";
-
-export interface UpdateChatParams {
-  id: string;
-  userId: string;
-  title?: string | null;
-  metadata?: Record<string, unknown> | null;
-}
+import { UpdateChatParams, type ChatSession } from "../chats.types";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbResult } from "@/lib/drizzle/drizzle.types";
 
 export async function updateChat({
   id,
   userId,
   title,
   metadata,
-}: UpdateChatParams): Promise<ChatSession | null> {
+}: UpdateChatParams): Promise<DbResult<ChatSession>> {
   const [updatedChat] = await db
     .update(chatsSchema)
     .set({
@@ -26,17 +21,17 @@ export async function updateChat({
     .where(and(eq(chatsSchema.id, id), eq(chatsSchema.userId, userId)))
     .returning();
 
-  return updatedChat || null;
+  return toResult(updatedChat);
 }
 
 export async function deleteChat(
   chatId: string,
   userId: string,
-): Promise<boolean> {
+): Promise<DbResult<ChatSession>> {
   const [deletedChat] = await db
     .delete(chatsSchema)
     .where(and(eq(chatsSchema.id, chatId), eq(chatsSchema.userId, userId)))
-    .returning({ id: chatsSchema.id });
+    .returning();
 
-  return !!deletedChat;
+  return toResult(deletedChat);
 }
