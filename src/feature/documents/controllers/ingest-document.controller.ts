@@ -35,16 +35,14 @@ export const ingestDocumentController = asyncHandler(
 
     // Create document record
     const document = unwrap(
-      await createDocument(
-        {
-          title: title || file.originalname,
-          description: description || "No description",
-          type: type || "contract",
-          sections: Number(sections) || 1,
-          lastUpdated: new Date().getFullYear().toString(),
-          storageUrl: uploadResult.publicUrl,
-        },
-      ),
+      await createDocument({
+        title: title || file.originalname,
+        description: description || "No description",
+        type: type || "contract",
+        sections: Number(sections) || 1,
+        lastUpdated: new Date().getFullYear().toString(),
+        storageUrl: uploadResult.publicUrl,
+      }),
       new HttpError(
         HttpStatus.INTERNAL_SERVER_ERROR,
         "Failed to create document",

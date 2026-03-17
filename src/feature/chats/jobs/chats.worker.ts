@@ -6,7 +6,8 @@ import { JobHandlerMap } from "@/lib/bullmq/bullmq.types";
 import { ChatsJobTypes } from "../chats.types";
 
 const chatsHandlers: JobHandlerMap<ChatsJobTypes> = {
-  [ChatsJobs.MessageSent.jobName]: (data) => ChatsJobHandler.handleMessageSent(data),
+  [ChatsJobs.MessageSent.jobName]: (data) =>
+    ChatsJobHandler.handleMessageSent(data),
 };
 
 export const initChatsWorker = () =>

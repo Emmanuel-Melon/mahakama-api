@@ -11,58 +11,55 @@ import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import { unwrap } from "@/lib/drizzle/drizzle.utils";
 import { HttpError } from "@/lib/http/http.error";
 
-export const createChatController = asyncHandler(async (req: Request<{}, {}, any>, res: Response) => {
-  const { message, metadata: bodyMetadata } = req.body;
-  const user = req.user as User;
-  const senderType = user.role === UserRoles.USER ? "user" : "assistant";
-  const chat = unwrap(await createChat({
-    userId: user.id,
-    title: message,
-    metadata: bodyMetadata,
-  }), new HttpError(
-    HttpStatus.INTERNAL_SERVER_ERROR,
-    "Failed to create chat",
-  ))
+export const createChatController = asyncHandler(
+  async (req: Request<{}, {}, any>, res: Response) => {
+    const { message, metadata: bodyMetadata } = req.body;
+    const user = req.user as User;
+    const senderType = user.role === UserRoles.USER ? "user" : "assistant";
+    const chat = unwrap(
+      await createChat({
+        userId: user.id,
+        title: message,
+        metadata: bodyMetadata,
+      }),
+      new HttpError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create chat"),
+    );
 
-  unwrap(
-    await sendMessage({
-      chatId: chat.id,
-      content: message,
-      senderType,
-      userId: user.id,
-    }), new HttpError(
-      HttpStatus.INTERNAL_SERVER_ERROR,
-      "Failed to send message",
-    )
-  )
-  const client = llmProviderManager.getClient();
-  const result = await client.generateTextContent(message);
-  unwrap(
-    await sendMessage({
-      chatId: chat.id,
-      content: result.content,
-      senderType,
-      userId: user.id,
-    }), new HttpError(
-      HttpStatus.INTERNAL_SERVER_ERROR,
-      "Failed to send message",
-    ))
+    unwrap(
+      await sendMessage({
+        chatId: chat.id,
+        content: message,
+        senderType,
+        userId: user.id,
+      }),
+      new HttpError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send message"),
+    );
+    const client = llmProviderManager.getClient();
+    const result = await client.generateTextContent(message);
+    unwrap(
+      await sendMessage({
+        chatId: chat.id,
+        content: result.content,
+        senderType,
+        userId: user.id,
+      }),
+      new HttpError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send message"),
+    );
 
-  sendSuccessResponse(
-    req,
-    res,
-    {
-      data: {
-        ...chat,
-        id: chat.id.toString(),
-      } as typeof chat & { id: string },
-      type: "single",
-      serializerConfig: ChatSerializer,
-    },
-    {
-      status: HttpStatus.CREATED,
-    },
-  );
-
-});
-
+    sendSuccessResponse(
+      req,
+      res,
+      {
+        data: {
+          ...chat,
+          id: chat.id.toString(),
+        } as typeof chat & { id: string },
+        type: "single",
+        serializerConfig: ChatSerializer,
+      },
+      {
+        status: HttpStatus.CREATED,
+      },
+    );
+  },
+);
