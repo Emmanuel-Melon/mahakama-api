@@ -7,6 +7,8 @@ import {
 } from "@/lib/express/express.types";
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { chatsSchema } from "@/feature/chats/chats.schema";
+import { UserJobs } from "./users.config";
+import { baseQuerySchema } from "@/lib/express/express.types";
 
 export const userInsertSchema = createInsertSchema(usersSchema).openapi({
   title: "NewUser",
@@ -31,9 +33,11 @@ export type UserSuccessResponse = JsonApiResponse<User>;
 export type UserErrorResponse = JsonApiErrorResponse;
 export type UserResponse = UserSuccessResponse | UserErrorResponse;
 
-export type GetUsersQuery = GetRequestQuery & {
-  role?: z.infer<typeof userRoleSchema>;
-};
+export const userQuerySchema = baseQuerySchema.extend({
+  role: z.string().optional(),
+});
+
+export type UserFilters = z.infer<typeof userQuerySchema>;
 
 export type GetUsersParams = {
   id?: string;
@@ -57,3 +61,22 @@ export const UserRoles = {
 // Export inferred types from schemas
 export const GenderValues = Object.values(Genders) as [string, ...string[]];
 export const UserRoleValues = Object.values(UserRoles) as [string, ...string[]];
+
+export interface UserJobTypes {
+  [UserJobs.UserCreated.jobName]: {
+    userId: string;
+  };
+  [UserJobs.UserUpdated.jobName]: {
+    userId: string;
+  };
+  [UserJobs.UserDeleted.jobName]: {
+    userId: string;
+  };
+  [UserJobs.UserOnboarded.jobName]: {
+    userId: string;
+  };
+  [UserJobs.UserVerified.jobName]: {
+    userId: string;
+    verifiedAt: string;
+  };
+}

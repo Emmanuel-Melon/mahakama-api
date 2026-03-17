@@ -6,7 +6,7 @@ export const SerializedUser: JsonApiResourceConfig<User> = {
   attributes: (user: User) => user,
 };
 
-export const UserEvents = {
+export const UserJobs = {
   UserCreated: {
     label: "user-created",
     jobName: "user-created",
@@ -30,7 +30,7 @@ export const UserEvents = {
 } as const;
 
 export type UsersJobType =
-  (typeof UserEvents)[keyof typeof UserEvents]["jobName"];
+  (typeof UserJobs)[keyof typeof UserJobs]["jobName"];
 
 // for pagination and route queries
 export const sortableFields = [
