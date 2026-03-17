@@ -1,57 +1,63 @@
 import { Request, Response } from "express";
-import { RegisterUserAttrs } from "../auth.schema";
 import {
   generateAuthToken,
   hashPassword,
   getCookieOptions,
 } from "../auth.utils";
 import { registerUser } from "../operations/auth.create";
-import { findUserByEmail } from "../operations/auth.find";
-// import { authQueue } from "../workers/auth.queue";
-import { RegisterResponse } from "../auth.types";
-import {
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "@/lib/express/express.response";
+import { findUserByEmail } from "@/feature/users/operations/users.find";
+import { authQueue } from "../jobs/auth.queue";
+import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "@/feature/users/users.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { AuthJobs } from "../auth.config";
+import { unwrap } from "@/lib/drizzle/drizzle.utils";
+import { HttpError } from "@/lib/http/http.error";
 
-export const registerUserController = asyncHandler(async (req: Request<{}, {}, RegisterUserAttrs>, res: Response<RegisterResponse>) => {
-  const { email, password, name } = req.body ?? {};
-  const existingUser = await findUserByEmail(email);
+export const registerUserController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email, password, name } = req.body ?? {};
+    const user = unwrap(
+      await findUserByEmail(email),
+      new HttpError(HttpStatus.NOT_FOUND, "User not found"),
+    );
 
-  if (existingUser) {
-    return sendErrorResponse(req, res, {
-      status: HttpStatus.CONFLICT,
-      description: "User with this email already exists",
+    if (user) {
+      throw new HttpError(
+        HttpStatus.CONFLICT,
+        "User with this email already exists",
+      );
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const newUser = unwrap(
+      await registerUser({
+        email,
+        password: hashedPassword,
+        name,
+      }),
+      new HttpError(HttpStatus.BAD_GATEWAY, "Failed to create user"),
+    );
+
+    const token = generateAuthToken(newUser);
+    res.cookie("token", token, getCookieOptions());
+    const { ...userWithoutPassword } = newUser;
+
+    sendSuccessResponse(req, res, {
+      data: userWithoutPassword,
+      serializerConfig: SerializedUser,
+      type: "single",
     });
-  }
 
-  const user = await registerUser({
-    email,
-    password,
-    name,
-  });
-
-  const token = generateAuthToken(user);
-
-  // await authQueue.enqueue(AuthJobType.Registration, {
-  //   userId: user.id,
-  //   email,
-  //   name,
-  //   password,
-  //   timestamp: Date.now(),
-  //   userAgent: req.headers["user-agent"],
-  // });
-
-  res.cookie("token", token, getCookieOptions());
-
-  const { ...userWithoutPassword } = user;
-
-  return sendSuccessResponse(req, res, {
-    data: userWithoutPassword,
-    serializerConfig: SerializedUser,
-    type: "single",
-  });
-});
+    await authQueue.add(AuthJobs.Registration.jobName, {
+      userId: newUser.id,
+      email,
+      name,
+      password: hashedPassword,
+      timestamp: Date.now(),
+      userAgent: req.headers["user-agent"],
+    });
+  },
+);

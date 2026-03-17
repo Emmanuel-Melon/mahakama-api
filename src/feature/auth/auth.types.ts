@@ -1,49 +1,74 @@
-import { User } from "@/feature/users/users.schema";
-import {
-  JsonApiErrorResponse,
-  JsonApiResponse,
-} from "@/lib/express/express.types";
+import { z } from "zod";
+import { AuthJobs } from "./auth.config";
+import { authEventsSchema } from "./auth.schema";
+import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import { usersSchema } from "@/feature/users/users.schema";
 
-export interface AuthJobData {
-  userId?: string;
-  email?: string;
-  name?: string;
-  password?: string;
-  timestamp?: number;
-  [key: string]: any;
+export const authUserSchema = createSelectSchema(usersSchema);
+
+// Create auth schemas directly from the base schema
+export const loginRequestSchema = authUserSchema
+  .pick({
+    email: true,
+    password: true,
+  })
+  .openapi({
+    title: "LoginRequest",
+    description: "Request schema for user login",
+  });
+
+export const registerRequestSchema = authUserSchema
+  .pick({
+    email: true,
+    password: true,
+    name: true,
+  })
+  .openapi({
+    title: "RegisterRequest",
+    description: "Request schema for user registration",
+  });
+
+export const authHeadersSchema = z
+  .object({
+    authorization: z
+      .string()
+      .min(1, { message: "Authorization header is required" }),
+  })
+  .openapi({
+    title: "AuthHeaders",
+    description: "Request headers for authentication",
+  });
+
+export const authEventSelectSchema = createSelectSchema(
+  authEventsSchema,
+).openapi({
+  title: "AuthEvent",
+  description: "Auth event response schema",
+});
+
+export const authEventInsertSchema = createInsertSchema(
+  authEventsSchema,
+).openapi({
+  title: "NewAuthEvent",
+  description: "Request schema for creating auth events",
+});
+
+export type LoginAttrs = z.infer<typeof loginRequestSchema>;
+export type AuthResponseData = z.infer<typeof loginRequestSchema>;
+export type RegisterUserAttrs = z.infer<typeof registerRequestSchema>;
+export type LoginUserAttrs = z.infer<typeof loginRequestSchema>;
+export type AuthEvent = z.infer<typeof authEventSelectSchema>;
+export type NewAuthEvent = z.infer<typeof authEventInsertSchema>;
+export type UserWithoutPassword = Omit<
+  z.infer<typeof authUserSchema>,
+  "password"
+>;
+
+export interface AuthJobTypes {
+  [AuthJobs.Login.jobName]: {
+    userId: string;
+    device: string;
+    loginTime: string;
+  };
+  [AuthJobs.Registration.jobName]: { userId: string; email: string };
 }
-
-export const UserAuthStates = {
-  USER: "user" as const,
-  ANONYMOUS: "anonymous" as const,
-} as const;
-
-export type UserAuthStates =
-  (typeof UserAuthStates)[keyof typeof UserAuthStates];
-export const UserAuthStatesValues = Object.values(UserAuthStates) as [
-  string,
-  ...string[],
-];
-
-export type UserWithoutPassword = Omit<User, "password">;
-
-type AuthData = {
-  user: UserWithoutPassword;
-  token?: string;
-};
-
-export type AuthSuccessResponse = JsonApiResponse<AuthData>;
-
-export type AuthErrorResponse = JsonApiErrorResponse;
-
-export type AuthResponse = AuthSuccessResponse | AuthErrorResponse;
-
-export type RegisterData = {
-  user: UserWithoutPassword;
-};
-
-export type RegisterSuccessResponse = JsonApiResponse<RegisterData>;
-
-export type RegisterErrorResponse = AuthErrorResponse;
-
-export type RegisterResponse = RegisterSuccessResponse | RegisterErrorResponse;
