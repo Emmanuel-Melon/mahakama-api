@@ -1,3 +1,4 @@
+// eslint.config.mjs
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
@@ -5,20 +6,20 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    languageOptions: {
-      parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
+    // Global settings for all files
     rules: {
-      "@typescript-eslint/no-explicit-any": "warn", // Good for our Drizzle mocks
-      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
   {
-    // Ignore build artifacts and legacy folders
-    ignores: ["dist/**", "node_modules/**", "scripts/**"]
+    // Specific override for test files and utilities
+    files: ["**/*.test.ts", "**/tests.utils.ts", "**/setup.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // Mocks need 'any' to live
+    },
+  },
+  {
+    ignores: ["dist/**", "node_modules/**"]
   }
 );
