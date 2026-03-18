@@ -12,9 +12,9 @@ export const addServiceController = asyncHandler(
   async (req: Request, res: Response) => {
     const validatedData = serviceInsertSchema.parse(req.body);
 
-const service = unwrap(
+    const service = unwrap(
       await createService(validatedData),
-      "An unexpected error occurred while creating the service" 
+      "An unexpected error occurred while creating the service",
     );
 
     sendSuccessResponse(

@@ -1,5 +1,9 @@
 import { HttpStatus } from "@/http-status";
-import { ConflictError, EntityNotFoundError, HttpError } from "../http/http.error";
+import {
+  ConflictError,
+  EntityNotFoundError,
+  HttpError,
+} from "../http/http.error";
 import { PG_ERROR_CODES } from "./drizzle.errors";
 import {
   DbSingleResult,
@@ -36,8 +40,8 @@ export function toManyResult<T>(
 }
 
 export function unwrap<T>(
-  result: DbResult<T>, 
-  errorSource?: string | Error
+  result: DbResult<T>,
+  errorSource?: string | Error,
 ): T {
   if (result.ok) {
     return result.data;
@@ -51,25 +55,33 @@ export function unwrap<T>(
     throw new HttpError(HttpStatus.INTERNAL_SERVER_ERROR, errorSource);
   }
 
-  throw new HttpError(HttpStatus.INTERNAL_SERVER_ERROR, "Database operation failed");
+  throw new HttpError(
+    HttpStatus.INTERNAL_SERVER_ERROR,
+    "Database operation failed",
+  );
 }
 
 export async function withDbErrorHandler<T>(
   operation: () => Promise<T[]>,
-  options: { conflictMessage?: string; notFoundMessage?: string } = {}
+  options: { conflictMessage?: string; notFoundMessage?: string } = {},
 ) {
   try {
     const results = await operation();
     return toResult(results[0]);
   } catch (error: any) {
     // 1. Unique Violation (Slug/Name exists)
-    if (error.code === PG_ERROR_CODES.UNIQUE_VIOLATION && options.conflictMessage) {
+    if (
+      error.code === PG_ERROR_CODES.UNIQUE_VIOLATION &&
+      options.conflictMessage
+    ) {
       throw new ConflictError(options.conflictMessage);
     }
-    
+
     // 2. Foreign Key Violation (ID doesn't exist in parent table)
     if (error.code === PG_ERROR_CODES.FOREIGN_KEY_VIOLATION) {
-      throw new EntityNotFoundError(options.notFoundMessage || "Related record not found");
+      throw new EntityNotFoundError(
+        options.notFoundMessage || "Related record not found",
+      );
     }
 
     throw error;
