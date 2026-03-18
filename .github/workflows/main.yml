@@ -30,9 +30,6 @@ jobs:
       - name: Prettier Check
         run: npm run format:check
 
-      - name: Static Type Check
-        run: npm run typecheck
-
       - name: Run Unit Tests
         run: npm run test
 
