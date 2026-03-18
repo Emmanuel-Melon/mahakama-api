@@ -32,10 +32,9 @@ export function toManyResult<T>(
   };
 }
 
-export function unwrap<T>(result: DbResult<T>, error?: Error): T {
+export function unwrap<T>(result: DbResult<T>, error: Error): T {
   if (!result.ok) {
-    throw error ?? new Error("Database result was not OK");
+    throw error;
   }
-
   return result.data;
 }

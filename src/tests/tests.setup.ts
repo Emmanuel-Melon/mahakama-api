@@ -2,6 +2,11 @@ import { vi } from "vitest";
 
 vi.mock("@/config", () => import("@/config/test.config"));
 
+const mockRelationalQuery = {
+  findMany: vi.fn(),
+  findFirst: vi.fn(),
+};
+
 // Mock drizzle with both raw and relational APIs
 vi.mock("@/lib/drizzle", () => ({
   db: {
@@ -23,10 +28,8 @@ vi.mock("@/lib/drizzle", () => ({
     where: vi.fn().mockReturnThis(),
     // Relational API
     query: {
-      lawyers: {
-        findMany: vi.fn(),
-        findFirst: vi.fn(),
-      },
+      lawyers: mockRelationalQuery,
+      usersSchema: mockRelationalQuery,
     },
   },
 }));

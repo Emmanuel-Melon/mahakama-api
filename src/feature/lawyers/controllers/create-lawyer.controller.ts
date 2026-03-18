@@ -5,7 +5,7 @@ import { lawyersTable } from "../lawyers.schema";
 import { eq } from "drizzle-orm";
 import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
-import { LawyersSerializer } from "../lawyers.config";
+import { SerializedLawyer } from "../lawyers.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import { HttpError } from "@/lib/http/http.error";
 import { unwrap } from "@/lib/drizzle/drizzle.utils";
@@ -38,7 +38,7 @@ export const createLawyerController = asyncHandler(
           id: string;
         },
         type: "single",
-        serializerConfig: LawyersSerializer,
+        serializerConfig: SerializedLawyer,
       },
       {
         status: HttpStatus.CREATED,
