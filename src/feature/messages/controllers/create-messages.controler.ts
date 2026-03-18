@@ -4,7 +4,7 @@ import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { MessageSerializer } from "../messages.config";
 import { llmProviderManager } from "@/lib/llm";
-import { type User, UserRoles } from "@/feature/users/users.types";
+import { type User } from "@/feature/users/users.types";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import { HttpError } from "@/lib/http/http.error";
 import { unwrap } from "@/lib/drizzle/drizzle.utils";
@@ -13,7 +13,7 @@ export const sendMessageController = asyncHandler(
   async (req: Request, res: Response) => {
     const { chatId, content, userId, metadata } = req.body;
     const user = req.user as User;
-    const senderType = user.role === UserRoles.USER ? "user" : "assistant";
+    const senderType = user.role === "user" ? "user" : "assistant";
 
     const userMessage = unwrap(
       await sendMessage({

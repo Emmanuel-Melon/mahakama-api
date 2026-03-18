@@ -58,5 +58,5 @@ export const downloadsTable = pgTable("document_downloads", {
 export const combinedDocumentsSchema = {
   documentsTable,
   bookmarksTable,
-  downloadsTable
+  downloadsTable,
 };

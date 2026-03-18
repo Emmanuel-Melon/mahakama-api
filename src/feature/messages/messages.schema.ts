@@ -37,5 +37,5 @@ export const chatMessages = pgTable("chat_messages", {
 });
 
 export const combinedMessagesSchema = {
-  chatMessages
+  chatMessages,
 };

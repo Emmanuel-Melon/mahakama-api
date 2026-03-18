@@ -27,10 +27,9 @@ export const UserRoles = {
   LAWYER: "lawyer" as const,
 } as const;
 
-
 // Export inferred types from schemas
 export const GenderValues = Object.values(Genders) as [string, ...string[]];
-export const  UserRoleValues = Object.values(UserRoles) as [string, ...string[]];
+export const UserRoleValues = Object.values(UserRoles) as [string, ...string[]];
 
 export const genderSchema = z.enum(GenderValues).openapi({
   title: "Gender",
@@ -77,5 +76,5 @@ export const usersSchema = pgTable("users", {
 
 // relations
 export const combinedUsersSchema = {
-  usersSchema
+  usersSchema,
 };

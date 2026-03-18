@@ -43,9 +43,6 @@ export type GetUsersParams = {
   id?: string;
 };
 
-
-
-
 export interface UserJobTypes {
   [UserJobs.UserCreated.jobName]: {
     userId: string;

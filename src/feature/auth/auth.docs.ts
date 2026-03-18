@@ -1,8 +1,5 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import {
-  registerRequestSchema,
-  loginRequestSchema,
-} from "./auth.types";
+import { registerRequestSchema, loginRequestSchema } from "./auth.types";
 import { HttpStatus } from "@/http-status";
 
 export const authRegistry = new OpenAPIRegistry();

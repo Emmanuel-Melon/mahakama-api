@@ -1,7 +1,11 @@
 import { relations } from "drizzle-orm";
 import { usersSchema } from "@/feature/users/users.schema";
 import { chatsSchema } from "@/feature/chats/chats.schema";
-import { documentsTable, bookmarksTable, downloadsTable } from "@/feature/documents/documents.schema";
+import {
+  documentsTable,
+  bookmarksTable,
+  downloadsTable,
+} from "@/feature/documents/documents.schema";
 import { chatMessages } from "@/feature/messages/messages.schema";
 import { notificationsSchema } from "@/feature/notifications/notifications.schema";
 
@@ -60,12 +64,15 @@ export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
 }));
 
 // Notifications Relations
-export const notificationsRelations = relations(notificationsSchema, ({ one }) => ({
-  user: one(usersSchema, {
-    fields: [notificationsSchema.userId],
-    references: [usersSchema.id],
+export const notificationsRelations = relations(
+  notificationsSchema,
+  ({ one }) => ({
+    user: one(usersSchema, {
+      fields: [notificationsSchema.userId],
+      references: [usersSchema.id],
+    }),
   }),
-}));
+);
 
 // Combined Relations Export
 export const allRelations = {
