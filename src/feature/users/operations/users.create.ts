@@ -4,7 +4,7 @@ import { User, NewUser } from "../users.types";
 import { faker } from "@faker-js/faker";
 import { v4 as uuid } from "uuid";
 import { hashPassword } from "@/feature/auth/auth.utils";
-import { randomElement } from "@/lib/drizzle/seed";
+import { randomElement } from "@/lib/drizzle/drizzle.seed";
 import { Genders } from "../users.types";
 import { getRandomRole } from "../users.utils";
 import { toResult } from "@/lib/drizzle/drizzle.utils";

@@ -1,16 +1,23 @@
 import "dotenv/config";
 import { db } from "@/lib/drizzle";
 import { lawyersTable } from "@/feature/lawyers/lawyers.schema";
-import { createRandomLawyer } from "@/feature/lawyers/operations/lawyers.create";
+import { createMockLawyer } from "./lawyers.factory";
 import { logger } from "@/lib/logger";
+import type { NewLawyer } from "@/feature/lawyers/lawyers.types";
 const NUMBER_OF_LAWYERS = 150;
 
 async function seedLawyers() {
   try {
     await db.delete(lawyersTable);
-    const lawyers = await Promise.all(
-      Array.from({ length: NUMBER_OF_LAWYERS }, () => createRandomLawyer()),
+
+    // Create mock lawyers and convert to NewLawyer format (without id, createdAt, updatedAt)
+    const mockLawyers = Array.from({ length: NUMBER_OF_LAWYERS }, () =>
+      createMockLawyer(),
     );
+    const lawyers: NewLawyer[] = mockLawyers.map(
+      ({ id, createdAt, updatedAt, ...lawyer }) => lawyer,
+    );
+
     const specializationCounts = lawyers.reduce<Record<string, number>>(
       (acc, lawyer) => {
         const spec = lawyer.specialization;
