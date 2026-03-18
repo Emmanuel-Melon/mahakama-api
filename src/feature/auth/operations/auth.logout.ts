@@ -10,7 +10,6 @@ type LogoutParams = {
 
 export const logoutUser = async ({
   userId,
-  token,
   userAgent,
   ip,
 }: LogoutParams) => {

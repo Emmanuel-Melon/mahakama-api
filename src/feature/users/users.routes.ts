@@ -5,12 +5,10 @@ import { getUserController } from "./controllers/get-user.controller";
 import { createUserController } from "./controllers/create-user.controller";
 import { updateUserController } from "./controllers/update-user.controller";
 import { getCurrentUserController } from "./controllers/get-current-user.controller";
-import { withPagination } from "@/middleware/with-pagination";
-
 const userRouter = Router();
 
 userRouter.get("/me", getCurrentUserController);
-userRouter.get("/", withPagination, getUsersController);
+userRouter.get("/", getUsersController);
 userRouter.get("/:id", getUserController);
 userRouter.post("/", createUserController);
 userRouter.patch("/:id", updateUserController);

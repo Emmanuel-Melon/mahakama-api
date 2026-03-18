@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { serverConfig } from "@/config";
-import { findById } from "@/feature/users/operations/users.find";
+import { findUserById } from "@/feature/users/operations/users.find";
 import { logger } from "@/lib/logger";
 import { sendErrorResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
@@ -22,7 +22,7 @@ export const authenticateToken = async (
   }
   try {
     const verified = jwt.verify(token!, serverConfig.jwtSecret!) as JwtPayload;
-    const user = await findById(verified.id);
+    const user = await findUserById(verified.id);
     if (!user) {
       sendErrorResponse(req, res, {
         status: HttpStatus.NOT_FOUND,
@@ -66,7 +66,7 @@ export const authenticateToken = async (
 
 export const optionalAuth = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ) => {
   const token =
@@ -79,7 +79,7 @@ export const optionalAuth = async (
 
   try {
     const verified = jwt.verify(token, serverConfig.jwtSecret!) as JwtPayload;
-    const user = await findById(verified.id);
+    const user = await findUserById(verified.id);
 
     if (user) {
       req.user = user;
