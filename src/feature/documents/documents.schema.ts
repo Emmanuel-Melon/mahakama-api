@@ -9,7 +9,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { usersSchema } from "@/feature/users/users.schema";
-import { relations } from "drizzle-orm";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 
 extendZodWithOpenApi(z);
@@ -56,39 +55,8 @@ export const downloadsTable = pgTable("document_downloads", {
   downloadedAt: timestamp("downloaded_at").defaultNow().notNull(),
 });
 
-// relations
-export const documentsRelations = relations(documentsTable, ({ many }) => ({
-  bookmarks: many(bookmarksTable),
-  downloads: many(downloadsTable),
-}));
-
-export const bookmarksRelations = relations(bookmarksTable, ({ one }) => ({
-  user: one(usersSchema, {
-    fields: [bookmarksTable.user_id],
-    references: [usersSchema.id],
-  }),
-  document: one(documentsTable, {
-    fields: [bookmarksTable.documentId],
-    references: [documentsTable.id],
-  }),
-}));
-
-export const downloadsRelations = relations(downloadsTable, ({ one }) => ({
-  user: one(usersSchema, {
-    fields: [downloadsTable.user_id],
-    references: [usersSchema.id],
-  }),
-  document: one(documentsTable, {
-    fields: [downloadsTable.document_id],
-    references: [documentsTable.id],
-  }),
-}));
-
 export const combinedDocumentsSchema = {
   documentsTable,
   bookmarksTable,
-  downloadsTable,
-  documentsRelations,
-  bookmarksRelations,
-  downloadsRelations,
+  downloadsTable
 };

@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
 import { findUserById } from "../operations/users.find";
-import {
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "@/lib/express/express.response";
+import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "../users.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";

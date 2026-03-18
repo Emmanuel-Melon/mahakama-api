@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
-import {
-  sendSuccessResponse,
-  sendErrorResponse,
-} from "@/lib/express/express.response";
+import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { SerializedUser } from "../users.config";
 import { findUserById } from "../operations/users.find";

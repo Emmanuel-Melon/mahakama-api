@@ -10,11 +10,11 @@ import {
 import { HttpStatus } from "@/http-status";
 import { LawyersSerializer } from "../lawyers.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { unwrap } from "@/lib/drizzle/drizzle.utils";
 
 export const updateLawyerController = asyncHandler(
   async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const lawyerId = parseInt(id, 10);
+    const lawyerId = req.params.id as string;
     const updateData = req.body;
     const [existingLawyer] = await db
       .select()
@@ -41,7 +41,7 @@ export const updateLawyerController = asyncHandler(
         .limit(1);
     }
 
-    const lawyer = await updateLawyer(lawyerId, updateData);
+    const lawyer = unwrap(await updateLawyer(Number(lawyerId), updateData));
 
     return sendSuccessResponse(
       req,

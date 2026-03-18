@@ -5,11 +5,7 @@ import {
   jsonb,
   timestamp,
   pgEnum,
-  foreignKey,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
-import { usersSchema } from "@/feature/users/users.schema";
-import { chatMessages } from "@/feature/messages/messages.schema";
 import { SenderType } from "./shared.types";
 
 export const senderTypeEnum = pgEnum(
@@ -26,25 +22,9 @@ export const chatsSchema = pgTable(
     metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
-  (table) => ({
-    userReference: foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersSchema.id],
-      name: "fk_chat_user",
-    }),
-  }),
+  }
 );
 
-// export const chatSchemaRelations = relations(chatsSchema, ({ one, many }) => ({
-//   user: one(usersSchema, {
-//     fields: [chatsSchema.userId],
-//     references: [usersSchema.id],
-//   }),
-//   messages: many(chatMessages),
-// }));
-
 export const combinedChatsSchema = {
-  usersSchema,
-  //chatSchemaRelations,
+  chatsSchema
 };

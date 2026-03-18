@@ -7,9 +7,9 @@ import { initMessagesWorker } from "@/feature/messages/jobs/messages.worker";
 
 export const initAllWorkers = () => {
   logger.info("👷 Initializing background workers...");
-  initAuthWorker();
-  initDocumentsWorker();
-  initChatsWorker();
-  initLawyersWorker();
-  initMessagesWorker();
+  // initAuthWorker();
+  // initDocumentsWorker();
+  // initChatsWorker();
+  // initLawyersWorker();
+  // initMessagesWorker();
 };

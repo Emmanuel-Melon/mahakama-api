@@ -8,13 +8,29 @@ import {
   integer,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
-
-import { relations } from "drizzle-orm";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
-import { chatsSchema } from "@/feature/chats/chats.schema";
-import { UserRoleValues, GenderValues } from "./users.types";
 
 extendZodWithOpenApi(z);
+
+// Keep the constants for enum values (needed for drizzle schema)
+export const Genders = {
+  MALE: "male",
+  FEMALE: "female",
+  NON_BINARY: "non_binary",
+  PREFER_NOT_TO_SAY: "prefer_not_to_say",
+  OTHER: "other",
+} as const;
+
+export const UserRoles = {
+  USER: "user" as const,
+  ADMIN: "admin" as const,
+  LAWYER: "lawyer" as const,
+} as const;
+
+
+// Export inferred types from schemas
+export const GenderValues = Object.values(Genders) as [string, ...string[]];
+export const  UserRoleValues = Object.values(UserRoles) as [string, ...string[]];
 
 export const genderSchema = z.enum(GenderValues).openapi({
   title: "Gender",
@@ -60,11 +76,6 @@ export const usersSchema = pgTable("users", {
 });
 
 // relations
-export const usersRelations = relations(usersSchema, ({ many }) => ({
-  chats: many(chatsSchema),
-}));
-
 export const combinedUsersSchema = {
-  usersSchema,
-  usersRelations,
+  usersSchema
 };
