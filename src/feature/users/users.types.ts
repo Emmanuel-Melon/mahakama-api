@@ -1,14 +1,14 @@
 import { z } from "zod";
-import { usersSchema, genderSchema, userRoleSchema } from "./users.schema";
-import { GetRequestQuery } from "@/lib/express/express.types";
+import { usersSchema } from "./users.schema";
 import {
   JsonApiResponse,
   JsonApiErrorResponse,
 } from "@/lib/express/express.types";
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { chatsSchema } from "@/feature/chats/chats.schema";
-import { UserJobs } from "./users.config";
+import { UserJobs, UserNotificationTemplates } from "./users.config";
 import { baseQuerySchema } from "@/lib/express/express.types";
+import { type NotificationTemplateData } from "@/feature/notifications/notifications.types";
 
 export const userInsertSchema = createInsertSchema(usersSchema).openapi({
   title: "NewUser",
@@ -43,24 +43,8 @@ export type GetUsersParams = {
   id?: string;
 };
 
-// Keep the constants for enum values (needed for drizzle schema)
-export const Genders = {
-  MALE: "male",
-  FEMALE: "female",
-  NON_BINARY: "non_binary",
-  PREFER_NOT_TO_SAY: "prefer_not_to_say",
-  OTHER: "other",
-} as const;
 
-export const UserRoles = {
-  USER: "user" as const,
-  ADMIN: "admin" as const,
-  LAWYER: "lawyer" as const,
-} as const;
 
-// Export inferred types from schemas
-export const GenderValues = Object.values(Genders) as [string, ...string[]];
-export const UserRoleValues = Object.values(UserRoles) as [string, ...string[]];
 
 export interface UserJobTypes {
   [UserJobs.UserCreated.jobName]: {
@@ -80,3 +64,7 @@ export interface UserJobTypes {
     verifiedAt: string;
   };
 }
+
+export type UserCreatedNotificationData = NotificationTemplateData<
+  typeof UserNotificationTemplates.USER_CREATED
+>;

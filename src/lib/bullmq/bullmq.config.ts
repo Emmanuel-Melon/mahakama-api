@@ -9,6 +9,7 @@ export enum QueueName {
   User = "user",
   Documents = "documents",
   Lawyers = "lawyers",
+  Notifications = "notifications",
 }
 
 export const WorkerEvents = {

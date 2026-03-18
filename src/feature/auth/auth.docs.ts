@@ -1,16 +1,14 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import {
-  RegisterRequestSchema,
-  LoginRequestSchema,
-  AuthResponseSchema,
-} from "./auth.schema";
+  registerRequestSchema,
+  loginRequestSchema,
+} from "./auth.types";
 import { HttpStatus } from "@/http-status";
 
 export const authRegistry = new OpenAPIRegistry();
 
-authRegistry.register("RegisterRequest", RegisterRequestSchema);
-authRegistry.register("LoginRequest", LoginRequestSchema);
-authRegistry.register("AuthResponse", AuthResponseSchema);
+authRegistry.register("RegisterRequest", registerRequestSchema);
+authRegistry.register("LoginRequest", loginRequestSchema);
 
 authRegistry.registerPath({
   method: "post",
@@ -21,7 +19,7 @@ authRegistry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: RegisterRequestSchema,
+          schema: registerRequestSchema,
         },
       },
     },
@@ -31,7 +29,7 @@ authRegistry.registerPath({
       description: HttpStatus.CREATED.description,
       content: {
         "application/json": {
-          schema: AuthResponseSchema,
+          schema: registerRequestSchema,
         },
       },
     },
@@ -67,7 +65,7 @@ authRegistry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: LoginRequestSchema,
+          schema: loginRequestSchema,
         },
       },
     },
@@ -77,7 +75,7 @@ authRegistry.registerPath({
       description: HttpStatus.SUCCESS.description,
       content: {
         "application/json": {
-          schema: AuthResponseSchema,
+          schema: loginRequestSchema,
         },
       },
     },

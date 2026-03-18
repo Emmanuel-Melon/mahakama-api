@@ -1,13 +1,15 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { dbConfig } from "@/config";
-import { combinedUsersSchema } from "@/feature/users/users.schema";
-import * as chatsSchema from "@/feature/chats/chats.schema";
+import { combinedChatsSchema} from "@/feature/chats/chats.schema";
 import { combinedDocumentsSchema } from "@/feature/documents/documents.schema";
 import { combinedMessagesSchema } from "@/feature/messages/messages.schema";
 import { lawyersTable } from "@/feature/lawyers/lawyers.schema";
 import { combinedNotificationsSchema } from "@/feature/notifications/notifications.schema";
 import { combinedLawyersSchema } from "@/feature/lawyers/lawyers.schema";
+import { combinedUsersSchema } from "@/feature/users/users.schema";
+import { combinedAuthSchema } from "@/feature/auth/auth.schema";
+import { allRelations } from "./drizzle.relations";
 
 const pool = new Pool({
   connectionString: dbConfig.postgres.url,
@@ -15,13 +17,15 @@ const pool = new Pool({
 
 export const db = drizzle(pool, {
   schema: {
-    ...chatsSchema,
+    ...combinedAuthSchema,
+    ...combinedChatsSchema,
     ...combinedDocumentsSchema,
     ...combinedMessagesSchema,
     ...lawyersTable,
     ...combinedNotificationsSchema,
     ...combinedUsersSchema,
     ...combinedLawyersSchema,
+    ...allRelations,
   },
   logger: process.env.NODE_ENV !== "production",
 });

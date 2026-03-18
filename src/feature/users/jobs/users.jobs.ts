@@ -1,15 +1,10 @@
 import { logger } from "@/lib/logger";
 
 export class UsersJobHandler {
-  static async handleUserCreated(data: {
-    userId: string;
-  }) {
+  static async handleUserCreated(data: { userId: string }) {
     const { userId } = data;
 
-    logger.info(
-      { userId },
-      "Processing user created job",
-    );
+    logger.info({ userId }, "Processing user created job");
 
     // TODO: Add user creation logic here
     // - Send welcome email
@@ -20,15 +15,10 @@ export class UsersJobHandler {
     return { success: true, userId };
   }
 
-  static async handleUserUpdated(data: {
-    userId: string;
-  }) {
+  static async handleUserUpdated(data: { userId: string }) {
     const { userId } = data;
 
-    logger.info(
-      { userId },
-      "Processing user updated job",
-    );
+    logger.info({ userId }, "Processing user updated job");
 
     // TODO: Add user update logic here
     // - Update user profile
@@ -39,15 +29,10 @@ export class UsersJobHandler {
     return { success: true, userId };
   }
 
-  static async handleUserDeleted(data: {
-    userId: string;
-  }) {
+  static async handleUserDeleted(data: { userId: string }) {
     const { userId } = data;
 
-    logger.info(
-      { userId },
-      "Processing user deleted job",
-    );
+    logger.info({ userId }, "Processing user deleted job");
 
     // TODO: Add user deletion logic here
     // - Clean up user data
@@ -58,15 +43,10 @@ export class UsersJobHandler {
     return { success: true, userId };
   }
 
-  static async handleUserOnboarded(data: {
-    userId: string;
-  }) {
+  static async handleUserOnboarded(data: { userId: string }) {
     const { userId } = data;
 
-    logger.info(
-      { userId },
-      "Processing user onboarded job",
-    );
+    logger.info({ userId }, "Processing user onboarded job");
 
     // TODO: Add user onboarding logic here
     // - Send onboarding emails
@@ -83,10 +63,7 @@ export class UsersJobHandler {
   }) {
     const { userId, verifiedAt } = data;
 
-    logger.info(
-      { userId, verifiedAt },
-      "Processing user verified job",
-    );
+    logger.info({ userId, verifiedAt }, "Processing user verified job");
 
     // TODO: Add user verification logic here
     // - Send verification confirmation
