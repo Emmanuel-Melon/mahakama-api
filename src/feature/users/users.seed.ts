@@ -1,7 +1,7 @@
 import { db } from "@/lib/drizzle";
 import { usersSchema } from "@/feature/users/users.schema";
 import { logger } from "@/lib/logger";
-import { createRandomUser } from "./operations/users.create";
+import { createMockUser } from "./users.factory";
 import { sql } from "drizzle-orm";
 
 const NUMBER_OF_USERS = 150;
@@ -15,14 +15,8 @@ async function seedUsers() {
     logger.info("Cleared existing users and dependent sessions");
 
     const users = await Promise.all(
-      Array.from({ length: NUMBER_OF_USERS }, (_, i) => createRandomUser(i)),
+      Array.from({ length: NUMBER_OF_USERS }, () => createMockUser({})),
     );
-
-    const roleCounts = users.reduce<Record<string, number>>((acc, user) => {
-      const role = user.role || "unknown";
-      acc[role] = (acc[role] || 0) + 1;
-      return acc;
-    }, {});
 
     const insertedUsers = await db
       .insert(usersSchema)
