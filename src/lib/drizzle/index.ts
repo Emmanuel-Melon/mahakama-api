@@ -9,6 +9,7 @@ import { combinedNotificationsSchema } from "@/feature/notifications/notificatio
 import { combinedLawyersSchema } from "@/feature/lawyers/lawyers.schema";
 import { combinedUsersSchema } from "@/feature/users/users.schema";
 import { combinedAuthSchema } from "@/feature/auth/auth.schema";
+import { combinedServiceSchema } from "@/feature/services/services.schema";
 import { allRelations } from "./drizzle.relations";
 
 const pool = new Pool({
@@ -25,6 +26,7 @@ export const db = drizzle(pool, {
     ...combinedNotificationsSchema,
     ...combinedUsersSchema,
     ...combinedLawyersSchema,
+    ...combinedServiceSchema,
     ...allRelations,
   },
   logger: process.env.NODE_ENV !== "production",

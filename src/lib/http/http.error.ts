@@ -32,8 +32,12 @@ export class HttpError extends Error {
 }
 
 export class EntityNotFoundError extends Error {
-  constructor(entity: string, id: string | number) {
-    super(`${entity} with ID ${id} not found`);
+  constructor(message: string);
+  constructor(entity: string, id: string | number);
+  constructor(arg1: string, arg2?: string | number) {
+    const message =
+      arg2 !== undefined ? `${arg1} with ID ${arg2} not found` : arg1;
+    super(message);
     this.name = "EntityNotFoundError";
   }
 }

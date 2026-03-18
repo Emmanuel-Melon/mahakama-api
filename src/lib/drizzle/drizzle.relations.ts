@@ -8,6 +8,12 @@ import {
 } from "@/feature/documents/documents.schema";
 import { chatMessages } from "@/feature/messages/messages.schema";
 import { notificationsSchema } from "@/feature/notifications/notifications.schema";
+import {
+  institutionsSchema,
+  servicesSchema,
+  institutionsToServices,
+  serviceCategoriesSchema,
+} from "@/feature/services/services.schema";
 
 // Users Relations
 export const usersRelations = relations(usersSchema, ({ many }) => ({
@@ -74,6 +80,32 @@ export const notificationsRelations = relations(
   }),
 );
 
+// Services Relations
+export const institutionsRelations = relations(
+  institutionsSchema,
+  ({ many }) => ({
+    services: many(institutionsToServices),
+  }),
+);
+
+export const servicesRelations = relations(servicesSchema, ({ many }) => ({
+  institutions: many(institutionsToServices),
+}));
+
+export const institutionsToServicesRelations = relations(
+  institutionsToServices,
+  ({ one }) => ({
+    institution: one(institutionsSchema, {
+      fields: [institutionsToServices.institutionId],
+      references: [institutionsSchema.id],
+    }),
+    service: one(servicesSchema, {
+      fields: [institutionsToServices.serviceId],
+      references: [servicesSchema.id],
+    }),
+  }),
+);
+
 // Combined Relations Export
 export const allRelations = {
   usersRelations,
@@ -83,4 +115,7 @@ export const allRelations = {
   downloadsRelations,
   chatMessagesRelations,
   notificationsRelations,
+  institutionsRelations,
+  servicesRelations,
+  institutionsToServicesRelations,
 };

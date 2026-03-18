@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { db } from "@/lib/drizzle";
-import { legalServicesTable } from "@/feature/services/services.schema";
+import { legalServicesSchema } from "@/feature/services/services.schema";
 import { randomUUID } from "crypto";
 import { logger } from "@/lib/logger";
 
@@ -63,7 +63,7 @@ const servicesData = [
 
 async function seedServices() {
   try {
-    await db.delete(legalServicesTable);
+    await db.delete(legalServicesSchema);
     const servicesWithIds = servicesData.map((service) => ({
       ...service,
       id: randomUUID(),
@@ -71,7 +71,7 @@ async function seedServices() {
       updatedAt: new Date(),
     }));
     const insertedServices = await db
-      .insert(legalServicesTable)
+      .insert(legalServicesSchema)
       .values(servicesWithIds)
       .returning();
     logger.info(
