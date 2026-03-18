@@ -3,33 +3,33 @@ import { db } from "@/lib/drizzle";
 import { createLawyer } from "../operations/lawyers.create";
 import { lawyersTable } from "../lawyers.schema";
 import { eq } from "drizzle-orm";
-import {
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "@/lib/express/express.response";
+import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { LawyersSerializer } from "../lawyers.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { HttpError } from "@/lib/http/http.error";
+import { unwrap } from "@/lib/drizzle/drizzle.utils";
+import { findLawyerByEmail } from "../operations/lawyers.find";
 
 export const createLawyerController = asyncHandler(
   async (req: Request, res: Response) => {
     const lawyerAttrs = req.body;
-    const [existingLawyer] = await db
-      .select()
-      .from(lawyersTable)
-      .where(eq(lawyersTable.email, lawyerAttrs.email))
-      .limit(1);
-    if (existingLawyer) {
-      return sendErrorResponse(req, res, {
-        status: HttpStatus.CONFLICT,
-      });
-    }
-    const lawyer = await createLawyer(lawyerAttrs);
-    if (!lawyer) {
-      return sendErrorResponse(req, res, {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-      });
-    }
+    const existingLawyer = unwrap(
+      await findLawyerByEmail(lawyerAttrs.email),
+      new HttpError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to check if lawyer exists",
+      ),
+    );
+
+    const lawyer = unwrap(
+      await createLawyer(lawyerAttrs),
+      new HttpError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to create lawyer",
+      ),
+    );
+
     return sendSuccessResponse(
       req,
       res,
