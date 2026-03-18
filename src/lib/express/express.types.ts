@@ -1,7 +1,7 @@
 import { z, ZodTypeAny } from "zod";
 import { ParsedQs } from "qs";
 import { ParamsDictionary } from "express-serve-static-core";
-import { Request } from "express";
+import { Request, Response, NextFunction } from "express";
 import { StatusConfig } from "@/http-status";
 import {
   JsonApiError,
@@ -295,3 +295,9 @@ export const baseQuerySchema = z.object({
 });
 
 export type BaseQueryParams = z.infer<typeof baseQuerySchema>;
+
+export type AsyncRouteHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => Promise<any> | any;

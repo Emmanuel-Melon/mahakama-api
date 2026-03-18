@@ -1,7 +1,7 @@
 import { JsonApiResourceConfig } from "@/lib/express/express.types";
 import { type Lawyer } from "./lawyers.types";
 
-export const LawyersSerializer: JsonApiResourceConfig<Lawyer> = {
+export const SerializedLawyer: JsonApiResourceConfig<Lawyer> = {
   type: "lawyer",
   attributes: (lawyer: Lawyer) => lawyer,
 };
