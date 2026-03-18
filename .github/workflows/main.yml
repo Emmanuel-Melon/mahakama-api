@@ -1,0 +1,43 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x] # Matching your engines requirement
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Prettier Check
+        run: npm run format:check
+
+      - name: Lint Check
+        run: npm run lint
+
+      - name: Static Type Check
+        run: npm run typecheck
+
+      - name: Run Unit Tests
+        run: npm run test
+
+      - name: Verify Production Build
+        run: npm run build
