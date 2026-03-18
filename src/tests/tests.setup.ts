@@ -29,6 +29,7 @@ vi.mock("@/lib/drizzle", () => ({
     // Relational API
     query: {
       lawyers: mockRelationalQuery,
+      servicesSchema: mockRelationalQuery,
       usersSchema: mockRelationalQuery,
     },
   },

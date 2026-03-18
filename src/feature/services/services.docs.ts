@@ -1,6 +1,6 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import {
-  legalServiceResponseSchema,
+  legalServiceSelectSchema,
   serviceCategorySchema,
   categoryIconsSchema,
   categoryLabelsSchema,
@@ -16,7 +16,7 @@ const ErrorResponseRef = { $ref: "#/components/schemas/JsonApiErrorResponse" };
 
 const legalServiceResourceSchema = createJsonApiResourceSchema(
   "legal-service",
-  legalServiceResponseSchema,
+  legalServiceSelectSchema,
 );
 const legalServiceSingleResponseSchema = createJsonApiSingleResponseSchema(
   legalServiceResourceSchema,
@@ -26,7 +26,7 @@ const legalServicesCollectionResponseSchema =
 
 // Create registry and register schemas
 export const servicesRegistry = new OpenAPIRegistry();
-servicesRegistry.register("LegalService", legalServiceResponseSchema);
+servicesRegistry.register("LegalService", legalServiceSelectSchema);
 servicesRegistry.register("ServiceCategory", serviceCategorySchema);
 servicesRegistry.register("CategoryIcons", categoryIconsSchema);
 servicesRegistry.register("CategoryLabels", categoryLabelsSchema);

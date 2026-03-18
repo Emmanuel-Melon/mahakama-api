@@ -1,9 +1,5 @@
 import { z } from "zod";
 import { usersSchema } from "./users.schema";
-import {
-  JsonApiResponse,
-  JsonApiErrorResponse,
-} from "@/lib/express/express.types";
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { chatsSchema } from "@/feature/chats/chats.schema";
 import { UserJobs, UserNotificationTemplates } from "./users.config";
@@ -28,10 +24,6 @@ export type NewUser = z.infer<typeof userInsertSchema>;
 export type UserWithChats = User & {
   chats: (typeof chatsSchema.$inferSelect)[];
 };
-
-export type UserSuccessResponse = JsonApiResponse<User>;
-export type UserErrorResponse = JsonApiErrorResponse;
-export type UserResponse = UserSuccessResponse | UserErrorResponse;
 
 export const userQuerySchema = baseQuerySchema.extend({
   role: z.string().optional(),

@@ -1,10 +1,20 @@
 import { JsonApiResourceConfig } from "@/lib/express/express.types";
-import { LegalService, legalServiceResponseSchema } from "./services.schema";
+import {
+  LegalService,
+  serviceSelectSchema,
+  Institution,
+  institutionSelectSchema,
+} from "./services.types";
 
-export const LegalServiceSerializer: JsonApiResourceConfig<LegalService> = {
+export const SerializedLegalService: JsonApiResourceConfig<LegalService> = {
   type: "legal-service",
-  attributes: (service: LegalService) =>
-    legalServiceResponseSchema.parse(service),
+  attributes: (service: LegalService) => serviceSelectSchema.parse(service),
+};
+
+export const SerializedInstitution: JsonApiResourceConfig<Institution> = {
+  type: "institution",
+  attributes: (institution: Institution) =>
+    institutionSelectSchema.parse(institution),
 };
 
 export const LegalServiceEvents = {
