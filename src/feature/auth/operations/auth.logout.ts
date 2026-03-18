@@ -8,12 +8,7 @@ type LogoutParams = {
   ip?: string;
 };
 
-export const logoutUser = async ({
-  userId,
-  token,
-  userAgent,
-  ip,
-}: LogoutParams) => {
+export const logoutUser = async ({ userId, userAgent, ip }: LogoutParams) => {
   try {
     logger.info({
       event: AuthJobs.Logout,

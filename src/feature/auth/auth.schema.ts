@@ -1,4 +1,4 @@
-import { pgTable, uuid, timestamp, varchar, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, timestamp, varchar } from "drizzle-orm/pg-core";
 import { usersSchema } from "@/feature/users/users.schema";
 
 export const authEventsSchema = pgTable("auth_events", {

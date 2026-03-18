@@ -1,5 +1,5 @@
 import { NextFunction, Response, Request } from "express";
-import { z, ZodTypeAny } from "zod";
+import { z } from "zod";
 import { sendErrorResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 

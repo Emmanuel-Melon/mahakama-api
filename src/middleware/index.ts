@@ -1,21 +1,17 @@
-import { Application, Request, Response, NextFunction } from "express";
+import { Application } from "express";
 import express from "express";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
-import { globalErrorHandler, notFoundHandler } from "./errors";
+import { globalErrorHandler } from "./errors";
 import { authRouter } from "@/feature/auth/auth.routes";
 import { getIpAddress } from "./ip-address";
-import { authenticateToken } from "./auth";
 import { requestLogger } from "./http-request-logger";
 import { userAgentMiddleware } from "./user-agent";
-import { fingerprintMiddleware } from "./fingerprint";
 import { corsMiddleware } from "./cors";
 import { serverConfig } from "@/config";
 import cookieParser from "cookie-parser";
 import { swaggerSetup, rawJSONDocs } from "@/lib/swagger";
 import { welcomeController, checkServerHealthController } from "@/lib/express";
-import { validateRequestHeaders } from "./request-validators";
-import { authHeadersSchema } from "@/feature/auth/auth.schema";
 import mahakamaRouter from "@/routes";
 import { requestMetadata } from "./request-metadata";
 
@@ -53,6 +49,5 @@ export function initializeMiddlewares(app: Application): void {
   app.use("/api", mahakamaRouter);
 
   // ERROR HANDLERS
-  app.use(notFoundHandler);
   app.use(globalErrorHandler);
 }

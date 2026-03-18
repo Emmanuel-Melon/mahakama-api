@@ -9,7 +9,7 @@ const getFirstHeader = (value: string | string[] | undefined): string => {
 
 export const getIpAddress = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ) => {
   // Extract a temporary IP to check against the map
