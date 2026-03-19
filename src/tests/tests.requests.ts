@@ -1,15 +1,13 @@
 import request from "supertest";
 import { app } from "@/app";
 import { expect } from "vitest";
-import { db } from "@/lib/drizzle";
-import { sql } from "drizzle-orm";
 
 export const apiRequest = request(app);
 
 export const expectSuccess = (response: any, status = 200) => {
   expect(response.status).toBe(status);
   expect(response.body).toHaveProperty("data");
-  expect(response.body).toHaveProperty("meta");
+  expect(response.body).toHaveProperty("metadata");
 };
 
 export const expectError = (response: any, status: number) => {

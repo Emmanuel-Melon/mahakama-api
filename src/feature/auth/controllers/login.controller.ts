@@ -17,18 +17,22 @@ import { HttpError } from "@/lib/http/http.error";
 export const loginUserController = asyncHandler(
   async (req: Request, res: Response) => {
     const { email, password } = req.body ?? {};
-    const user = unwrap(
-      await findUserByEmail(email),
-      new HttpError(HttpStatus.NOT_FOUND, "User not found"),
-    );
+    const user = await findUserByEmail(email);
 
-    const isPasswordValid = await comparePasswords(password, user.password!);
+    if (!user.ok) {
+      throw new HttpError(HttpStatus.NOT_FOUND, "User not found");
+    }
+
+    const isPasswordValid = await comparePasswords(
+      password,
+      user.data.password!,
+    );
     if (!isPasswordValid) {
       throw new HttpError(HttpStatus.UNAUTHORIZED, "Invalid email or password");
     }
-    const token = generateAuthToken(user);
+    const token = generateAuthToken(user.data!);
     res.cookie("token", token, getCookieOptions());
-    const { ...userWithoutPassword } = user;
+    const { ...userWithoutPassword } = user.data;
     sendSuccessResponse(req, res, {
       data: userWithoutPassword,
       serializerConfig: SerializedUser,
@@ -36,9 +40,9 @@ export const loginUserController = asyncHandler(
     });
 
     authQueue.add(AuthJobs.Login.jobName, {
-      userId: user.id,
-      email: user.email,
-      name: user.name,
+      userId: user.data.id,
+      email: user.data.email,
+      name: user.data.name,
       timestamp: Date.now(),
       userAgent: req.headers["user-agent"],
     });

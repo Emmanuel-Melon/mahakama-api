@@ -16,10 +16,6 @@ dotenv.config({
   path: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
 });
 
-console.log("BASE_URL:", JSON.stringify(process.env.BASE_URL));
-
-const rawBaseUrl = process.env.BASE_URL?.trim();
-
 // Server Configuration
 export const serverConfig = ServerConfigSchema.parse({
   port: Number(process.env.PORT) || 3000,

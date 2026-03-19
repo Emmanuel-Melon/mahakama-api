@@ -3,5 +3,5 @@ import { truncateTables } from "./tests.utils";
 
 beforeEach(async () => {
   vi.clearAllMocks();
-  await truncateTables(["usersSchema"]);
+  await truncateTables(["users"]);
 });

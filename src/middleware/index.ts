@@ -43,7 +43,6 @@ export function initializeMiddlewares(app: Application): void {
   app.get(["/health", "/api/health"], checkServerHealthController);
 
   // Debug: Log auth router registration
-  console.log("Registering auth router at /auth/v1");
   app.use("/auth/v1", authRouter);
 
   app.use("/api", mahakamaRouter);

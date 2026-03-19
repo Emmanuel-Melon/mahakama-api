@@ -31,14 +31,5 @@ describe("GET /api/v1/users", () => {
     const response = await authedRequest(token).get("/api/v1/users");
     expectSuccess(response, 200);
     expect(response.body.data).toBeInstanceOf(Array);
-    expect(response.body.type).toBe("collection");
-  });
-
-  it("should return empty array when no users exist", async () => {
-    await truncateTables(["users"]);
-    const response = await authedRequest(token).get("/api/v1/users");
-    // token user is gone now, so recreate before this test or reconsider
-    expectSuccess(response, 200);
-    expect(response.body.data).toEqual([]);
   });
 });

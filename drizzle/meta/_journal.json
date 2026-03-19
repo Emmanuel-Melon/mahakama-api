@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1766008538264,
-      "tag": "0000_old_warhawk",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1769881946308,
-      "tag": "0001_nice_omega_red",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1773836051466,
-      "tag": "0002_peaceful_nova",
+      "when": 1773942752317,
+      "tag": "0000_dusty_rick_jones",
       "breakpoints": true
     }
   ]
