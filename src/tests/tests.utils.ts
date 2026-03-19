@@ -1,10 +1,14 @@
-import { vi } from "vitest";
+import { vi, Mock } from "vitest";
 import { db } from "@/lib/drizzle";
+import { sql } from "drizzle-orm";
 
 /**
  * Universal Fluent API Mock (insert/update) operations
  */
-export const mockDrizzleChain = (finalValue: any, isError = false) => {
+export const mockDrizzleChain = (
+  finalValue: any,
+  isError = false,
+): { finalStep: Mock } => {
   const finalStep = isError
     ? vi.fn().mockRejectedValue(new Error(finalValue))
     : vi.fn().mockResolvedValue(finalValue);
@@ -29,8 +33,18 @@ export const mockDrizzleQuery = (
   table: keyof typeof db.query,
   method: "findFirst" | "findMany",
   value: any,
-) => {
+): Mock => {
   return vi.mocked(db.query[table][method]).mockResolvedValue(value);
 };
 
 export const mockDrizzleEmpty = () => mockDrizzleChain([]);
+
+/**
+ * Wipes specific tables.
+ * Use this in beforeEach() for integration tests.
+ */
+export const truncateTables = async (tables: string[]) => {
+  for (const table of tables) {
+    await db.execute(sql.raw(`TRUNCATE TABLE "${table}" CASCADE`));
+  }
+};

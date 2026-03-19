@@ -18,17 +18,7 @@ import { HttpError } from "@/lib/http/http.error";
 export const registerUserController = asyncHandler(
   async (req: Request, res: Response) => {
     const { email, password, name } = req.body ?? {};
-    const user = unwrap(
-      await findUserByEmail(email),
-      new HttpError(HttpStatus.NOT_FOUND, "User not found"),
-    );
-
-    if (user) {
-      throw new HttpError(
-        HttpStatus.CONFLICT,
-        "User with this email already exists",
-      );
-    }
+    const user = await findUserByEmail(email);
 
     const hashedPassword = await hashPassword(password);
 
