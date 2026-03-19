@@ -80,6 +80,7 @@ jobs:
       - name: Run Migrations
         run: npx drizzle-kit migrate
         env:
+          NODE_ENV: test
           DATABASE_URL: postgres://postgres:password@localhost:5432/test_db
 
       - name: Run Integration Tests
