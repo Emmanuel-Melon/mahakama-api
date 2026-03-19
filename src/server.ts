@@ -5,7 +5,7 @@ import { gracefulShutdown } from "@/lib/express/express.server";
 import { initAllWorkers } from "@/lib/bullmq/bullmq.init";
 
 if (require.main === module) {
-  // initAllWorkers();
+  initAllWorkers();
   const server = app.listen(serverConfig.port, serverConfig.hostname, () => {
     const baseUrl = `${serverConfig.protocol}://${serverConfig.hostname}:${serverConfig.port}`;
     if (isDev) {

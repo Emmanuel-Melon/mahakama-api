@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { db } from "@/lib/drizzle";
 import { findUserById, findAllUsers } from "../users.find";
 import { createMockUser, createMockUsers } from "../../users.factory";
-import { eq } from "drizzle-orm";
 import { usersSchema } from "../../users.schema";
 import { paginate } from "@/lib/drizzle/drizzle.paginate";
 import { mockDrizzleQuery } from "@/tests/tests.utils";

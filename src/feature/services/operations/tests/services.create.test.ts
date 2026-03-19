@@ -4,10 +4,10 @@ import {
   createMockNewService,
   createMockService,
 } from "../../services.factory";
-import { mockDrizzleChain } from "@/tests/tests.utils";
 import { ConflictError } from "@/lib/http/http.error";
 import { db } from "@/lib/drizzle";
 import { PG_ERROR_CODES } from "@/lib/drizzle/drizzle.errors";
+import { mockDrizzleChain } from "@/tests/tests.utils";
 
 describe("createService", () => {
   beforeEach(() => {

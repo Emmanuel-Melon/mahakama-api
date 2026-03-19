@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { updateUser } from "../users.update";
 import { createMockUser } from "../../users.factory";
-import { mockDrizzleEmpty, mockDrizzleChain } from "@/tests/tests.utils";
+import { mockDrizzleChain, mockDrizzleEmpty } from "@/tests/tests.utils";
 
 describe("updateUser", () => {
   const userId = "user-123";

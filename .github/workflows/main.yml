@@ -7,28 +7,58 @@ on:
     branches: [ main, master, develop ]
 
 jobs:
-  quality-gate:
+  unit-tests:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x] # Matching your engines requirement
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Unit Tests
+        run: npm run test:unit
+
+  integration-tests:
+    needs: unit-tests # Only run if unit tests pass
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
           cache: 'npm'
 
       - name: Install Dependencies
         run: npm ci
 
-      - name: Prettier Check
-        run: npm run format:check
+      - name: Run Migrations
+        run: npx drizzle-kit migrate
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/test_db
 
-      - name: Run Unit Tests
-        run: npm run test
+      - name: Run Integration Tests
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/test_db

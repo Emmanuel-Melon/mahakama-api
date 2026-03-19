@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { db } from "@/lib/drizzle";
 import { updateLawyer } from "../lawyers.update";
 import { createMockLawyer, createMockNewLawyer } from "../../lawyers.factory";
 import { mockDrizzleChain, mockDrizzleEmpty } from "@/tests/tests.utils";
+import { db } from "@/lib/drizzle";
 
 describe("updateLawyer", () => {
   const lawyerId = 123;

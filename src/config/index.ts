@@ -11,7 +11,14 @@ import {
   IPlatformConfig,
   IServicesConfig,
 } from "./config.types";
-dotenv.config();
+
+dotenv.config({
+  path: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
+});
+
+console.log("BASE_URL:", JSON.stringify(process.env.BASE_URL));
+
+const rawBaseUrl = process.env.BASE_URL?.trim();
 
 // Server Configuration
 export const serverConfig = ServerConfigSchema.parse({
@@ -22,7 +29,11 @@ export const serverConfig = ServerConfigSchema.parse({
   jwtSecret: process.env.JWT_SECRET,
   hostname: process.env.HOSTNAME || "localhost",
   protocol: process.env.NODE_ENV === "production" ? "https" : "http",
-  baseUrl: process.env.BASE_URL || "http://localhost:3000",
+  baseUrl:
+    process.env.BASE_URL?.trim() ||
+    `${process.env.NODE_ENV === "production" ? "https" : "http"}://${
+      process.env.HOSTNAME || "localhost"
+    }:${Number(process.env.PORT) || 3000}`,
   endpoints: {
     api: "/api",
     docs: "/docs",
