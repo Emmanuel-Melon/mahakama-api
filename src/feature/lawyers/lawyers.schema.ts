@@ -14,7 +14,7 @@ export const lawyersTable = pgTable("lawyers", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   specialization: varchar("specialization", { length: 100 }).notNull(),
   experienceYears: integer("experience_years").notNull(),
-  rating: varchar("rating", { length: 10 }).notNull(),
+  rating: varchar("rating", { length: 10 }),
   casesHandled: integer("cases_handled").default(0).notNull(),
   isAvailable: boolean("is_available").default(true).notNull(),
   location: varchar("location", { length: 100 }).notNull(),

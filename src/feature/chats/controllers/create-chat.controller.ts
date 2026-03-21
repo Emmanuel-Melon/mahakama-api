@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { createChat } from "../operations/chats.create";
-import { User } from "@/feature/users/users.types";
+import type { User } from "@/feature/users/users.types";
 import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { ChatSerializer } from "../chats.config";
 import { llmProviderManager } from "@/lib/llm";
 import { sendMessage } from "@/feature/messages/operations/messages.create";
-import { UserRoles } from "@/feature/users/users.types";
+import { UserRoles } from "@/feature/users/users.schema";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import { unwrap } from "@/lib/drizzle/drizzle.utils";
 import { HttpError } from "@/lib/http/http.error";

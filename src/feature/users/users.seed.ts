@@ -6,34 +6,31 @@ import { sql } from "drizzle-orm";
 
 const NUMBER_OF_USERS = 150;
 
-async function seedUsers() {
+export async function seedUsers() {
   try {
-    logger.info("Seeding users...");
-    // Clear dependent tables first to avoid foreign key violations
+    logger.info("👥 Seeding users...");
+
+    // Clear dependencies
     await db.execute(sql`TRUNCATE TABLE "chat_sessions" CASCADE`);
     await db.delete(usersSchema);
-    logger.info("Cleared existing users and dependent sessions");
 
-    const users = await Promise.all(
-      Array.from({ length: NUMBER_OF_USERS }, () => createMockUser({})),
+    const users = Array.from({ length: NUMBER_OF_USERS }, () =>
+      createMockUser(),
     );
 
     const insertedUsers = await db
       .insert(usersSchema)
       .values(users)
+      .onConflictDoUpdate({
+        target: usersSchema.email,
+        set: { name: sql`EXCLUDED.name` },
+      })
       .returning();
 
-    logger.info(`Successfully seeded ${insertedUsers.length} users`);
-    logger.info({ insertedUsers }, "Seeded users:");
+    logger.info(`✅ Successfully seeded ${insertedUsers.length} users`);
+    return insertedUsers;
   } catch (error) {
-    logger.error({ error }, "Error seeding users:");
-    process.exit(1);
+    logger.error({ error }, "❌ Error seeding users");
+    throw error;
   }
 }
-
-async function main() {
-  await seedUsers();
-  process.exit(0);
-}
-
-// main();

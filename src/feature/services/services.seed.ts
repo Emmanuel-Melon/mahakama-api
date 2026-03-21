@@ -1,92 +1,80 @@
-import "dotenv/config";
-import { db } from "@/lib/drizzle";
-import { legalServicesSchema } from "@/feature/services/services.schema";
-import { randomUUID } from "crypto";
-import { logger } from "@/lib/logger";
+// import "dotenv/config";
+// import { db } from "@/lib/drizzle";
+// import { servicesSchema, institutionsSchema, institutionsToServices, serviceCategoriesSchema } from "@/feature/services/services.schema";
+// import { randomUUID } from "crypto";
+// import { logger } from "@/lib/logger";
+// import { servicesData } from "./services.constants";
+// import { institutionsData } from "./institutions.constants";
 
-const servicesData = [
-  {
-    name: "Ministry of Justice - South Sudan",
-    category: "government" as const,
-    description:
-      "Government body responsible for legal affairs and justice administration.",
-    location: "Juba, South Sudan",
-    contact: "+211 912 345 678",
-    website: "https://moj.gov.ss",
-    services: ["Legal documentation", "Court filings", "Legal advice"],
-  },
-  {
-    name: "Legal Aid South Sudan",
-    category: "legal-aid" as const,
-    description: "Provides free legal assistance to vulnerable populations.",
-    location: "Juba, South Sudan",
-    contact: "+211 987 654 321",
-    website: null,
-    services: [
-      "Free legal representation",
-      "Legal counseling",
-      "Awareness programs",
-    ],
-  },
-  {
-    name: "South Sudan Mediation Centre",
-    category: "dispute-resolution" as const,
-    description: "Alternative dispute resolution services for civil matters.",
-    location: "Juba, South Sudan",
-    contact: "+211 912 345 679",
-    website: null,
-    services: ["Mediation", "Arbitration", "Conflict resolution training"],
-  },
-  {
-    name: "South Sudan Human Rights Commission",
-    category: "government" as const,
-    description: "Handles human rights violations and complaints.",
-    location: "Juba, South Sudan",
-    contact: "+211 915 555 555",
-    website: null,
-    services: ["Human rights complaints", "Legal advice", "Advocacy"],
-  },
-  {
-    name: "Women & Child Legal Aid",
-    category: "specialized" as const,
-    description: "Specialized legal services for women and children.",
-    location: "Juba, South Sudan",
-    contact: "+211 912 888 999",
-    website: null,
-    services: [
-      "Domestic violence cases",
-      "Child custody",
-      "Gender-based violence",
-    ],
-  },
-];
+// export async function seedServices() {
+//   try {
+//     await db.delete(servicesSchema);
+//     await db.delete(institutionsSchema);
+//     await db.delete(institutionsToServices);
+//     await db.delete(serviceCategoriesSchema);
 
-async function seedServices() {
-  try {
-    await db.delete(legalServicesSchema);
-    const servicesWithIds = servicesData.map((service) => ({
-      ...service,
-      id: randomUUID(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }));
-    const insertedServices = await db
-      .insert(legalServicesSchema)
-      .values(servicesWithIds)
-      .returning();
-    logger.info(
-      `Successfully seeded ${insertedServices.length} legal services`,
-    );
-    logger.info({ insertedServices }, "Seeded services:");
-  } catch (error) {
-    logger.error({ error }, "Error seeding legal services:");
-    process.exit(1);
-  }
-}
+//     // Seed service categories first
+//     const serviceCategories = [
+//       { id: "government", label: "Government", icon: "building" },
+//       { id: "legal-aid", label: "Legal Aid", icon: "hand-helping" },
+//       { id: "dispute-resolution", label: "Dispute Resolution", icon: "balance-scale" },
+//       { id: "specialized", label: "Specialized", icon: "users" },
+//     ];
+//     const insertedCategories = await db
+//       .insert(serviceCategoriesSchema)
+//       .values(serviceCategories)
+//       .returning();
 
-async function main() {
-  await seedServices();
-  process.exit(0);
-}
+//     // Seed services
+//     const servicesWithIds = servicesData.map((service) => ({
+//       ...service,
+//       id: randomUUID(),
+//       slug: `${service.name.toLowerCase().replace(/\s+/g, '-')}-${randomUUID().slice(0, 8)}`,
+//       categoryId: service.category,
+//       createdAt: new Date(),
+//       updatedAt: new Date(),
+//     }));
+//     const insertedServices = await db
+//       .insert(servicesSchema)
+//       .values(servicesWithIds)
+//       .returning();
 
-// main();
+//     // Seed institutions
+//     const institutionsWithIds = institutionsData.map((institution: any) => ({
+//       ...institution,
+//       id: randomUUID(),
+//       createdAt: new Date(),
+//       updatedAt: new Date(),
+//     }));
+//     const insertedInstitutions = await db
+//       .insert(institutionsSchema)
+//       .values(institutionsWithIds)
+//       .returning();
+
+//     // Seed institution-service relationships
+//     const institutionServiceRelations = [];
+//     for (const service of servicesWithIds) {
+//       for (const institution of institutionsWithIds) {
+//         institutionServiceRelations.push({
+//           institutionId: institution.id,
+//           serviceId: service.id,
+//         });
+//       }
+//     }
+//     const insertedRelations = await db
+//       .insert(institutionsToServices)
+//       .values(institutionServiceRelations)
+//       .returning();
+
+//     logger.info(`Successfully seeded ${insertedCategories.length} categories, ${insertedServices.length} services and ${insertedInstitutions.length} institutions`);
+//     logger.info({
+//       categories: insertedCategories,
+//       services: insertedServices,
+//       institutions: insertedInstitutions,
+//       relations: insertedRelations
+//     }, "Seeded services data:");
+//   } catch (error) {
+//     logger.error({ error }, "Error seeding legal services:");
+//     process.exit(1);
+//   }
+// }
