@@ -4,7 +4,12 @@ import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { chatsSchema } from "@/feature/chats/chats.schema";
 import { UserJobs, UserNotificationTemplates } from "./users.config";
 import { baseQuerySchema } from "@/lib/express/express.types";
-import { type NotificationTemplateData } from "@/feature/notifications/notifications.types";
+import {
+  NotificationTrackingSchema,
+} from "@/feature/notifications/notifications.types";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+
+extendZodWithOpenApi(z);
 
 // ============================================================================
 // ZOD SCHEMAS
@@ -71,10 +76,13 @@ export interface UserJobMap {
   };
 }
 
-// ============================================================================
-// NOTIFICATION TEMPLATE TYPES
-// ============================================================================
+/*
+ * NOTIFICATION-RELATED TYPES (for notification system integration)
+ */
 
-export type UserCreatedNotificationData = NotificationTemplateData<
-  typeof UserNotificationTemplates.USER_CREATED
->;
+export const UserCreatedNotificationSchema = NotificationTrackingSchema.extend({
+  userId: z.string(),
+  userName: z.string().optional(),
+  email: z.string().optional(),
+  registrationMethod: z.string().optional(),
+});

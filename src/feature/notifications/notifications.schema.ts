@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -8,6 +9,7 @@ import {
   boolean,
   jsonb,
 } from "drizzle-orm/pg-core";
+import { usersSchema } from "../users/users.schema";
 
 export const notificationChannelEnum = pgEnum("notification_channel", [
   "in_app",
@@ -45,16 +47,26 @@ export const userNotificationPreferences = pgTable(
   "user_notification_preferences",
   {
     userId: uuid("user_id").primaryKey(),
-
     emailEnabled: boolean("email_enabled").default(true).notNull(),
     pushEnabled: boolean("push_enabled").default(true).notNull(),
     inAppEnabled: boolean("in_app_enabled").default(true).notNull(),
-
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
 );
 
+// Relations
+export const notificationsRelations = relations(
+  notificationsSchema,
+  ({ one }) => ({
+    user: one(usersSchema, {
+      fields: [notificationsSchema.userId],
+      references: [usersSchema.id],
+    }),
+  }),
+);
+
 export const combinedNotificationsSchema = {
-  ...notificationsSchema,
-  ...userNotificationPreferences,
+  notificationsSchema,
+  userNotificationPreferences,
+  notificationsRelations,
 };
