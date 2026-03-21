@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { downloadDocument } from "../operations/documents.update";
 import { sendSuccessResponse } from "@/lib/express/express.response";
-import { documentsQueue, DocumentsJobType } from "../jobs/documents.queue";
 import { findDocumentById } from "../operations/document.find";
 import { HttpStatus } from "@/http-status";
 import { DocumentsSerializer } from "../document.config";
@@ -47,8 +46,5 @@ export const downloadDocumentController = asyncHandler(
     );
 
     parsePdfFromUrl(document.storageUrl);
-    await documentsQueue.add(DocumentsJobType.DocumentDownloaded, {
-      ...document,
-    });
   },
 );

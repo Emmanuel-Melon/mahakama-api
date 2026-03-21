@@ -39,12 +39,9 @@ export const loginUserController = asyncHandler(
       type: "single",
     });
 
-    authQueue.add(AuthJobs.Login.jobName, {
+    authQueue.add(AuthJobs.Login, {
       userId: user.data.id,
-      email: user.data.email,
-      name: user.data.name,
-      timestamp: Date.now(),
-      userAgent: req.headers["user-agent"],
+      email: user.data.email!,
     });
   },
 );
