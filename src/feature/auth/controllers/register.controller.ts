@@ -41,13 +41,9 @@ export const registerUserController = asyncHandler(
       type: "single",
     });
 
-    await authQueue.add(AuthJobs.Registration.jobName, {
+    await authQueue.add(AuthJobs.Registration, {
       userId: newUser.id,
       email,
-      name,
-      password: hashedPassword,
-      timestamp: Date.now(),
-      userAgent: req.headers["user-agent"],
     });
   },
 );

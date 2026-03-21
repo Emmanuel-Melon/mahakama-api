@@ -33,10 +33,9 @@ export const logoutController = asyncHandler(
       message: "Successfully logged out",
     });
 
-    await authQueue.add(AuthJobs.Logout.jobName, {
+    await authQueue.add(AuthJobs.Logout, {
       userId: userId,
-      timestamp: Date.now(),
-      userAgent: req.headers["user-agent"],
+      email: req.user?.email!,
     });
   },
 );

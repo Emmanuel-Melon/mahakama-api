@@ -64,8 +64,9 @@ export const ingestDocumentController = asyncHandler(
       },
     );
 
-    await documentsQueue.add(DocumentJobs.DocumentUploaded.jobName, {
-      ...document,
+    await documentsQueue.add(DocumentJobs.DocumentUploaded, {
+      documentId: document.id,
+      userId: req.user?.id!,
     });
   },
 );
