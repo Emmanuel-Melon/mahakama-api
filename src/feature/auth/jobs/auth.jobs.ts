@@ -1,13 +1,11 @@
 import { logger } from "@/lib/logger";
 import { unwrapJobResult } from "@/lib/bullmq/bullmq.utils";
 import { createAuthEvent } from "../operations/auth.create";
+import { AuthJobs } from "../auth.config";
+import { AuthJobMap } from "../auth.types";
 
 export class AuthJobHandler {
-  static async handleLogin(data: {
-    userId: string;
-    device: string;
-    loginTime: string;
-  }) {
+  static async handleLogin(data: AuthJobMap[typeof AuthJobs.Login]) {
     const authEvent = unwrapJobResult(
       await createAuthEvent({
         userId: data.userId,
@@ -25,7 +23,9 @@ export class AuthJobHandler {
     return { success: true };
   }
 
-  static async handleRegistration(data: { userId: string; email: string }) {
+  static async handleRegistration(
+    data: AuthJobMap[typeof AuthJobs.Registration],
+  ) {
     logger.info({ userId: data.userId }, "Processing welcome notification");
     // ... logic
     return { welcomeSent: true };

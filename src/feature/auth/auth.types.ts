@@ -4,6 +4,10 @@ import { authEventsSchema } from "./auth.schema";
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
 
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
 export const authUserSchema = createSelectSchema(usersSchema);
 
 // Create auth schemas directly from the base schema
@@ -53,6 +57,10 @@ export const authEventInsertSchema = createInsertSchema(
   description: "Request schema for creating auth events",
 });
 
+// ============================================================================
+// DOMAIN TYPES
+// ============================================================================
+
 export type LoginAttrs = z.infer<typeof loginRequestSchema>;
 export type AuthResponseData = z.infer<typeof loginRequestSchema>;
 export type RegisterUserAttrs = z.infer<typeof registerRequestSchema>;
@@ -64,11 +72,15 @@ export type UserWithoutPassword = Omit<
   "password"
 >;
 
-export interface AuthJobTypes {
-  [AuthJobs.Login.jobName]: {
+// ============================================================================
+// JOB TYPES
+// ============================================================================
+
+export interface AuthJobMap {
+  [AuthJobs.Login]: {
     userId: string;
     device: string;
     loginTime: string;
   };
-  [AuthJobs.Registration.jobName]: { userId: string; email: string };
+  [AuthJobs.Registration]: { userId: string; email: string };
 }

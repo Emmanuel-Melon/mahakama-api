@@ -7,6 +7,10 @@ import { MessageJobs } from "./messages.config";
 
 extendZodWithOpenApi(z);
 
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
 // Schema for API responses
 export const chatSelectSchema = createSelectSchema(chatMessages).openapi({
   title: "ChatMessage",
@@ -31,8 +35,11 @@ export const messageInputSchema = z.object({
   userId: z.string().uuid().nullable(),
 });
 
-export type MessageInput = z.infer<typeof messageInputSchema>;
+// ============================================================================
+// DOMAIN TYPES
+// ============================================================================
 
+export type MessageInput = z.infer<typeof messageInputSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect & {
   user?: {
     id: string;
@@ -44,8 +51,12 @@ export type ChatMessage = typeof chatMessages.$inferSelect & {
 export type NewChatMessage = typeof chatMessages.$inferInsert;
 export type ChatMessageResponse = z.infer<typeof chatSelectSchema>;
 
-export interface MessageJobTypes {
-  [MessageJobs.MessageSent.jobName]: {
+// ============================================================================
+// JOB TYPES
+// ============================================================================
+
+export interface MessageJobMap {
+  [MessageJobs.MessageSent]: {
     messageId: string;
     userId: string;
   };

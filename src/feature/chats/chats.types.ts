@@ -4,8 +4,16 @@ import { chatsSchema } from "./chats.schema";
 import { chatMessages } from "@/feature/messages/messages.schema";
 import { ChatsJobs } from "./chats.config";
 
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
 export const chatSelectSchema = createSelectSchema(chatsSchema);
 export const chatInsertSchema = createInsertSchema(chatsSchema);
+
+// ============================================================================
+// DOMAIN TYPES
+// ============================================================================
 
 export type ChatSession = z.infer<typeof chatSelectSchema>;
 export type NewChatSession = z.infer<typeof chatInsertSchema>;
@@ -16,13 +24,24 @@ export type ChatSessionWithMessages = ChatSession & {
 export type ChatSessionAttrs = z.infer<typeof chatsSchema>;
 export type ChatSessionResponse = z.infer<typeof chatSelectSchema>;
 
-export interface ChatsJobTypes {
-  [ChatsJobs.MessageSent.jobName]: {
+// ============================================================================
+// JOB TYPES
+// ============================================================================
+
+export interface ChatsJobMap {
+  [ChatsJobs.ChatCreated]: {
     userId: string;
-    deviceId: string;
-    message: string;
+    chatId: string;
+  };
+  [ChatsJobs.MessageSent]: {
+    userId: string;
+    messageId: string;
   };
 }
+
+// ============================================================================
+// API PARAMETER TYPES
+// ============================================================================
 
 export interface CreateChatParams {
   userId: string;
@@ -36,17 +55,21 @@ export interface ListChatsParams {
   offset?: number;
 }
 
+export interface UpdateChatParams {
+  id: string;
+  userId: string;
+  title?: string | null;
+  metadata?: Record<string, unknown> | null;
+}
+
+// ============================================================================
+// RESPONSE TYPES
+// ============================================================================
+
 export interface ChatListEntry extends Omit<ChatSession, "userId"> {
   lastMessage?: {
     content: string;
     timestamp: Date;
   };
   messageCount: number;
-}
-
-export interface UpdateChatParams {
-  id: string;
-  userId: string;
-  title?: string | null;
-  metadata?: Record<string, unknown> | null;
 }

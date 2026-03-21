@@ -7,14 +7,8 @@ export const SerializedLawyer: JsonApiResourceConfig<Lawyer> = {
 };
 
 export const LawyerJobs = {
-  LawyerOnboarded: {
-    label: "onboarded",
-    jobName: "lawyer-onboarded",
-  },
-  LawyerVerified: {
-    label: "verified",
-    jobName: "lawyer-verified",
-  },
+  LawyerOnboarded: "lawyer-onboarded",
+  LawyerVerified: "lawyer-verified",
 } as const;
 
 export const legalSpecializations = [
@@ -55,5 +49,4 @@ export const locations = [
   { city: "Juba", country: "South Sudan" },
 ];
 
-export type LawyersJobType =
-  (typeof LawyerJobs)[keyof typeof LawyerJobs]["jobName"];
+export type LawyersJobType = (typeof LawyerJobs)[keyof typeof LawyerJobs];

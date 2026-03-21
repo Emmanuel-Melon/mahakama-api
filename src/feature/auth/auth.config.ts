@@ -1,16 +1,7 @@
 export const AuthJobs = {
-  Login: {
-    label: "login",
-    jobName: "auth:login",
-  },
-  Registration: {
-    label: "registration",
-    jobName: "auth:registration",
-  },
-  Logout: {
-    label: "logout",
-    jobName: "auth:logout",
-  },
+  Login: "login",
+  Registration: "registration",
+  Logout: "logout",
 } as const;
 
-export type AuthJobType = (typeof AuthJobs)[keyof typeof AuthJobs]["jobName"];
+export type AuthJobType = (typeof AuthJobs)[keyof typeof AuthJobs];

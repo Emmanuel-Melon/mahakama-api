@@ -7,6 +7,10 @@ import {
   institutionsToServices,
 } from "./services.schema";
 
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
 export const serviceSelectSchema = createSelectSchema(servicesSchema).openapi({
   title: "LegalService",
   description: "Legal service response schema",
@@ -60,6 +64,10 @@ export const institutionsToServicesInsertSchema = createInsertSchema(
     "Request schema for creating a new institution to service relationship",
 });
 
+// ============================================================================
+// DOMAIN TYPES
+// ============================================================================
+
 export type LegalService = typeof servicesSchema.$inferSelect;
 export type NewLegalService = typeof servicesSchema.$inferInsert;
 export type LegalServiceResponse = z.infer<typeof serviceSelectSchema>;
@@ -78,6 +86,10 @@ export type NewInstitutionToService =
 export type InstitutionToServiceResponse = z.infer<
   typeof institutionsToServicesSelectSchema
 >;
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
 
 export const categoryIcons = {
   government: "Building2",

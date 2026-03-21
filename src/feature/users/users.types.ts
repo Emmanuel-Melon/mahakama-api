@@ -6,15 +6,28 @@ import { UserJobs, UserNotificationTemplates } from "./users.config";
 import { baseQuerySchema } from "@/lib/express/express.types";
 import { type NotificationTemplateData } from "@/feature/notifications/notifications.types";
 
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
 export const userInsertSchema = createInsertSchema(usersSchema).openapi({
   title: "NewUser",
   description: "Request schema for creating a new user",
 });
+
 export const userSelectSchema = createSelectSchema(usersSchema).openapi({
   title: "User",
   description:
     "User response schema (excluding sensitive fields like password)",
 });
+
+export const userQuerySchema = baseQuerySchema.extend({
+  role: z.string().optional(),
+});
+
+// ============================================================================
+// DOMAIN TYPES
+// ============================================================================
 
 // Use inferred types from schemas
 export type User = z.infer<typeof userSelectSchema>;
@@ -25,34 +38,42 @@ export type UserWithChats = User & {
   chats: (typeof chatsSchema.$inferSelect)[];
 };
 
-export const userQuerySchema = baseQuerySchema.extend({
-  role: z.string().optional(),
-});
-
 export type UserFilters = z.infer<typeof userQuerySchema>;
+
+// ============================================================================
+// API PARAMETER TYPES
+// ============================================================================
 
 export type GetUsersParams = {
   id?: string;
 };
 
-export interface UserJobTypes {
-  [UserJobs.UserCreated.jobName]: {
+// ============================================================================
+// JOB TYPES
+// ============================================================================
+
+export interface UserJobMap {
+  [UserJobs.UserCreated]: {
     userId: string;
   };
-  [UserJobs.UserUpdated.jobName]: {
+  [UserJobs.UserUpdated]: {
     userId: string;
   };
-  [UserJobs.UserDeleted.jobName]: {
+  [UserJobs.UserDeleted]: {
     userId: string;
   };
-  [UserJobs.UserOnboarded.jobName]: {
+  [UserJobs.UserOnboarded]: {
     userId: string;
   };
-  [UserJobs.UserVerified.jobName]: {
+  [UserJobs.UserVerified]: {
     userId: string;
     verifiedAt: string;
   };
 }
+
+// ============================================================================
+// NOTIFICATION TEMPLATE TYPES
+// ============================================================================
 
 export type UserCreatedNotificationData = NotificationTemplateData<
   typeof UserNotificationTemplates.USER_CREATED
