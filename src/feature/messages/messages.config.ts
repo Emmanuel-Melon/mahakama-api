@@ -7,19 +7,9 @@ export const MessageSerializer: JsonApiResourceConfig<ChatMessage> = {
 };
 
 export const MessageJobs = {
-  MessageSent: {
-    label: "sent",
-    jobName: "message-sent",
-  },
-  MessageReceived: {
-    label: "received",
-    jobName: "message-received",
-  },
-  MessageFailed: {
-    label: "failed",
-    jobName: "message-failed",
-  },
+  MessageSent: "message-sent",
+  MessageReceived: "message-received",
+  MessageFailed: "message-failed",
 } as const;
 
-export type MessagesJobType =
-  (typeof MessageJobs)[keyof typeof MessageJobs]["jobName"];
+export type MessagesJobType = (typeof MessageJobs)[keyof typeof MessageJobs];

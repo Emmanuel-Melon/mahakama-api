@@ -8,6 +8,10 @@ import {
 import { NotificationJobs } from "./notifications.config";
 extendZodWithOpenApi(z);
 
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
 export const notificationInsertSchema = createInsertSchema(
   notificationsSchema,
 ).openapi({
@@ -36,6 +40,10 @@ export const notificationPreferencesSelectSchema = createSelectSchema(
   description: "Response schema for notification preferences",
 });
 
+// ============================================================================
+// DOMAIN TYPES
+// ============================================================================
+
 export type Notification = z.infer<typeof notificationSelectSchema>;
 export type NewNotification = z.infer<typeof notificationInsertSchema>;
 export type NotificationPreferences = z.infer<
@@ -61,20 +69,6 @@ export type NotificationContent = {
 
 export type NotificationDomain = "auth" | "system";
 
-export interface ChannelNotificationJob {
-  userId: string;
-  type: NotificationDomain;
-  templateKey: string;
-  content: NotificationContent; // Resolved title/message from Registry
-  correlationId: string;
-}
-
-export interface BaseJobPayload {
-  correlationId: string;
-  createdAt?: string;
-  metadata?: Record<string, unknown>;
-}
-
 export enum NotificationChannel {
   Email = "email",
   Push = "push",
@@ -84,6 +78,16 @@ export enum NotificationChannel {
 export type NotificationContentGenerator<T = any> = (
   data: T,
 ) => NotificationContent;
+
+// ============================================================================
+// JOB TYPES
+// ============================================================================
+
+export interface BaseJobPayload {
+  correlationId: string;
+  createdAt?: string;
+  metadata?: Record<string, unknown>;
+}
 
 export interface BaseNotificationJob {
   userId: string;
@@ -104,6 +108,30 @@ export interface ChannelNotificationJob extends BaseNotificationJob {
 
 export type NotificationJobPayload = ChannelNotificationJob;
 
+export interface NotificationJobMap {
+  [NotificationJobs.TriggerNotification]: {
+    userId: string;
+    type: string;
+    correlationId: string;
+  };
+  [NotificationJobs.SendEmailNotification]: {
+    userId: string;
+    notificationId: string;
+  };
+  [NotificationJobs.SendInAppNotification]: {
+    userId: string;
+    notificationId: string;
+  };
+  [NotificationJobs.SendPushNotification]: {
+    userId: string;
+    notificationId: string;
+  };
+}
+
+// ============================================================================
+// TEMPLATE TYPES
+// ============================================================================
+
 export type NotificationTemplateDescriptor<T = Record<string, string>> = {
   key: string;
   _data: T;
@@ -112,23 +140,3 @@ export type NotificationTemplateDescriptor<T = Record<string, string>> = {
 // Infer the data shape from the descriptor
 export type NotificationTemplateData<T extends NotificationTemplateDescriptor> =
   T["_data"];
-
-export interface NotificationJobTypes {
-  [NotificationJobs.TriggerNotification.jobName]: {
-    userId: string;
-    type: string;
-    correlationId: string;
-  };
-  [NotificationJobs.SendEmailNotification.jobName]: {
-    userId: string;
-    notificationId: string;
-  };
-  [NotificationJobs.SendInAppNotification.jobName]: {
-    userId: string;
-    notificationId: string;
-  };
-  [NotificationJobs.SendPushNotification.jobName]: {
-    userId: string;
-    notificationId: string;
-  };
-}

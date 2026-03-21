@@ -1,11 +1,11 @@
 import { logger } from "@/lib/logger";
+import { NotificationJobs } from "../notifications.config";
+import { NotificationJobMap } from "../notifications.types";
 
 export class NotificationsJobHandler {
-  static async handleTriggerNotification(data: {
-    userId: string;
-    type: string;
-    correlationId: string;
-  }) {
+  static async handleTriggerNotification(
+    data: NotificationJobMap[typeof NotificationJobs.TriggerNotification],
+  ) {
     const { userId, type, correlationId } = data;
 
     logger.info(
@@ -22,10 +22,9 @@ export class NotificationsJobHandler {
     return { success: true, userId, type, correlationId };
   }
 
-  static async handleSendEmailNotification(data: {
-    userId: string;
-    notificationId: string;
-  }) {
+  static async handleSendEmailNotification(
+    data: NotificationJobMap[typeof NotificationJobs.SendEmailNotification],
+  ) {
     const { userId, notificationId } = data;
 
     logger.info(
@@ -42,10 +41,9 @@ export class NotificationsJobHandler {
     return { success: true, userId, notificationId };
   }
 
-  static async handleSendInAppNotification(data: {
-    userId: string;
-    notificationId: string;
-  }) {
+  static async handleSendInAppNotification(
+    data: NotificationJobMap[typeof NotificationJobs.SendInAppNotification],
+  ) {
     const { userId, notificationId } = data;
 
     logger.info(
@@ -62,10 +60,9 @@ export class NotificationsJobHandler {
     return { success: true, userId, notificationId };
   }
 
-  static async handleSendPushNotification(data: {
-    userId: string;
-    notificationId: string;
-  }) {
+  static async handleSendPushNotification(
+    data: NotificationJobMap[typeof NotificationJobs.SendPushNotification],
+  ) {
     const { userId, notificationId } = data;
 
     logger.info(

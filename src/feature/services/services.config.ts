@@ -18,19 +18,10 @@ export const SerializedInstitution: JsonApiResourceConfig<Institution> = {
 };
 
 export const LegalServiceEvents = {
-  ServiceCreated: {
-    label: "created",
-    jobName: "legal-service-created",
-  },
-  ServiceUpdated: {
-    label: "updated",
-    jobName: "legal-service-updated",
-  },
-  ServiceDeleted: {
-    label: "deleted",
-    jobName: "legal-service-deleted",
-  },
+  ServiceCreated: "legal-service-created",
+  ServiceUpdated: "legal-service-updated",
+  ServiceDeleted: "legal-service-deleted",
 } as const;
 
 export type LegalServicesJobType =
-  (typeof LegalServiceEvents)[keyof typeof LegalServiceEvents]["jobName"];
+  (typeof LegalServiceEvents)[keyof typeof LegalServiceEvents];

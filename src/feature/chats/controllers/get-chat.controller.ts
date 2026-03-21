@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getChatById } from "../operations/chat.find";
+import { getChatById } from "../operations/chats.find";
 import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { ChatSerializer } from "../chats.config";

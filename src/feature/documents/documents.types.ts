@@ -7,6 +7,10 @@ import {
 } from "./documents.schema";
 import { DocumentJobs } from "./document.config";
 
+// ============================================================================
+// ZOD SCHEMAS
+// ============================================================================
+
 export const documentSelectSchema = createSelectSchema(documentsTable);
 export const documentInsertSchema = createInsertSchema(documentsTable);
 
@@ -55,13 +59,16 @@ export const documentIngestionEventSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export type DocumentIngestionEventType = DocumentIngestionEvent["type"];
+// ============================================================================
+// DOMAIN TYPES
+// ============================================================================
+
+export type Document = z.infer<typeof documentSelectSchema>;
+export type NewDocument = z.infer<typeof documentInsertSchema>;
 export type Bookmark = typeof bookmarksTable.$inferSelect;
 export type NewBookmark = typeof bookmarksTable.$inferInsert;
 export type Download = typeof downloadsTable.$inferSelect;
 export type NewDownload = typeof downloadsTable.$inferInsert;
-export type Document = z.infer<typeof documentSelectSchema>;
-export type NewDocument = z.infer<typeof documentInsertSchema>;
 
 export type DocumentEventType =
   | "started"
@@ -69,6 +76,8 @@ export type DocumentEventType =
   | "content"
   | "completed"
   | "error";
+
+export type DocumentIngestionEventType = DocumentIngestionEvent["type"];
 
 export type DocumentIngestionEvent = Extract<
   {
@@ -112,6 +121,10 @@ export type DocumentIngestionEvent = Extract<
   { type: string; data: any }
 >;
 
+// ============================================================================
+// RAG/SEARCH TYPES
+// ============================================================================
+
 export interface LegalDocumentChunk {
   id: string;
   title: string;
@@ -121,12 +134,20 @@ export interface LegalDocumentChunk {
   similarity?: number;
 }
 
-export interface DocumentJobTypes {
-  [DocumentJobs.DocumentUploaded.jobName]: {
+// ============================================================================
+// JOB TYPES
+// ============================================================================
+
+export interface DocumentJobMap {
+  [DocumentJobs.DocumentUploaded]: {
     documentId: string;
     userId: string;
   };
 }
+
+// ============================================================================
+// API PARAMETER TYPES
+// ============================================================================
 
 export interface BookmarkDocumentParams {
   documentId: string;
@@ -141,6 +162,10 @@ export interface DownloadDocumentParams {
 export interface ShareDocumentParams {
   documentId: string;
 }
+
+// ============================================================================
+// RESPONSE TYPES
+// ============================================================================
 
 export interface DocumentShareInfo {
   documentId: string;

@@ -3,12 +3,12 @@ import { createBullWorker } from "@/lib/bullmq";
 import { DocumentJobs } from "../document.config";
 import { DocumentsJobHandler } from "./documents.jobs";
 import { JobHandlerMap } from "@/lib/bullmq/bullmq.types";
-import { DocumentJobTypes } from "../documents.types";
+import { DocumentJobMap } from "../documents.types";
 
-const documentsHandlers: JobHandlerMap<DocumentJobTypes> = {
-  [DocumentJobs.DocumentUploaded.jobName]: (data) =>
+const documentsHandlers: JobHandlerMap<DocumentJobMap> = {
+  [DocumentJobs.DocumentUploaded]: (data) =>
     DocumentsJobHandler.handleDocumentUploaded(data),
 };
 
 export const initDocumentsWorker = () =>
-  createBullWorker<DocumentJobTypes>(QueueName.Documents, documentsHandlers);
+  createBullWorker<DocumentJobMap>(QueueName.Documents, documentsHandlers);

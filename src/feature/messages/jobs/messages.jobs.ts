@@ -1,7 +1,11 @@
 import { logger } from "@/lib/logger";
+import { MessageJobs } from "../messages.config";
+import { MessageJobMap } from "../messages.types";
 
 export class MessagesJobHandler {
-  static async handleMessageSent(data: { messageId: string; userId: string }) {
+  static async handleMessageSent(
+    data: MessageJobMap[typeof MessageJobs.MessageSent],
+  ) {
     const { messageId, userId } = data;
 
     logger.info({ messageId, userId }, "Processing message sent job");

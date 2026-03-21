@@ -7,29 +7,14 @@ export const SerializedUser: JsonApiResourceConfig<User> = {
 };
 
 export const UserJobs = {
-  UserCreated: {
-    label: "user-created",
-    jobName: "user-created",
-  },
-  UserUpdated: {
-    label: "updated",
-    jobName: "user-updated",
-  },
-  UserDeleted: {
-    label: "deleted",
-    jobName: "user-deleted",
-  },
-  UserOnboarded: {
-    label: "onboarded",
-    jobName: "user-onboarded",
-  },
-  UserVerified: {
-    label: "verified",
-    jobName: "user-verified",
-  },
+  UserCreated: "user-created",
+  UserUpdated: "user-updated",
+  UserDeleted: "user-deleted",
+  UserOnboarded: "user-onboarded",
+  UserVerified: "user-verified",
 } as const;
 
-export type UsersJobType = (typeof UserJobs)[keyof typeof UserJobs]["jobName"];
+export type UsersJobType = (typeof UserJobs)[keyof typeof UserJobs];
 
 // for pagination and route queries
 export const sortableFields = [

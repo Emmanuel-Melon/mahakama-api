@@ -13,14 +13,10 @@ export const DocumentRagCollections = {
 };
 
 export const DocumentJobs = {
-  DocumentUploaded: {
-    label: "uploaded",
-    jobName: "document-uploaded",
-  },
+  DocumentUploaded: "document-uploaded",
 } as const;
 
-export type DocumentsJobType =
-  (typeof DocumentJobs)[keyof typeof DocumentJobs]["jobName"];
+export type DocumentsJobType = (typeof DocumentJobs)[keyof typeof DocumentJobs];
 
 // for pagination and route queries
 export const sortableFields = [

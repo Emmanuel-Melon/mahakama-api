@@ -17,23 +17,11 @@ export const SerializedNotificationPreferences: JsonApiResourceConfig<Notificati
   };
 
 export const NotificationJobs = {
-  TriggerNotification: {
-    label: "trigger-notification",
-    jobName: "trigger-notification",
-  },
-  SendEmailNotification: {
-    label: "send-email-notification",
-    jobName: "send-email-notification",
-  },
-  SendInAppNotification: {
-    label: "send-in-app-notification",
-    jobName: "send-in-app-notification",
-  },
-  SendPushNotification: {
-    label: "send-push-notification",
-    jobName: "send-push-notification",
-  },
+  TriggerNotification: "trigger-notification",
+  SendEmailNotification: "send-email-notification",
+  SendInAppNotification: "send-in-app-notification",
+  SendPushNotification: "send-push-notification",
 } as const;
 
 export type NotificationJobType =
-  (typeof NotificationJobs)[keyof typeof NotificationJobs]["jobName"];
+  (typeof NotificationJobs)[keyof typeof NotificationJobs];

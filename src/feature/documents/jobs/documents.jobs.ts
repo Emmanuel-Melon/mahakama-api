@@ -4,14 +4,15 @@ import { generateDocumentEmbeddings } from "@/services/embedding-service/embeddi
 import { logger } from "@/lib/logger";
 import { findDocumentById } from "../operations/document.find";
 import { unwrapJobResult } from "@/lib/bullmq/bullmq.utils";
+import { DocumentJobs } from "../document.config";
+import { DocumentJobMap } from "../documents.types";
 
 const COLLECTION_NAME = "legal_questions";
 
 export class DocumentsJobHandler {
-  static async handleDocumentUploaded(data: {
-    documentId: string;
-    userId: string;
-  }) {
+  static async handleDocumentUploaded(
+    data: DocumentJobMap[typeof DocumentJobs.DocumentUploaded],
+  ) {
     const { documentId, userId } = data;
     const document = unwrapJobResult(await findDocumentById(documentId), {
       message: "Could not find document",
