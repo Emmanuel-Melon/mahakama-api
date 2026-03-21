@@ -1,9 +1,8 @@
 import { db } from "@/lib/drizzle";
-import { chatsSchema } from "@/feature/chats/chats.schema";
 import { chatMessages } from "../messages.schema";
 import { ChatMessage, MessageInput } from "../messages.types";
 import { eq } from "drizzle-orm";
-import { getChatById } from "@/feature/chats/operations/chats.findhh";
+import { getChatById } from "@/feature/chats/operations/chats.find";
 import { SenderType } from "@/feature/chats/shared.types";
 import { toResult } from "@/lib/drizzle/drizzle.utils";
 import { DbResult } from "@/lib/drizzle/drizzle.types";
