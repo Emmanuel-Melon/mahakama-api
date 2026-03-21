@@ -30,7 +30,7 @@ export const authenticateToken = async (
       });
       return;
     }
-    req.user = user;
+    req.user = user.data;
     next();
   } catch (error) {
     const errorMessage =
