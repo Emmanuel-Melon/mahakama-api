@@ -1,10 +1,17 @@
-import { UserNotificationTemplates } from "./users.config";
-import { UserCreatedNotificationData } from "./users.types";
+import { UserCreatedNotificationSchema } from "./users.types";
+import { createNotificationGenerators } from "@/feature/notifications/notifications.factory";
 
-export const usersNotificationRegistry = {
-  [UserNotificationTemplates.USER_CREATED.key]: (
-    data: UserCreatedNotificationData,
-  ) => ({
+export const UserNotificationTemplateMap = {
+  USER_CREATED: {
+    key: "user_created",
+    schema: UserCreatedNotificationSchema,
+  },
+} as const;
+
+export const usersNotificationGenerators = createNotificationGenerators(
+  UserNotificationTemplateMap,
+)({
+  USER_CREATED: (data) => ({
     title: "Welcome to the Platform!",
     message: `Welcome ${data.userName || "to our platform"}! Your account has been created successfully.`,
     action: {
@@ -17,4 +24,4 @@ export const usersNotificationRegistry = {
       registrationMethod: data.registrationMethod || "standard",
     },
   }),
-};
+});

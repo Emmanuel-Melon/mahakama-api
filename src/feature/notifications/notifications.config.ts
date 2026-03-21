@@ -1,8 +1,17 @@
 import { JsonApiResourceConfig } from "@/lib/express/express.types";
 import type {
   Notification,
+  NotificationDomainEntry,
   NotificationPreferences,
 } from "./notifications.types";
+import {
+  AuthNotificationTemplateMap,
+  authNotificationGenerators,
+} from "../auth/auth.notifications";
+import {
+  UserNotificationTemplateMap,
+  usersNotificationGenerators,
+} from "../users/users.notifications";
 
 export const SerializedNotification: JsonApiResourceConfig<Notification> = {
   type: "notification",
@@ -25,3 +34,18 @@ export const NotificationJobs = {
 
 export type NotificationJobType =
   (typeof NotificationJobs)[keyof typeof NotificationJobs];
+
+export enum NotificationChannel {
+  Email = "email",
+  Push = "push",
+  InApp = "in_app",
+}
+
+// ─── Domain registration
+export const NOTIFICATION_DOMAINS: NotificationDomainEntry[] = [
+  { map: AuthNotificationTemplateMap, generators: authNotificationGenerators },
+  {
+    map: UserNotificationTemplateMap,
+    generators: usersNotificationGenerators,
+  },
+];

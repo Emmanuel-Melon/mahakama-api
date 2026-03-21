@@ -34,6 +34,7 @@
     "drizzle:studio": "npx drizzle-kit studio",
     "drizzle:drop": "npx drizzle-kit drop",
     "drizzle:reset": "npx drizzle-kit drop && npx drizzle-kit push",
+    "db:reset": "tsx src/lib/drizzle/drizzle.reset.ts",
     "seed": "tsx src/lib/drizzle/drizzle.seed.ts",
     "chroma:import-laws": "tsx scripts/import-laws-to-chroma.ts",
     "chroma:search-laws": "tsx scripts/retrieve-laws-from-chroma.ts",

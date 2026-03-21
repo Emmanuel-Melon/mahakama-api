@@ -3,6 +3,7 @@ import { AuthJobs } from "./auth.config";
 import { authEventsSchema } from "./auth.schema";
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { usersSchema } from "@/feature/users/users.schema";
+import { NotificationTrackingSchema } from "../notifications/notifications.types";
 
 // ============================================================================
 // ZOD SCHEMAS
@@ -84,3 +85,13 @@ export interface AuthJobMap {
   };
   [AuthJobs.Registration]: { userId: string; email: string };
 }
+
+/*
+ * NOTIFICATION-RELATED TYPES (for notification system integration)
+ */
+
+export const LoginAlertNotificationSchema = NotificationTrackingSchema.extend({
+  loginTime: z.string(),
+  location: z.string().optional(),
+  device: z.string().optional(),
+});
