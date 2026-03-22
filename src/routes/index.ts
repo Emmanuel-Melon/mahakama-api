@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticateToken, methodBasedAuth } from "@/middleware/auth";
+import { authRouter } from "@/service/auth/auth.routes";
 import chatRouter, { CHATS_PATH } from "@/feature/chats/chats.routes";
 import documentRoutes, {
   DOCUMENTS_PATH,
@@ -10,7 +11,7 @@ import messagesRoutes, {
 } from "@/feature/messages/messages.routes";
 import notificationsRoutes, {
   NOTIFICATIONS_PATH,
-} from "@/feature/notifications/notifications.routes";
+} from "@/service/notifications/notifications.routes";
 import {
   servicesRouter,
   SERVICES_PATH,
@@ -21,21 +22,22 @@ export const AUTH_PATH = "/v1";
 const BASE_PATH = "/api/v1";
 const mahakamaRouter = Router();
 
-// PUBLIC ROUTES
-mahakamaRouter.use(DOCUMENTS_PATH, methodBasedAuth, documentRoutes);
-mahakamaRouter.use(LAWYERS_PATH, methodBasedAuth, lawyerRoutes);
-mahakamaRouter.use(SERVICES_PATH, methodBasedAuth, servicesRouter);
-
 // PRIVATE ROUTES
+mahakamaRouter.use(USERS_PATH, authenticateToken, userRoutes);
 mahakamaRouter.use(CHATS_PATH, authenticateToken, chatRouter);
+mahakamaRouter.use(DOCUMENTS_PATH, authenticateToken, documentRoutes);
+mahakamaRouter.use(LAWYERS_PATH, authenticateToken, lawyerRoutes);
 mahakamaRouter.use(MESSAGES_PATH, authenticateToken, messagesRoutes);
 mahakamaRouter.use(NOTIFICATIONS_PATH, authenticateToken, notificationsRoutes);
-mahakamaRouter.use(USERS_PATH, authenticateToken, userRoutes);
+mahakamaRouter.use(SERVICES_PATH, authenticateToken, servicesRouter);
+
+// PUBLIC ROUTES
+mahakamaRouter.use(AUTH_PATH, methodBasedAuth, authRouter);
 
 export default mahakamaRouter;
 
 export const availableRoutes = [
-  `${BASE_PATH}/auth`,
+  `${BASE_PATH}${AUTH_PATH}`,
   `${BASE_PATH}${CHATS_PATH}`,
   `${BASE_PATH}${DOCUMENTS_PATH}`,
   `${BASE_PATH}${LAWYERS_PATH}`,

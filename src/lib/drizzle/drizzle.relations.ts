@@ -7,7 +7,7 @@ import {
   downloadsTable,
 } from "@/feature/documents/documents.schema";
 import { chatMessages } from "@/feature/messages/messages.schema";
-import { notificationsSchema } from "@/feature/notifications/notifications.schema";
+import { notificationsSchema } from "@/service/notifications/notifications.schema";
 import {
   institutionsSchema,
   servicesSchema,

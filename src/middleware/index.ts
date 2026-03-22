@@ -3,7 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { globalErrorHandler } from "./errors";
-import { authRouter } from "@/feature/auth/auth.routes";
+import { authRouter } from "@/service/auth/auth.routes";
 import { getIpAddress } from "./ip-address";
 import { requestLogger } from "./http-request-logger";
 import { userAgentMiddleware } from "./user-agent";
