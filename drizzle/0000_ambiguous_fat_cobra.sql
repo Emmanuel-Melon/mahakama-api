@@ -1,13 +1,4 @@
 CREATE TYPE "public"."sender_type" AS ENUM('user', 'assistant', 'system');--> statement-breakpoint
-CREATE TYPE "public"."notification_channel" AS ENUM('in_app', 'email', 'push');--> statement-breakpoint
-CREATE TYPE "public"."notification_status" AS ENUM('pending', 'sent', 'delivered', 'failed', 'read');--> statement-breakpoint
-CREATE TABLE "auth_events" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"event_type" varchar(50) NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "chat_sessions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -50,7 +41,7 @@ CREATE TABLE "lawyers" (
 	"email" varchar(255) NOT NULL,
 	"specialization" varchar(100) NOT NULL,
 	"experience_years" integer NOT NULL,
-	"rating" varchar(10) NOT NULL,
+	"rating" varchar(10),
 	"cases_handled" integer DEFAULT 0 NOT NULL,
 	"is_available" boolean DEFAULT true NOT NULL,
 	"location" varchar(100) NOT NULL,
@@ -68,31 +59,6 @@ CREATE TABLE "chat_messages" (
 	"user_id" uuid,
 	"timestamp" timestamp with time zone DEFAULT now() NOT NULL,
 	"metadata" jsonb DEFAULT '{}'::jsonb NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "notifications" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"type" varchar(50) NOT NULL,
-	"channel" "notification_channel" NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"message" text NOT NULL,
-	"status" "notification_status" DEFAULT 'pending' NOT NULL,
-	"template_key" varchar(100),
-	"correlation_id" uuid,
-	"metadata" jsonb DEFAULT '{}'::jsonb,
-	"scheduled_at" timestamp DEFAULT now() NOT NULL,
-	"sent_at" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "user_notification_preferences" (
-	"user_id" uuid PRIMARY KEY NOT NULL,
-	"email_enabled" boolean DEFAULT true NOT NULL,
-	"push_enabled" boolean DEFAULT true NOT NULL,
-	"in_app_enabled" boolean DEFAULT true NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "institutions" (
@@ -151,7 +117,6 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_fingerprint_unique" UNIQUE("fingerprint")
 );
 --> statement-breakpoint
-ALTER TABLE "auth_events" ADD CONSTRAINT "auth_events_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "document_bookmarks" ADD CONSTRAINT "document_bookmarks_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "document_bookmarks" ADD CONSTRAINT "document_bookmarks_document_id_documents_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "document_downloads" ADD CONSTRAINT "document_downloads_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
