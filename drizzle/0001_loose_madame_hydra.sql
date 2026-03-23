@@ -1,1 +1,0 @@
-ALTER TABLE "lawyers" ALTER COLUMN "rating" DROP NOT NULL;
