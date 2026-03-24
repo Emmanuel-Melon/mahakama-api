@@ -6,6 +6,7 @@ import {
   serviceCategoriesSchema,
   institutionsToServices,
 } from "./services.schema";
+import { baseQuerySchema } from "@/lib/express/express.types";
 
 // ============================================================================
 // ZOD SCHEMAS
@@ -104,3 +105,12 @@ export const categoryLabels = {
   "dispute-resolution": "Dispute Resolution",
   specialized: "Specialized",
 } as const;
+
+
+export const serviceQuerySchema = baseQuerySchema.extend({
+  category: z.string().optional(),
+  institution: z.string().optional(),
+});
+
+export type ServiceFilters = z.infer<typeof serviceQuerySchema>;
+

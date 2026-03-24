@@ -6,11 +6,6 @@ import { toSingleResult, toManyResult } from "@/lib/drizzle/drizzle.utils";
 import { DbSingleResult, DbManyResult } from "@/lib/drizzle/drizzle.types";
 import { paginate } from "@/lib/drizzle/drizzle.paginate";
 
-export const findUsers = async (): Promise<DbManyResult<User>> => {
-  const result = await db.query.usersSchema.findMany();
-  return toManyResult(result);
-};
-
 export const findUserById = async (
   id: string,
 ): Promise<DbSingleResult<User>> => {
@@ -31,7 +26,7 @@ export const findUserByEmail = async (
   return toSingleResult(user);
 };
 
-export async function findAllUsers(
+export async function findUsers(
   query: UserFilters,
 ): Promise<DbManyResult<User>> {
   const filters = [];

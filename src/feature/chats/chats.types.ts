@@ -3,6 +3,7 @@ import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import { chatsSchema } from "./chats.schema";
 import { chatMessages } from "@/feature/messages/messages.schema";
 import { ChatsJobs } from "./chats.config";
+import { baseQuerySchema } from "@/lib/express/express.types";
 
 // ============================================================================
 // ZOD SCHEMAS
@@ -73,3 +74,5 @@ export interface ChatListEntry extends Omit<ChatSession, "userId"> {
   };
   messageCount: number;
 }
+
+export type ChatsFilters = z.infer<typeof baseQuerySchema>;

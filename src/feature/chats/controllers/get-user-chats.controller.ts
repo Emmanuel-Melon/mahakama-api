@@ -4,18 +4,17 @@ import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { ChatSerializer } from "../chats.config";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { parsePagination } from "@/lib/express/express.query";
 
 export const getUserChatsController = asyncHandler(
   async (req: Request, res: Response) => {
-    const chats = await getUserChats(req.user?.id!);
+    const pagination = parsePagination(req);
+    const chats = await getUserChats(req.user?.id!, pagination);
     sendSuccessResponse(
       req,
       res,
       {
-        data: chats.data.map((chat) => ({
-          ...chat,
-          id: chat.id.toString(),
-        })) as ((typeof chats.data)[number] & { id: string })[],
+        data: chats.data,
         type: "collection",
         serializerConfig: ChatSerializer,
       },

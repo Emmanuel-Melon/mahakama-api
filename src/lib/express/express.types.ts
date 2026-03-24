@@ -292,6 +292,7 @@ export const baseQuerySchema = z.object({
   sort: z.string().optional(),
   order: z.enum(["asc", "desc"]).default("desc"),
   q: z.string().optional(),
+  offset: z.coerce.number().int().nonnegative().default(0),
 });
 
 export type BaseQueryParams = z.infer<typeof baseQuerySchema>;

@@ -6,6 +6,7 @@ import {
   downloadsTable,
 } from "./documents.schema";
 import { DocumentJobs } from "./document.config";
+import { baseQuerySchema } from "@/lib/express/express.types";
 
 // ============================================================================
 // ZOD SCHEMAS
@@ -179,3 +180,9 @@ export interface DocumentShareInfo {
     email: string;
   };
 }
+
+export const documentsQuerySchema = baseQuerySchema.extend({
+  type: z.string().optional(),
+});
+
+export type DocumentsFilters = z.infer<typeof documentsQuerySchema>;

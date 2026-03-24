@@ -2,12 +2,14 @@ import { Request, Response } from "express";
 import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/http-status";
 import { SerializedLegalService } from "../services.config";
-import { findAllServices } from "../operations/services.find";
+import { findServices } from "../operations/services.find";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
+import { parsePagination } from "@/lib/express/express.query";
 
 export const getLegalServicesController = asyncHandler(
   async (req: Request, res: Response) => {
-    const services = await findAllServices();
+    const pagination = parsePagination(req);
+    const services = await findServices(pagination);
     sendSuccessResponse(
       req,
       res,
