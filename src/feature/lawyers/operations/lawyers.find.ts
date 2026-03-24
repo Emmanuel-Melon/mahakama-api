@@ -22,7 +22,7 @@ export async function findLawyerByEmail(
   return toResult(lawyer);
 }
 
-export async function findAllLawyers(
+export async function findLawyers(
   query: LawyerFilters,
 ): Promise<DbManyResult<Lawyer>> {
   const filters = [];

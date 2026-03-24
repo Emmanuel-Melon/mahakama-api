@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { findUserById, findAllUsers } from "../users.find";
+import { findUserById, findUsers } from "../users.find";
 import { createMockUser, createMockUsers } from "../../users.factory";
 import { usersSchema } from "../../users.schema";
 import { paginate } from "@/lib/drizzle/drizzle.paginate";
@@ -26,7 +26,7 @@ describe("findUserById", () => {
   });
 });
 
-describe("findAllUsers", () => {
+describe("findUsers", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
@@ -40,7 +40,7 @@ describe("findAllUsers", () => {
     vi.mocked(paginate).mockResolvedValue(mockPaginatedResult as any);
 
     const query = { page: 1, limit: 10, order: "asc" as const, role: "user" };
-    const result = await findAllUsers(query);
+    const result = await findUsers(query);
 
     expect(result).toEqual({
       data: mockUsers,

@@ -4,14 +4,14 @@ import { findLawyerById } from "../lawyers.find";
 import { createMockLawyer } from "../../lawyers.factory";
 import { eq } from "drizzle-orm";
 import { lawyersTable } from "../../lawyers.schema";
-import { findAllLawyers } from "../lawyers.find";
+import { findLawyers } from "../lawyers.find";
 import { createMockLawyers } from "../../lawyers.factory";
 import { paginate } from "@/lib/drizzle/drizzle.paginate";
 import { mockDrizzleQuery } from "@/tests/tests.utils";
 
 vi.mock("@/lib/drizzle/drizzle.paginate");
 
-describe("findAllLawyers", () => {
+describe("findLawyers", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
@@ -31,7 +31,7 @@ describe("findAllLawyers", () => {
       specialization: "Criminal Law",
       order: "asc" as const,
     };
-    const result = await findAllLawyers(query);
+    const result = await findLawyers(query);
 
     // toManyResult transforms the paginated result to DbManyResult
     expect(result).toEqual({
@@ -64,7 +64,7 @@ describe("findAllLawyers", () => {
       limit: 0,
       order: "asc",
     } as const;
-    const result = await findAllLawyers(query);
+    const result = await findLawyers(query);
 
     expect(result).toEqual({
       data: [],

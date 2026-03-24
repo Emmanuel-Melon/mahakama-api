@@ -3,7 +3,8 @@ import { eq } from "drizzle-orm";
 import { servicesSchema, institutionsSchema } from "../services.schema";
 import { toSingleResult, toManyResult } from "@/lib/drizzle/drizzle.utils";
 import { DbSingleResult, DbManyResult } from "@/lib/drizzle/drizzle.types";
-import type { LegalService, Institution } from "../services.types";
+import type { LegalService, Institution, ServiceFilters } from "../services.types";
+import { paginate } from "@/lib/drizzle/drizzle.paginate";
 
 export const findServiceBySlug = async (
   slug: string,
@@ -37,17 +38,18 @@ export const findInstitutionById = async (
   return toSingleResult(result);
 };
 
-export const findAllServices = async (): Promise<
+export const findServices = async (query: ServiceFilters): Promise<
   DbManyResult<LegalService>
 > => {
-  const result = await db.query.servicesSchema.findMany({
-    with: {
-      institutions: {
-        with: {
-          institution: true,
-        },
-      },
-    },
+  const filters = [];
+
+  if(query.q) {
+    filters.push(eq(servicesSchema.name, query.q));
+  }
+
+  const result = await paginate<"servicesSchema", LegalService>("servicesSchema", servicesSchema, {
+    ...query,
+    filters,
   });
   return toManyResult(result);
 };

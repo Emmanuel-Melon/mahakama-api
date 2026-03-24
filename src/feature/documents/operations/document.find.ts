@@ -1,14 +1,16 @@
 import { db } from "@/lib/drizzle";
 import { documentsTable, bookmarksTable } from "../documents.schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import {
   Document,
   DocumentShareInfo,
   ShareDocumentParams,
   Bookmark,
+  DocumentsFilters,
 } from "../documents.types";
-import { toResult } from "@/lib/drizzle/drizzle.utils";
-import { DbResult } from "@/lib/drizzle/drizzle.types";
+import { toManyResult, toResult } from "@/lib/drizzle/drizzle.utils";
+import { DbManyResult, DbResult } from "@/lib/drizzle/drizzle.types";
+import { paginate } from "@/lib/drizzle/drizzle.paginate";
 
 export async function findDocumentById(
   id: string,
@@ -67,4 +69,23 @@ export async function findBookmarkById(
     )
     .limit(1);
   return toResult(bookmark);
+}
+
+export async function findDocuments(query: DocumentsFilters): Promise<DbManyResult<Document>> {
+  const filters = [];
+
+  if (query.type) {
+    filters.push(sql`LOWER(${documentsTable.type}) = LOWER(${query.type})`);
+  }
+
+  const result = await paginate<"documentsTable", Document>("documentsTable", documentsTable, {
+    ...query,
+    filters,
+    search: {
+      q: query.q,
+      columns: [documentsTable.title, documentsTable.description],
+    },
+  });
+
+  return toManyResult(result);
 }
