@@ -1,12 +1,12 @@
-import { chatSystemPrompt } from "./inference.prompts";
-import { InferenceStrategyRegistry } from "./inference.registry";
-import type { ChatInput, IInferenceStrategy } from "./inference.types";
+import { chatSystemPrompt } from "../inference.prompts";
+import { InferenceStrategyRegistry } from "../inference.registry";
+import type { ChatInput, IInferenceStrategy } from "../inference.types";
 
 const chatStrategy: IInferenceStrategy<ChatInput, string> = {
   key: "chat",
-  preferredProvider: "claude",
-  fallbackProvider: "ollama",
-  defaultModel: "claude-sonnet-4-5",
+  preferredProvider: "ollama",
+  fallbackProvider: "gemini",
+  defaultModel: "gemma:b3",
   systemPrompt: chatSystemPrompt,
 
   buildPrompt(input: ChatInput): string {

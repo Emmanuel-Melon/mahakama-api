@@ -117,6 +117,10 @@ export interface ChannelNotificationJob {
 
 // Map of job names to their payloads
 export interface NotificationJobMap {
+  [NotificationJobs.SetPreferences]: {
+    userId: string;
+    preferences: NotificationPreferences;
+  };
   [NotificationJobs.TriggerNotification]: TriggerNotificationJob;
   [NotificationJobs.SendEmailNotification]: ChannelNotificationJob;
   [NotificationJobs.SendInAppNotification]: ChannelNotificationJob;

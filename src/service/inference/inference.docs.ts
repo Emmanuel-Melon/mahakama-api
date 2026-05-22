@@ -7,23 +7,25 @@ import {
   createJsonApiCollectionResponseSchema,
 } from "@/lib/express/express.serializer";
 import {
-  inferencePreferenceSchema,
-  providerSchema,
+  inferencePreferenceSelectSchema,
   strategySchema,
+  inferenceProviderSelectSchema,
+  inferenceModelSelectSchema,
 } from "./inference.types";
 
 const preferenceResourceSchema = createJsonApiResourceSchema(
   "inferencePreference",
-  inferencePreferenceSchema,
+  inferencePreferenceSelectSchema,
 );
 const providerResourceSchema = createJsonApiResourceSchema(
   "provider",
-  providerSchema,
+  inferenceProviderSelectSchema,
 );
 const strategyResourceSchema = createJsonApiResourceSchema(
   "strategy",
   strategySchema,
 );
+const modelResourceSchema = createJsonApiResourceSchema('model', inferenceModelSelectSchema)
 
 const preferenceSingleResponseSchema = createJsonApiSingleResponseSchema(
   preferenceResourceSchema,
@@ -36,13 +38,16 @@ const providerCollectionResponseSchema = createJsonApiCollectionResponseSchema(
 const strategyCollectionResponseSchema = createJsonApiCollectionResponseSchema(
   strategyResourceSchema,
 );
+const modelCollectionResponseSchema = createJsonApiCollectionResponseSchema(
+  modelResourceSchema,
+);
 
 // Error response reference
 const ErrorResponseRef = { $ref: "#/components/schemas/JsonApiErrorResponse" };
 
 // Create registry and register schemas
 export const inferenceRegistry = new OpenAPIRegistry();
-inferenceRegistry.register("InferencePreference", inferencePreferenceSchema);
+inferenceRegistry.register("InferencePreference", inferencePreferenceSelectSchema);
 inferenceRegistry.register(
   "InferencePreferenceResource",
   preferenceResourceSchema,
@@ -55,7 +60,7 @@ inferenceRegistry.register(
   "InferencePreferenceCollectionResponse",
   preferenceCollectionResponseSchema,
 );
-inferenceRegistry.register("Provider", providerSchema);
+inferenceRegistry.register("Provider", inferenceProviderSelectSchema);
 inferenceRegistry.register("ProviderResource", providerResourceSchema);
 inferenceRegistry.register(
   "ProviderCollectionResponse",
@@ -66,6 +71,12 @@ inferenceRegistry.register("StrategyResource", strategyResourceSchema);
 inferenceRegistry.register(
   "StrategyCollectionResponse",
   strategyCollectionResponseSchema,
+);
+inferenceRegistry.register("Model", inferenceModelSelectSchema);
+inferenceRegistry.register("ModelResource", modelResourceSchema);
+inferenceRegistry.register(
+  "ModelCollectionResponse",
+  modelCollectionResponseSchema,
 );
 
 // 1. GET /v1/inference/preferences/:userId (Get User Preferences)

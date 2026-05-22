@@ -26,6 +26,7 @@ export const SerializedNotificationPreferences: JsonApiResourceConfig<Notificati
   };
 
 export const NotificationJobs = {
+  SetPreferences: "set-preferences",
   TriggerNotification: "trigger-notification",
   SendEmailNotification: "send-email-notification",
   SendInAppNotification: "send-in-app-notification",

@@ -10,6 +10,14 @@ import {
 } from "../notifications.utils";
 
 export class NotificationsJobHandler {
+  static async handleSetPreferences(
+    data: NotificationJobMap[typeof NotificationJobs.SetPreferences],
+  ) {
+    // TODO: Implement set preferences logic
+    logger.info({ data }, "Set preferences job received");
+    return { success: true, data };
+  }
+
   static async handleTriggerNotification(
     data: NotificationJobMap[typeof NotificationJobs.TriggerNotification],
   ) {

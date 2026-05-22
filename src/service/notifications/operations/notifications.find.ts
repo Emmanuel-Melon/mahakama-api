@@ -8,12 +8,15 @@ import { toManyResult, toSingleResult } from "@/lib/drizzle/drizzle.utils";
 import { DbManyResult, DbSingleResult } from "@/lib/drizzle/drizzle.types";
 import { Notification, NotificationPreferences } from "../notifications.types";
 
-export const findAll = async (
+export const findNotifications = async (
   userId: string,
 ): Promise<DbManyResult<Notification>> => {
-  const notifications = await db.query.notificationsSchema.findMany({
-    orderBy: [desc(notificationsSchema.createdAt)],
-  });
+  // Use the standard select syntax to be explicit
+  const notifications = await db
+    .select()
+    .from(notificationsSchema)
+    .where(eq(notificationsSchema.userId, userId))
+    .orderBy(desc(notificationsSchema.createdAt));
 
   return toManyResult(notifications);
 };

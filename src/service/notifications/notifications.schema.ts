@@ -54,19 +54,7 @@ export const userNotificationPreferences = pgTable(
   },
 );
 
-// Relations
-export const notificationsRelations = relations(
-  notificationsSchema,
-  ({ one }) => ({
-    user: one(usersSchema, {
-      fields: [notificationsSchema.userId],
-      references: [usersSchema.id],
-    }),
-  }),
-);
-
 export const combinedNotificationsSchema = {
   notificationsSchema,
   userNotificationPreferences,
-  notificationsRelations,
 };
