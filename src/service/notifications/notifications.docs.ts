@@ -1,8 +1,8 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { 
-  notificationSelectSchema, 
+import {
+  notificationSelectSchema,
   notificationPreferencesSelectSchema,
-  notificationPreferencesInsertSchema 
+  notificationPreferencesInsertSchema,
 } from "./notifications.types";
 import { HttpStatus } from "@/http-status";
 import {
@@ -16,8 +16,9 @@ const notificationResourceSchema = createJsonApiResourceSchema(
   "notification",
   notificationSelectSchema,
 );
-const notificationSingleResponseSchema =
-  createJsonApiSingleResponseSchema(notificationResourceSchema);
+const notificationSingleResponseSchema = createJsonApiSingleResponseSchema(
+  notificationResourceSchema,
+);
 const notificationsCollectionResponseSchema =
   createJsonApiCollectionResponseSchema(notificationResourceSchema);
 
@@ -31,22 +32,38 @@ const notificationPreferencesSingleResponseSchema =
 // Create registry and register schemas
 export const notificationsRegistry = new OpenAPIRegistry();
 notificationsRegistry.register("Notification", notificationSelectSchema);
-notificationsRegistry.register("NotificationPreferences", notificationPreferencesSelectSchema);
-notificationsRegistry.register("UpdateNotificationPreferences", notificationPreferencesInsertSchema);
-notificationsRegistry.register("NotificationResource", notificationResourceSchema);
-notificationsRegistry.register("NotificationSingleResponse", notificationSingleResponseSchema);
+notificationsRegistry.register(
+  "NotificationPreferences",
+  notificationPreferencesSelectSchema,
+);
+notificationsRegistry.register(
+  "UpdateNotificationPreferences",
+  notificationPreferencesInsertSchema,
+);
+notificationsRegistry.register(
+  "NotificationResource",
+  notificationResourceSchema,
+);
+notificationsRegistry.register(
+  "NotificationSingleResponse",
+  notificationSingleResponseSchema,
+);
 notificationsRegistry.register(
   "NotificationsCollectionResponse",
   notificationsCollectionResponseSchema,
 );
-notificationsRegistry.register("NotificationPreferencesSingleResponse", notificationPreferencesSingleResponseSchema);
+notificationsRegistry.register(
+  "NotificationPreferencesSingleResponse",
+  notificationPreferencesSingleResponseSchema,
+);
 
 // 1. GET /v1/notifications (Get All Notifications)
 notificationsRegistry.registerPath({
   method: "get",
   path: "/v1/notifications",
   summary: "Get current user's notifications",
-  description: "Returns a paginated list of notifications for the authenticated user",
+  description:
+    "Returns a paginated list of notifications for the authenticated user",
   tags: ["Notifications v1"],
   security: [{ bearerAuth: [] }],
   responses: {
@@ -118,7 +135,8 @@ notificationsRegistry.registerPath({
   method: "post",
   path: "/v1/notifications/set",
   summary: "Set initial notification preferences",
-  description: "Create default notification preferences for the authenticated user",
+  description:
+    "Create default notification preferences for the authenticated user",
   tags: ["Notifications v1"],
   security: [{ bearerAuth: [] }],
   responses: {
@@ -201,4 +219,4 @@ notificationsRegistry.registerPath({
       },
     },
   },
-}); 
+});

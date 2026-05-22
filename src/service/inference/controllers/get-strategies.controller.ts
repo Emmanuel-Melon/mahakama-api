@@ -2,17 +2,27 @@ import { Request, Response } from "express";
 import { asyncHandler } from "@/lib/express/express.asyncHandler";
 import { sendSuccessResponse } from "@/lib/express/express.response";
 import { HttpStatus } from "@/lib/http/http.status";
-import { InferenceStrategyRegistry } from "../inference.registry";
+import { getInferenceStrategies } from "../operations/inference.find";
+import { SerializedStrategy } from "../inference.config";
 
 export const getStrategiesController = asyncHandler(
-  async (_req: Request, res: Response) => {
-    const keys = InferenceStrategyRegistry.registeredKeys();
+  async (req: Request, res: Response) => {
+    const strategies = await getInferenceStrategies();
 
     return sendSuccessResponse(
-      _req,
+      req,
       res,
-      { data: keys.map((key) => ({ key })), type: "collection" } as any,
-      { status: HttpStatus.SUCCESS },
+      {
+        data: strategies.data,
+        serializerConfig: SerializedStrategy,
+        type: "collection",
+      },
+      {
+        status: HttpStatus.SUCCESS,
+        additionalMeta: {
+          total: strategies.count,
+        },
+      },
     );
   },
 );

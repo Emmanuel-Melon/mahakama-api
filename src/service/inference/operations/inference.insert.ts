@@ -1,26 +1,25 @@
 import { db } from "@/lib/drizzle";
 import { userInferencePreferencesSchema } from "../inference.schema";
-import { and, eq } from "drizzle-orm";
-import { toSingleResult, toManyResult } from "@/lib/drizzle/drizzle.utils";
-import type { DbSingleResult, DbManyResult } from "@/lib/drizzle/drizzle.types";
-import type { UserInferencePreference } from "../inference.types";
-import type { LLMProviderName } from "@/lib/llm/llms.types";
+import { toResult } from "@/lib/drizzle/drizzle.utils";
+import type { DbResult } from "@/lib/drizzle/drizzle.types";
+import type { InferencePreference } from "../inference.types";
 import { v4 as uuid } from "uuid";
 
-export const upsertPreference = async (
+export const upsertUserPreference = async (
   userId: string,
   strategyKey: string,
-  provider: LLMProviderName,
-  model?: string,
-): Promise<DbSingleResult<UserInferencePreference>> => {
+  providerId: string,
+  modelId: string,
+): Promise<DbResult<InferencePreference>> => {
   const [result] = await db
     .insert(userInferencePreferencesSchema)
     .values({
       id: uuid(),
       userId,
       strategyKey,
-      provider,
-      model: model ?? null,
+      providerId,
+      modelId,
+      updatedAt: new Date(),
     })
     .onConflictDoUpdate({
       target: [
@@ -28,12 +27,12 @@ export const upsertPreference = async (
         userInferencePreferencesSchema.strategyKey,
       ],
       set: {
-        provider,
-        model: model ?? null,
+        providerId,
+        modelId,
         updatedAt: new Date(),
       },
     })
     .returning();
 
-  return toSingleResult(result as UserInferencePreference | undefined);
+  return toResult(result);
 };

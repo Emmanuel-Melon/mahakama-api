@@ -1,5 +1,5 @@
 import { queueManager } from "@/lib/bullmq";
-import { ServiceQueueName, QueueName } from "@/lib/bullmq/bullmq.config";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
 import {
   NotificationJobMap,
   NotificationChannelRouter,
@@ -13,15 +13,15 @@ export const notificationsQueue = queueManager.getQueue<
 
 export const emailQueue = queueManager.getQueue<
   NotificationJobMap[typeof NotificationJobs.SendEmailNotification]
->(ServiceQueueName.Email);
+>(QueueName.Email);
 
 export const pushQueue = queueManager.getQueue<
   NotificationJobMap[typeof NotificationJobs.SendPushNotification]
->(ServiceQueueName.Push);
+>(QueueName.Push);
 
 export const inAppQueue = queueManager.getQueue<
   NotificationJobMap[typeof NotificationJobs.SendInAppNotification]
->(ServiceQueueName.InApp);
+>(QueueName.InApp);
 
 export const channelQueueMap: Record<
   NotificationChannel,

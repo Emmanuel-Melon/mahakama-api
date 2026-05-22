@@ -3,9 +3,9 @@ import { unwrapJobResult } from "@/lib/bullmq/bullmq.utils";
 import { createAuthEvent } from "../operations/auth.create";
 import { AuthJobs } from "../auth.config";
 import { AuthJobMap } from "../auth.types";
-import { notificationsQueue } from "@/feature/notifications/jobs/notifications.queue";
-import { NotificationJobs } from "@/feature/notifications/notifications.config";
-import { createNotificationPayload } from "@/feature/notifications/notifications.utils";
+import { notificationsQueue } from "@/service/notifications/jobs/notifications.queue";
+import { NotificationJobs } from "@/service/notifications/notifications.config";
+import { createNotificationPayload } from "@/service/notifications/notifications.utils";
 import { AuthNotificationTemplateMap } from "../auth.notifications";
 
 export class AuthJobHandler {

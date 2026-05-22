@@ -1,4 +1,4 @@
-import { QueueName, ServiceQueueName } from "@/lib/bullmq/bullmq.config";
+import { QueueName } from "@/lib/bullmq/bullmq.config";
 import { createBullWorker } from "@/lib/bullmq";
 import { NotificationJobs } from "../notifications.config";
 import { NotificationsJobHandler } from "./notifications.jobs";
@@ -23,6 +23,8 @@ const inAppHandlers: JobHandlerMap<
 
 // Main notifications handlers
 const notificationsHandlers: JobHandlerMap<NotificationJobMap> = {
+  [NotificationJobs.SetPreferences]: (data) =>
+    NotificationsJobHandler.handleSetPreferences(data),
   [NotificationJobs.SendEmailNotification]: (data) =>
     NotificationsJobHandler.handleSendEmailNotification(data),
   [NotificationJobs.SendInAppNotification]: (data) =>
@@ -52,16 +54,16 @@ export const initNotificationsWorker = () =>
 export const initEmailWorker = () =>
   createBullWorker<
     Pick<NotificationJobMap, typeof NotificationJobs.SendEmailNotification>
-  >(ServiceQueueName.Email, emailHandlers);
+  >(QueueName.Email, emailHandlers);
 
 // In-app notification worker
 export const initInAppWorker = () =>
   createBullWorker<
     Pick<NotificationJobMap, typeof NotificationJobs.SendInAppNotification>
-  >(ServiceQueueName.InApp, inAppHandlers);
+  >(QueueName.InApp, inAppHandlers);
 
 // Push notification worker
 export const initPushWorker = () =>
   createBullWorker<
     Pick<NotificationJobMap, typeof NotificationJobs.SendPushNotification>
-  >(ServiceQueueName.Push, pushHandlers);
+  >(QueueName.Push, pushHandlers);
